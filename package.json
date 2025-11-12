@@ -1,0 +1,15 @@
+{
+  "name": "writing-test-platform",
+  "version": "1.0.0",
+  "description": "AI-powered writing test evaluation platform",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.1.3"
+  },
+  "devDependencies": {
+    "vercel": "^48.9.0"
+  }
+}
