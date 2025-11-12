@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NerdTutors | Grade 12 Economics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==================== ROOT VARIABLES ==================== */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --dark: #0f172a;
+            --dark-light: #1e293b;
+            --gray: #64748b;
+            --gray-light: #cbd5e1;
+            --background: #f8fafc;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--background);
+            overflow-x: hidden;
+        }
+
+        /* ==================== TYPOGRAPHY ==================== */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--dark);
+        }
+
+        h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); }
+        h2 { font-size: clamp(2rem, 4vw, 3.5rem); }
+        h3 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+        h4 { font-size: clamp(1.25rem, 2.5vw, 1.875rem); }
+
+        p {
+            font-size: clamp(1rem, 1.5vw, 1.125rem);
+            line-height: 1.7;
+            color: var(--gray);
+        }
+
+        /* ==================== UTILITIES ==================== */
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 clamp(1rem, 5vw, 3rem);
+        }
+
+        .text-gradient {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--dark);
+            border: 1px solid var(--gray-light);
+        }
+
+        .btn-ghost:hover {
+            background: var(--dark);
+            color: var(--white);
+            border-color: var(--dark);
+        }
+
+        .btn-large {
+            padding: 1.125rem 2.5rem;
+            font-size: 1.0625rem;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+            transition: all var(--transition-base);
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: var(--shadow-md);
+        }
+
+        .navbar-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 2rem;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            transition: transform var(--transition-fast);
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.02);
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .brand-tagline {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gray);
+            letter-spacing: 0.05em;
+        }
+
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .navbar-link {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: color var(--transition-fast);
+        }
+
+        .navbar-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            transition: width var(--transition-base);
+        }
+
+        .navbar-link:hover,
+        .navbar-link.active {
+            color: var(--primary);
+        }
+
+        .navbar-link:hover::after,
+        .navbar-link.active::after {
+            width: 100%;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .mobile-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+            background: transparent;
+            border: none;
+        }
+
+        .mobile-toggle span {
+            width: 26px;
+            height: 3px;
+            background: var(--dark);
+            border-radius: 3px;
+            transition: all var(--transition-base);
+        }
+
+        .mobile-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(7px, 7px);
+        }
+
+        .mobile-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-base);
+            z-index: 9998;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ==================== HERO SECTION ==================== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 0 4rem;
+            overflow: hidden;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .hero-gradient {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 70% 60%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
+        }
+
+        .hero-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        .floating-orbs {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--gradient-primary);
+            top: -200px;
+            left: -100px;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            bottom: -150px;
+            right: -100px;
+            animation-duration: 30s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-50px, -50px) scale(1.1); }
+        }
+
+        .hero-container {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            width: fit-content;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .badge-icon {
+            font-size: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .hero-title {
+            animation: fadeInUp 0.6s ease-out 0.1s both;
+            line-height: 1.1;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            animation: fadeInUp 0.6s ease-out 0.3s both;
+        }
+
+        .hero-stats {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 2rem 0;
+            animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .stat-divider {
+            width: 1px;
+            height: 40px;
+            background: var(--gray-light);
+        }
+
+        /* ==================== PROFESSIONAL HERO VISUAL ==================== */
+
+        .hero-visual {
+            position: relative;
+            height: 650px;
+            animation: fadeIn 0.8s ease-out 0.5s both;
+        }
+
+        .dashboard-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated Background Elements */
+        .visual-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.05));
+            animation: floatBackground 20s ease-in-out infinite;
+        }
+
+        .bg-circle-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .bg-circle-2 {
+            width: 200px;
+            height: 200px;
+            bottom: 15%;
+            left: 5%;
+            animation-delay: 3s;
+        }
+
+        .bg-circle-3 {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 40%;
+            animation-delay: 6s;
+        }
+
+        @keyframes floatBackground {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+            50% { 
+                transform: translate(30px, -30px) scale(1.1);
+                opacity: 0.5;
+            }
+        }
+
+        /* Main Cards Container */
+        .visual-cards-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Professional 3D Cards */
+        .professional-card {
+            position: absolute;
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .professional-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 
+                0 30px 80px rgba(102, 126, 234, 0.25),
+                0 0 0 1px rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        /* Card 1 - Top Center (Performance) */
+        .card-performance {
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            animation: slideInTop 0.8s ease-out 0.6s both, floatCard1 6s ease-in-out 1.4s infinite;
+        }
+
+        @keyframes slideInTop {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-80px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes floatCard1 {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-15px); }
+        }
+
+        /* Card 2 - Bottom Left (Progress) */
+        .card-learning-progress {
+            bottom: 80px;
+            left: 50px;
+            width: 300px;
+            animation: slideInLeft 0.8s ease-out 0.8s both, floatCard2 7s ease-in-out 1.6s infinite;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes floatCard2 {
+            0%, 100% { transform: translateX(0) translateY(0) rotate(-2deg); }
+            50% { transform: translateX(-10px) translateY(-12px) rotate(-3deg); }
+        }
+
+        /* Card 3 - Bottom Right (Resources) */
+        .card-resources {
+            bottom: 50px;
+            right: 40px;
+            width: 280px;
+            animation: slideInRight 0.8s ease-out 1s both, floatCard3 6.5s ease-in-out 1.8s infinite;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes floatCard3 {
+            0%, 100% { transform: translateX(0) translateY(0) rotate(2deg); }
+            50% { transform: translateX(10px) translateY(-10px) rotate(3deg); }
+        }
+
+        /* Card Icon Container */
+        .card-icon-container {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-icon-container::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+            top: -50%;
+            left: -50%;
+            transform: rotate(45deg);
+        }
+
+        .card-performance .card-icon-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-learning-progress .card-icon-container {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .card-resources .card-icon-container {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .card-icon-container svg {
+            width: 36px;
+            height: 36px;
+            color: white;
+            z-index: 1;
+        }
+
+        /* Card Content */
+        .card-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: var(--gray);
+            line-height: 1.5;
+        }
+
+        /* Stats Display */
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--background);
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .progress-percentage {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .progress-bar-wrapper {
+            position: relative;
+            width: 100%;
+            height: 12px;
+            background: var(--background);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            width: 0;
+            animation: fillProgress 2s ease-out 2s forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes fillProgress {
+            to {
+                width: 78%;
+            }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Resource Items */
+        .resource-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .resource-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.05), rgba(0, 242, 254, 0.05));
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .resource-item:hover {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+            transform: translateX(5px);
+        }
+
+        .resource-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .resource-icon svg {
+            width: 20px;
+            height: 20px;
+            color: #4facfe;
+        }
+
+        .resource-info {
+            flex: 1;
+        }
+
+        .resource-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.125rem;
+        }
+
+        .resource-count {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        /* Connecting Lines */
+        .connection-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .connect-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+            animation: flowLine 4s ease-in-out infinite;
+        }
+
+        @keyframes flowLine {
+            0%, 100% { 
+                opacity: 0.2;
+                transform: scaleX(1);
+            }
+            50% { 
+                opacity: 0.6;
+                transform: scaleX(1.05);
+            }
+        }
+
+        .line-1 {
+            top: 35%;
+            left: 20%;
+            width: 30%;
+            transform-origin: left;
+            animation-delay: 0s;
+        }
+
+        .line-2 {
+            bottom: 35%;
+            right: 20%;
+            width: 28%;
+            transform-origin: right;
+            animation-delay: 1s;
+        }
+
+        /* Floating Particles */
+        .particles-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleRise 8s ease-in-out infinite;
+        }
+
+        .particle-dot:nth-child(1) {
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .particle-dot:nth-child(2) {
+            left: 35%;
+            animation-delay: 2s;
+        }
+
+        .particle-dot:nth-child(3) {
+            left: 55%;
+            animation-delay: 4s;
+        }
+
+        .particle-dot:nth-child(4) {
+            left: 75%;
+            animation-delay: 6s;
+        }
+
+        @keyframes particleRise {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* ==================== FEATURES SECTION ==================== */
+        .features {
+            padding: 6rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            font-size: 1.125rem;
+            color: var(--gray);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: all var(--transition-base);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .feature-list li {
+            font-size: 0.9375rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        /* ==================== RESOURCES SECTION ==================== */
+        .resources {
+            padding: 6rem 0;
+            background: var(--background);
+        }
+
+        .resource-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .resource-tab {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 50px;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .resource-tab:hover,
+        .resource-tab.active {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .resources-scroll-container {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            padding: 2rem 0 3rem;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .resources-scroll-container::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .resources-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+            margin: 0 2rem;
+        }
+
+        .resources-scroll-container::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: 10px;
+        }
+
+        .resource-card-horizontal {
+            flex: 0 0 380px;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            scroll-snap-align: start;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 2px solid transparent;
+        }
+
+        .resource-card-horizontal:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.25);
+            border-color: var(--primary);
+        }
+
+        .resource-card-header {
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .resource-card-horizontal:nth-child(1) .resource-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .resource-card-horizontal:nth-child(2) .resource-card-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .resource-card-horizontal:nth-child(3) .resource-card-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .resource-card-horizontal:nth-child(4) .resource-card-header {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .resource-illustration {
+            font-size: 5rem;
+            opacity: 0.9;
+        }
+
+        .resource-card-content {
+            padding: 2rem;
+        }
+
+        .resource-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .resource-type {
+            padding: 0.375rem 0.875rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .resource-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .resource-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .resource-description {
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .resource-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .resource-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--dark);
+        }
+
+        .resource-feature-icon {
+            color: var(--success);
+        }
+
+        .resource-btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .resource-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        /* ==================== SIMPLE FOOTER ==================== */
+        .footer {
+            background: var(--dark);
+            color: var(--gray-light);
+            padding: 3rem 0 1.5rem;
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .footer-logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .footer-brand-name {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .footer-description {
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            max-width: 350px;
+        }
+
+        .footer-column h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .footer-link {
+            color: var(--gray-light);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-light);
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        /* ==================== RESPONSIVE DESIGN ==================== */
+        @media (max-width: 968px) {
+            .navbar-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 400px;
+                height: 100vh;
+                background: white;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 6rem 2rem;
+                gap: 0;
+                box-shadow: var(--shadow-xl);
+                transition: right 0.5s ease;
+            }
+
+            .navbar-menu.active {
+                right: 0;
+            }
+
+            .navbar-menu li {
+                width: 100%;
+                border-bottom: 1px solid var(--gray-light);
+            }
+
+            .navbar-link {
+                display: block;
+                padding: 1.25rem 0;
+                font-size: 1.125rem;
+            }
+
+            .navbar-actions {
+                position: fixed;
+                bottom: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 400px;
+                padding: 2rem;
+                background: white;
+                border-top: 1px solid var(--gray-light);
+                flex-direction: column;
+                gap: 1rem;
+                transition: right 0.5s ease;
+            }
+
+            .navbar-actions.active {
+                right: 0;
+            }
+
+            .navbar-actions .btn {
+                width: 100%;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-visual {
+                display: none;
+            }
+
+            .hero-stats {
+                flex-wrap: wrap;
+            }
+
+            .stat-divider {
+                display: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .resource-card-horizontal {
+                flex: 0 0 320px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-container {
+                padding: 1rem;
+            }
+
+            .brand-tagline {
+                display: none;
+            }
+
+            .hero {
+                padding: 6rem 0 3rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+            .resource-card-horizontal {
+                flex: 0 0 280px;
+            }
+
+            .resources-scroll-container {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== NAVIGATION ==================== -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-container">
+            <a href="#home" class="navbar-brand">
+                <div class="brand-icon">🎓</div>
+                <div class="brand-text">
+                    <span class="brand-name">NerdTutors</span>
+                    <span class="brand-tagline">GRADE 12 ECONOMICS</span>
+                </div>
+            </a>
+
+            <ul class="navbar-menu" id="navbarMenu">
+                <li><a href="#home" class="navbar-link active">Home</a></li>
+                <li><a href="#features" class="navbar-link">Features</a></li>
+                <li><a href="#resources" class="navbar-link">Resources</a></li>
+            </ul>
+
+            <div class="navbar-actions" id="navbarActions">
+                <button class="btn btn-ghost">Login</button>
+                <button class="btn btn-primary">Get Started</button>
+            </div>
+
+            <button class="mobile-toggle" id="mobileToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Overlay for mobile menu -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="hero" id="home">
+        <div class="hero-background">
+            <div class="hero-gradient"></div>
+            <div class="hero-grid"></div>
+            <div class="floating-orbs">
+                <div class="orb orb-1"></div>
+                <div class="orb orb-2"></div>
+            </div>
+        </div>
+
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-icon">⚡</span>
+                    <span>Professional Learning Platform</span>
+                </div>
+                
+                <h1 class="hero-title">
+                    Master <span class="text-gradient">Economics</span><br>
+                    with Excellence
+                </h1>
+                
+                <p class="hero-description">
+                    Comprehensive learning resources, expertly curated notes, previous year papers, 
+                    and intelligent practice systems designed for Grade 12 Economics excellence.
+                </p>
+
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-large" id="startLearning">
+                        <span>Start Learning</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 10h12m0 0l-5-5m5 5l-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button class="btn btn-secondary btn-large" id="watchDemo">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M6.5 5.5l7 4.5-7 4.5V5.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Watch Demo</span>
+                    </button>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="500">0</div>
+                        <div class="stat-label">Practice Questions</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="50">0</div>
+                        <div class="stat-label">Chapter Notes</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-target="100">0</div>
+                        <div class="stat-label">PYQ Papers</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="dashboard-container">
+                    <!-- Animated Background -->
+                    <div class="visual-background">
+                        <div class="bg-circle bg-circle-1"></div>
+                        <div class="bg-circle bg-circle-2"></div>
+                        <div class="bg-circle bg-circle-3"></div>
+                    </div>
+
+                    <!-- Particles Effect -->
+                    <div class="particles-effect">
+                        <div class="particle-dot"></div>
+                        <div class="particle-dot"></div>
+                        <div class="particle-dot"></div>
+                        <div class="particle-dot"></div>
+                    </div>
+
+                    <!-- Connecting Lines -->
+                    <div class="connection-lines">
+                        <div class="connect-line line-1"></div>
+                        <div class="connect-line line-2"></div>
+                    </div>
+
+                    <!-- Cards Container -->
+                    <div class="visual-cards-container">
+                        
+                        <!-- Card 1: Performance -->
+                        <div class="professional-card card-performance">
+                            <div class="card-icon-container">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                            </div>
+                            <div class="card-header">
+                                <div class="card-title">Your Performance</div>
+                                <div class="card-subtitle">Track your learning progress and achievements</div>
+                            </div>
+                            <div class="card-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">95%</div>
+                                    <div class="stat-label">Average Score</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">24</div>
+                                    <div class="stat-label">Tests Taken</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">A+</div>
+                                    <div class="stat-label">Current Grade</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Learning Progress -->
+                        <div class="professional-card card-learning-progress">
+                            <div class="card-icon-container">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                </svg>
+                            </div>
+                            <div class="card-header">
+                                <div class="card-title">Learning Progress</div>
+                                <div class="card-subtitle">Complete chapters and master concepts</div>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-header">
+                                    <span class="progress-label">Course Completion</span>
+                                    <span class="progress-percentage">78%</span>
+                                </div>
+                                <div class="progress-bar-wrapper">
+                                    <div class="progress-bar-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Resources Available -->
+                        <div class="professional-card card-resources">
+                            <div class="card-icon-container">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                            </div>
+                            <div class="card-header">
+                                <div class="card-title">Study Resources</div>
+                                <div class="card-subtitle">Access comprehensive materials</div>
+                            </div>
+                            <div class="resource-items">
+                                <div class="resource-item">
+                                    <div class="resource-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-name">Chapter Notes</div>
+                                        <div class="resource-count">50+ Available</div>
+                                    </div>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="resource-info">
+                                        <div class="resource-name">Practice Tests</div>
+                                        <div class="resource-count">100+ Questions</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== FEATURES SECTION ==================== -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span>✨</span>
+                    <span>Why Choose Us</span>
+                </div>
+                <h2 class="section-title">Everything You Need to Excel</h2>
+                <p class="section-description">
+                    Comprehensive learning resources designed specifically for Grade 12 Economics students
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Comprehensive Notes</h3>
+                    <p class="feature-description">
+                        Detailed chapter-wise notes covering both Microeconomics and Macroeconomics with clear explanations and diagrams
+                    </p>
+                    <ul class="feature-list">
+                        <li>✓ Theory & Concepts</li>
+                        <li>✓ Visual Diagrams</li>
+                        <li>✓ Key Formulas</li>
+                        <li>✓ Quick Revision</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Previous Year Papers</h3>
+                    <p class="feature-description">
+                        Extensive collection of PYQs from CBSE board exams with detailed solutions and marking schemes
+                    </p>
+                    <ul class="feature-list">
+                        <li>✓ 10+ Years Papers</li>
+                        <li>✓ Detailed Solutions</li>
+                        <li>✓ Marking Scheme</li>
+                        <li>✓ Pattern Analysis</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Practice Questions</h3>
+                    <p class="feature-description">
+                        Hundreds of practice questions categorized by difficulty level and chapter for targeted preparation
+                    </p>
+                    <ul class="feature-list">
+                        <li>✓ Topic-wise Practice</li>
+                        <li>✓ Difficulty Levels</li>
+                        <li>✓ Instant Feedback</li>
+                        <li>✓ Detailed Explanations</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Progress Tracking</h3>
+                    <p class="feature-description">
+                        Advanced analytics dashboard to monitor your learning progress and identify areas for improvement
+                    </p>
+                    <ul class="feature-list">
+                        <li>✓ Performance Analytics</li>
+                        <li>✓ Score Tracking</li>
+                        <li>✓ Weak Areas</li>
+                        <li>✓ Study Insights</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Timed Tests</h3>
+                    <p class="feature-description">
+                        Weekly class tests with real exam conditions to build speed and accuracy for board examinations
+                    </p>
+                    <ul class="feature-list">
+                        <li>✓ Weekly Tests</li>
+                        <li>✓ Exam Simulation</li>
+                        <li>✓ Time Management</li>
+                        <li>✓ Leaderboard</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                            <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Quick Revision</h3>
+                    <p class="feature-description">
+                        Concise revision notes and flashcards for last-minute preparation before exams
+                    </p>
+                    <ul class="feature-list">
+                        <li>✓ One-shot Notes</li>
+                        <li>✓ Formula Sheets</li>
+                        <li>✓ Important Questions</li>
+                        <li>✓ Mind Maps</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== RESOURCES SECTION ==================== -->
+    <section class="resources" id="resources">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span>📚</span>
+                    <span>Learning Resources</span>
+                </div>
+                <h2 class="section-title">Start Your Journey</h2>
+                <p class="section-description">
+                    Access comprehensive materials organized for efficient learning
+                </p>
+            </div>
+
+            <div class="resource-tabs">
+                <button class="resource-tab active" data-category="all">All Resources</button>
+                <button class="resource-tab" data-category="notes">Study Notes</button>
+                <button class="resource-tab" data-category="papers">Question Papers</button>
+                <button class="resource-tab" data-category="practice">Practice</button>
+                <button class="resource-tab" data-category="tests">Tests</button>
+            </div>
+
+            <div class="resources-scroll-container" id="resourcesScroll">
+                <!-- Notes Card -->
+                <div class="resource-card-horizontal" data-category="notes">
+                    <div class="resource-card-header">
+                        <div class="resource-illustration">📘</div>
+                    </div>
+                    <div class="resource-card-content">
+                        <div class="resource-meta">
+                            <span class="resource-type">Study Material</span>
+                            <div class="resource-count">
+                                <span>50+ Chapters</span>
+                            </div>
+                        </div>
+                        <h3 class="resource-title">Comprehensive Notes</h3>
+                        <p class="resource-description">
+                            Expertly crafted notes covering every topic in Grade 12 Economics with detailed explanations and diagrams.
+                        </p>
+                        <div class="resource-features">
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Microeconomics</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Macroeconomics</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Visual Diagrams</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Quick Revision</span>
+                            </div>
+                        </div>
+                        <button class="resource-btn-primary">Browse Notes</button>
+                    </div>
+                </div>
+
+                <!-- PYQ Card -->
+                <div class="resource-card-horizontal" data-category="papers">
+                    <div class="resource-card-header">
+                        <div class="resource-illustration">📄</div>
+                    </div>
+                    <div class="resource-card-content">
+                        <div class="resource-meta">
+                            <span class="resource-type">Previous Papers</span>
+                            <div class="resource-count">
+                                <span>100+ Papers</span>
+                            </div>
+                        </div>
+                        <h3 class="resource-title">Previous Year Questions</h3>
+                        <p class="resource-description">
+                            Complete collection of CBSE board exam papers with solutions to understand exam patterns effectively.
+                        </p>
+                        <div class="resource-features">
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>10+ Years Papers</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Detailed Solutions</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Marking Scheme</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Pattern Analysis</span>
+                            </div>
+                        </div>
+                        <button class="resource-btn-primary">View PYQs</button>
+                    </div>
+                </div>
+
+                <!-- Practice Card -->
+                <div class="resource-card-horizontal" data-category="practice">
+                    <div class="resource-card-header">
+                        <div class="resource-illustration">📝</div>
+                    </div>
+                    <div class="resource-card-content">
+                        <div class="resource-meta">
+                            <span class="resource-type">Practice Bank</span>
+                            <div class="resource-count">
+                                <span>500+ Questions</span>
+                            </div>
+                        </div>
+                        <h3 class="resource-title">Practice Questions</h3>
+                        <p class="resource-description">
+                            Extensive question bank with varying difficulty levels for comprehensive practice and assessment.
+                        </p>
+                        <div class="resource-features">
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Topic-wise</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>MCQs & Theory</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Instant Feedback</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Explanations</span>
+                            </div>
+                        </div>
+                        <button class="resource-btn-primary">Start Practice</button>
+                    </div>
+                </div>
+
+                <!-- Tests Card -->
+                <div class="resource-card-horizontal" data-category="tests">
+                    <div class="resource-card-header">
+                        <div class="resource-illustration">🎯</div>
+                    </div>
+                    <div class="resource-card-content">
+                        <div class="resource-meta">
+                            <span class="resource-type">Assessment</span>
+                            <div class="resource-count">
+                                <span>Weekly Tests</span>
+                            </div>
+                        </div>
+                        <h3 class="resource-title">Class Tests</h3>
+                        <p class="resource-description">
+                            Regular assessments with performance tracking to monitor progress and identify improvement areas.
+                        </p>
+                        <div class="resource-features">
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Timed Tests</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Analytics</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Leaderboard</span>
+                            </div>
+                            <div class="resource-feature">
+                                <span class="resource-feature-icon">✓</span>
+                                <span>Certificates</span>
+                            </div>
+                        </div>
+                        <button class="resource-btn-primary">Take Test</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SIMPLE FOOTER ==================== -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <div class="footer-logo-icon">🎓</div>
+                        <div class="footer-brand-name">NerdTutors</div>
+                    </div>
+                    <p class="footer-description">
+                        Empowering Grade 12 students with comprehensive economics resources and intelligent practice systems.
+                    </p>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <div class="footer-links">
+                        <a href="#home" class="footer-link">Home</a>
+                        <a href="#features" class="footer-link">Features</a>
+                        <a href="#resources" class="footer-link">Resources</a>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <div class="footer-links">
+                        <a href="#notes" class="footer-link">Study Notes</a>
+                        <a href="#pyqs" class="footer-link">PYQ Papers</a>
+                        <a href="#practice" class="footer-link">Practice</a>
+                        <a href="#tests" class="footer-link">Tests</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 NerdTutors. All rights reserved. Made with ❤️ for Economics Students.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT (ALL IN ONE PLACE) ==================== -->
+    <script>
+        // Mobile Menu Toggle
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+        const navbarActions = document.getElementById('navbarActions');
+        const overlay = document.getElementById('overlay');
+        const navbar = document.getElementById('navbar');
+
+        mobileToggle.addEventListener('click', () => {
+            mobileToggle.classList.toggle('active');
+            navbarMenu.classList.toggle('active');
+            navbarActions.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = navbarMenu.classList.contains('active') ? 'hidden' : '';
+        });
+
+        overlay.addEventListener('click', () => {
+            mobileToggle.classList.remove('active');
+            navbarMenu.classList.remove('active');
+            navbarActions.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('.navbar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 968) {
+                    mobileToggle.classList.remove('active');
+                    navbarMenu.classList.remove('active');
+                    navbarActions.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Active link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.navbar-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Start Learning and Watch Demo buttons - NOW THEY WORK!
+        document.getElementById('startLearning').addEventListener('click', () => {
+            const resourcesSection = document.getElementById('resources');
+            window.scrollTo({
+                top: resourcesSection.offsetTop - 80,
+                behavior: 'smooth'
+            });
+        });
+
+        document.getElementById('watchDemo').addEventListener('click', () => {
+            const featuresSection = document.getElementById('features');
+            window.scrollTo({
+                top: featuresSection.offsetTop - 80,
+                behavior: 'smooth'
+            });
+        });
+
+        // Animated counters
+        function animateCounter(element, target, duration = 2000) {
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target + (target === 500 || target === 50 || target === 100 ? '+' : '');
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current) + (target === 500 || target === 50 || target === 100 ? '+' : '');
+                }
+            }, 16);
+        }
+
+        // Intersection Observer for counter animation
+        const observerOptions = {
+            threshold: 0.3,
+            rootMargin: '0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.target.classList.contains('stat-number')) {
+                    const target = parseInt(entry.target.dataset.target);
+                    animateCounter(entry.target, target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stat-number').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Resource tabs functionality
+        const resourceTabs = document.querySelectorAll('.resource-tab');
+        const resourceCards = document.querySelectorAll('.resource-card-horizontal');
+
+        resourceTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                resourceTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const category = tab.dataset.category;
+                
+                resourceCards.forEach(card => {
+                    if (category === 'all' || card.dataset.category === category) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Resource card buttons
+        document.querySelectorAll('.resource-btn-primary').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const cardTitle = this.closest('.resource-card-horizontal').querySelector('.resource-title').textContent;
+                alert(`🎉 ${cardTitle} section coming soon! We're preparing amazing content for you.`);
+            });
+        });
+
+        // Login and Get Started buttons
+        document.querySelectorAll('.btn-ghost, .navbar-actions .btn-primary').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const btnText = this.textContent.trim();
+                if (btnText === 'Login') {
+                    alert('🔐 Login functionality coming soon!');
+                } else if (btnText === 'Get Started') {
+                    alert('🚀 Sign up feature coming soon! Start your learning journey.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
