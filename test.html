@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Test Platform - Student</title>
+    <link rel="stylesheet" href="js/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Writing Test Platform</h1>
+            <p class="subtitle">Complete your writing assignment below</p>
+        </header>
+
+        <main id="studentMain">
+            <!-- Name Input Section -->
+            <section id="nameSection" class="card">
+                <h2>Student Information</h2>
+                <div class="form-group">
+                    <label for="studentName">Full Name *</label>
+                    <input type="text" id="studentName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="questionSelect">Select Question *</label>
+                    <select id="questionSelect">
+                        <option value="">Loading questions...</option>
+                    </select>
+                </div>
+                <button id="startTest" class="btn btn-primary">Start Test</button>
+            </section>
+
+            <!-- Question & Answer Section -->
+            <section id="testSection" class="card hidden">
+                <div class="test-header">
+                    <h2>Test Question</h2>
+                    <div class="student-info">
+                        <span id="displayName"></span>
+                    </div>
+                </div>
+                
+                <div class="question-box">
+                    <h3>Question:</h3>
+                    <p id="questionText"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentAnswer">Your Answer:</label>
+                    <textarea 
+                        id="studentAnswer" 
+                        rows="15" 
+                        placeholder="Write your answer here..."
+                        required
+                    ></textarea>
+                    <div class="word-count">
+                        Word count: <span id="wordCount">0</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="submitAnswer" class="btn btn-primary">Submit Answer</button>
+                    <button id="resetTest" class="btn btn-secondary">Start New Test</button>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="card hidden">
+                <h2>Test Results</h2>
+                
+                <div class="score-display">
+                    <div class="score-circle">
+                        <span id="scoreValue">0</span>
+                        <span class="score-label">/ 100</span>
+                    </div>
+                </div>
+
+                <div class="feedback-section">
+                    <h3>AI Feedback</h3>
+                    <div id="feedbackContent" class="feedback-box"></div>
+                </div>
+
+                <div class="improvements-section">
+                    <h3>Areas for Improvement</h3>
+                    <div id="improvementsContent" class="improvements-box"></div>
+                </div>
+
+                <button id="newTest" class="btn btn-primary">Take Another Test</button>
+            </section>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="loading-overlay hidden">
+                <div class="spinner"></div>
+                <p>Analyzing your answer...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script path fixed -->
+    <script type="module" src="js/student.js"></script>
+</body>
+</html>

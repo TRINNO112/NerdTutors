@@ -21,12 +21,13 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
 const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyAOHaoLEZjT8V5rkuDrOsdny1s09OKMelc",
+    authDomain: "miscellaneous-adventure.firebaseapp.com",
+    projectId: "miscellaneous-adventure",
+    storageBucket: "miscellaneous-adventure.firebasestorage.app",
+    messagingSenderId: "974562975403",
+    appId: "1:974562975403:web:8dc24c1b865680cd4e61ee",
+    measurementId: "G-08GC6BKWLJ"
 };
 
 // Initialize Firebase
