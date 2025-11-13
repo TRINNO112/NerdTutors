@@ -565,476 +565,259 @@
     <div class="toast" id="toast"></div>
 
     <!-- JavaScript Module -->
-        <script type="module">
-        // Import Firebase services (already initialized in firebase-config.js)
-        import { auth, db } from './firebase-config.js';
-        import { evaluateWithGemini } from './gemini-config.js';
-        
-        import { 
-            signInAnonymously, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        
-        import {
-            collection, 
-            getDocs,
-            addDoc,
-            serverTimestamp
-        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-        
-        // Application State
-        const appState = {
-            user: null,
-            questions: [],
-            currentIndex: 0,
-            answers: new Map(),
-            results: new Map(),
-            isEvaluating: false
-        };
-        
-        // DOM Elements
-        const elements = {
-            authStatus: document.getElementById('authStatus'),
-            loadingState: document.getElementById('loadingState'),
-            errorState: document.getElementById('errorState'),
-            errorMessage: document.getElementById('errorMessage'),
-            questionContainer: document.getElementById('questionContainer'),
-            categoryBadge: document.getElementById('categoryBadge'),
-            marksBadge: document.getElementById('marksBadge'),
-            difficultyBadge: document.getElementById('difficultyBadge'),
-            questionCounter: document.getElementById('questionCounter'),
-            questionText: document.getElementById('questionText'),
-            answerTextarea: document.getElementById('answerTextarea'),
-            charCount: document.getElementById('charCount'),
-            prevBtn: document.getElementById('prevBtn'),
-            nextBtn: document.getElementById('nextBtn'),
-            submitBtn: document.getElementById('submitBtn'),
-            resultPanel: document.getElementById('resultPanel'),
-            scoreDisplay: document.getElementById('scoreDisplay'),
-            feedbackText: document.getElementById('feedbackText'),
-            improvementsList: document.getElementById('improvementsList'),
-            progressBar: document.getElementById('progressBar')
-        };
-        
-        // ==================== INITIALIZATION ====================
-        
-        async function init() {
-            try {
-                console.log('🚀 Initializing app...');
-                
-                await setupAuth();
-                await loadQuestions();
-                setupEventListeners();
-                
-                if (appState.questions.length > 0) {
-                    renderQuestion();
-                    elements.loadingState.style.display = 'none';
-                    elements.questionContainer.style.display = 'block';
+    <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { 
+        signInWithEmailAndPassword,
+        GoogleAuthProvider,
+        signInWithPopup,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    
+    import {
+        collection, 
+        addDoc,
+        getDocs,
+        doc,
+        deleteDoc,
+        updateDoc,
+        serverTimestamp,
+        query,
+        orderBy
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    // Admin emails (add your admin emails here)
+    const ADMIN_EMAILS = [
+        'kaushtubh457@gmail.com',
+        'jatinthacker000@gmail.com'
+        // Add more admin emails as needed
+    ];
+
+    // DOM Elements
+    const elements = {
+        loginContainer: document.getElementById('loginContainer'),
+        adminContainer: document.getElementById('adminContainer'),
+        accessDeniedContainer: document.getElementById('accessDeniedContainer'),
+        userEmail: document.getElementById('userEmail'),
+        deniedEmail: document.getElementById('deniedEmail'),
+        questionForm: document.getElementById('questionForm'),
+        loginForm: document.getElementById('loginForm'),
+        googleSignIn: document.getElementById('googleSignIn'),
+        btnLogout: document.getElementById('btnLogout'),
+        questionsList: document.getElementById('questionsList'),
+        statsGrid: document.getElementById('statsGrid'),
+        toast: document.getElementById('toast')
+    };
+
+    // Initialize
+    function init() {
+        setupAuth();
+        setupEventListeners();
+    }
+
+    // Auth Setup
+    function setupAuth() {
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Check if user is admin
+                if (ADMIN_EMAILS.includes(user.email) || user.email?.includes('admin')) {
+                    showAdminPanel(user);
                 } else {
-                    showError('No active questions found. Please add questions from admin panel.');
+                    showAccessDenied(user);
                 }
-                
-            } catch (error) {
-                console.error('❌ Initialization error:', error);
-                showError('Failed to initialize. Please refresh the page.');
-            }
-        }
-        
-        // ==================== AUTHENTICATION ====================
-        
-        async function setupAuth() {
-            return new Promise((resolve, reject) => {
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        appState.user = user;
-                        elements.authStatus.textContent = `👤 Student ID: ${user.uid.substring(0, 8)}`;
-                        console.log('✅ User authenticated:', user.uid);
-                        resolve(user);
-                    } else {
-                        elements.authStatus.textContent = 'Signing in...';
-                        try {
-                            const credential = await signInAnonymously(auth);
-                            appState.user = credential.user;
-                            elements.authStatus.textContent = `👤 Student ID: ${credential.user.uid.substring(0, 8)}`;
-                            console.log('✅ Anonymous sign-in:', credential.user.uid);
-                            resolve(credential.user);
-                        } catch (error) {
-                            console.error('❌ Auth error:', error);
-                            elements.authStatus.textContent = '❌ Authentication failed';
-                            reject(error);
-                        }
-                    }
-                });
-            });
-        }
-        
-        // ==================== LOAD QUESTIONS (FIXED - NO INDEX NEEDED) ====================
-        
-        async function loadQuestions() {
-            try {
-                console.log('📥 Loading questions from Firestore...');
-                
-                const questionsRef = collection(db, 'questions');
-                const querySnapshot = await getDocs(questionsRef);
-                
-                appState.questions = [];
-                
-                // Filter and collect active questions
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    // Only include active questions
-                    if (data.status === 'active') {
-                        appState.questions.push({
-                            id: doc.id,
-                            ...data
-                        });
-                    }
-                });
-                
-                // Sort by creation date (newest first) - done in JavaScript, no index needed
-                appState.questions.sort((a, b) => {
-                    const timeA = a.createdAt?.seconds || 0;
-                    const timeB = b.createdAt?.seconds || 0;
-                    return timeB - timeA; // Descending order (newest first)
-                });
-                
-                console.log(`✅ Loaded ${appState.questions.length} active questions`);
-                
-                if (appState.questions.length === 0) {
-                    throw new Error('No active questions available');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error loading questions:', error);
-                throw error;
-            }
-        }
-        
-        // ==================== RENDER QUESTION ====================
-        
-        function renderQuestion() {
-            const question = appState.questions[appState.currentIndex];
-            if (!question) {
-                console.error('No question at current index');
-                return;
-            }
-            
-            console.log('📄 Rendering question:', appState.currentIndex + 1);
-            
-            elements.categoryBadge.textContent = question.category || 'General';
-            elements.marksBadge.textContent = `${question.marks || 10} marks`;
-            elements.difficultyBadge.textContent = question.difficulty || 'Medium';
-            elements.questionCounter.textContent = 
-                `Question ${appState.currentIndex + 1} of ${appState.questions.length}`;
-            elements.questionText.textContent = question.text || 'Question text not available';
-            
-            const savedAnswer = appState.answers.get(question.id);
-            elements.answerTextarea.value = savedAnswer || '';
-            updateCharCount();
-            
-            const savedResult = appState.results.get(question.id);
-            if (savedResult) {
-                displayResult(savedResult);
             } else {
-                elements.resultPanel.classList.remove('show');
+                showLoginForm();
             }
-            
-            elements.prevBtn.disabled = appState.currentIndex === 0;
-            elements.nextBtn.disabled = appState.currentIndex === appState.questions.length - 1;
-            
-            updateProgressBar();
-            elements.answerTextarea.focus();
+        });
+    }
+
+    // Show Admin Panel
+    function showAdminPanel(user) {
+        elements.loginContainer.style.display = 'none';
+        elements.accessDeniedContainer.style.display = 'none';
+        elements.adminContainer.style.display = 'block';
+        
+        if (elements.userEmail) {
+            elements.userEmail.textContent = user.email;
         }
         
-        // ==================== SUBMIT & EVALUATE ====================
+        loadQuestions();
+        loadStatistics();
+    }
+
+    // Show Access Denied
+    function showAccessDenied(user) {
+        elements.loginContainer.style.display = 'none';
+        elements.adminContainer.style.display = 'none';
+        elements.accessDeniedContainer.style.display = 'block';
         
-        async function submitAnswer() {
-            const question = appState.questions[appState.currentIndex];
-            const studentAnswer = elements.answerTextarea.value.trim();
-            
-            if (!studentAnswer) {
-                alert('⚠️ Please write an answer before submitting!');
-                elements.answerTextarea.focus();
-                return;
-            }
-            
-            if (studentAnswer.length < 50) {
-                if (!confirm('Your answer is quite short (less than 50 characters). Submit anyway?')) {
-                    return;
-                }
-            }
-            
-            appState.answers.set(question.id, studentAnswer);
-            
-            appState.isEvaluating = true;
-            elements.submitBtn.disabled = true;
-            elements.submitBtn.innerHTML = '🔄 Evaluating with AI...';
-            elements.answerTextarea.disabled = true;
+        if (elements.deniedEmail) {
+            elements.deniedEmail.textContent = user.email;
+        }
+    }
+
+    // Show Login Form
+    function showLoginForm() {
+        elements.loginContainer.style.display = 'block';
+        elements.adminContainer.style.display = 'none';
+        elements.accessDeniedContainer.style.display = 'none';
+    }
+
+    // Event Listeners
+    function setupEventListeners() {
+        // Login form
+        elements.loginForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
             
             try {
-                console.log('🤖 Evaluating answer with Gemini AI...');
-                
-                const result = await evaluateWithGemini({
-                    question: question.text,
-                    modelAnswer: question.modelAnswer || '',
-                    studentAnswer: studentAnswer,
-                    maxMarks: question.marks || 10
-                });
-                
-                console.log('✅ Evaluation complete:', result);
-                
-                appState.results.set(question.id, result);
-                displayResult(result);
-                await saveResultToFirestore(question, studentAnswer, result);
-                
+                await signInWithEmailAndPassword(auth, email, password);
+                showToast('Login successful!', 'success');
             } catch (error) {
-                console.error('❌ Evaluation error:', error);
-                alert('Failed to evaluate answer. Please check your Gemini API key and try again.');
-            } finally {
-                appState.isEvaluating = false;
-                elements.submitBtn.disabled = false;
-                elements.submitBtn.innerHTML = '🚀 Evaluate Answer';
-                elements.answerTextarea.disabled = false;
-                updateProgressBar();
+                showToast('Login failed: ' + error.message, 'error');
             }
-        }
-        
-        // ==================== DISPLAY RESULT ====================
-        
-        function displayResult(result) {
-            const question = appState.questions[appState.currentIndex];
-            const maxMarks = question.marks || 10;
-            
-            elements.scoreDisplay.textContent = `${result.score}/${maxMarks}`;
-            elements.feedbackText.textContent = result.feedback || 'No detailed feedback available.';
-            
-            elements.improvementsList.innerHTML = '';
-            if (result.improvements && result.improvements.length > 0) {
-                result.improvements.forEach(improvement => {
-                    const li = document.createElement('li');
-                    li.textContent = improvement;
-                    elements.improvementsList.appendChild(li);
-                });
-            } else {
-                const li = document.createElement('li');
-                li.textContent = 'Great work! No major improvements needed.';
-                elements.improvementsList.appendChild(li);
-            }
-            
-            elements.resultPanel.classList.add('show');
-            
-            setTimeout(() => {
-                elements.resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 100);
-        }
-        
-        // ==================== SAVE TO FIRESTORE ====================
-        
-        async function saveResultToFirestore(question, studentAnswer, result) {
-            if (!appState.user) {
-                console.warn('No authenticated user - cannot save to Firestore');
-                return;
-            }
-            
+        });
+
+        // Google Sign In
+        elements.googleSignIn?.addEventListener('click', async () => {
+            const provider = new GoogleAuthProvider();
             try {
-                const attemptData = {
-                    userId: appState.user.uid,
-                    questionId: question.id,
-                    questionText: question.text,
-                    category: question.category,
-                    maxMarks: question.marks,
-                    studentAnswer: studentAnswer,
-                    score: result.score,
-                    feedback: result.feedback || '',
-                    improvements: result.improvements || [],
-                    submittedAt: serverTimestamp()
-                };
-                
-                await addDoc(collection(db, 'users', appState.user.uid, 'test_attempts'), attemptData);
-                console.log('✅ Result saved to Firestore successfully');
-                
+                await signInWithPopup(auth, provider);
+                showToast('Login successful!', 'success');
             } catch (error) {
-                console.error('❌ Error saving to Firestore:', error);
-                // Fallback to localStorage
-                const fallbackKey = `test_${question.id}_${appState.user.uid}`;
-                localStorage.setItem(
-                    fallbackKey,
-                    JSON.stringify({ 
-                        studentAnswer, 
-                        result, 
-                        timestamp: new Date().toISOString() 
-                    })
-                );
-                console.log('💾 Saved to localStorage as fallback');
+                showToast('Login failed: ' + error.message, 'error');
             }
-        }
-        
-        // ==================== NAVIGATION ====================
-        
-        function navigatePrevious() {
-            if (appState.currentIndex > 0) {
-                appState.currentIndex--;
-                renderQuestion();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Logout
+        elements.btnLogout?.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showToast('Logged out successfully', 'success');
+            } catch (error) {
+                showToast('Logout failed', 'error');
             }
+        });
+
+        // Question form
+        elements.questionForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await addQuestion();
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+                switchTab(tabName);
+            });
+        });
+    }
+
+    // Switch tabs
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.toggle('active', panel.id === tabName + 'Tab');
+        });
+
+        if (tabName === 'manage') {
+            loadQuestions();
+        } else if (tabName === 'stats') {
+            loadStatistics();
         }
-        
-        function navigateNext() {
-            if (appState.currentIndex < appState.questions.length - 1) {
-                appState.currentIndex++;
-                renderQuestion();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
+    }
+
+    // Add Question
+    async function addQuestion() {
+        const questionData = {
+            text: document.getElementById('questionText').value,
+            category: document.getElementById('category').value,
+            marks: parseInt(document.getElementById('marks').value),
+            modelAnswer: document.getElementById('modelAnswer').value,
+            difficulty: document.getElementById('difficulty').value,
+            status: document.getElementById('status').value,
+            createdAt: serverTimestamp(),
+            createdBy: auth.currentUser?.email
+        };
+
+        try {
+            await addDoc(collection(db, 'questions'), questionData);
+            showToast('Question added successfully!', 'success');
+            elements.questionForm.reset();
+            loadQuestions();
+        } catch (error) {
+            showToast('Failed to add question: ' + error.message, 'error');
         }
+    }
+
+    // Load Questions
+    async function loadQuestions() {
+        if (!elements.questionsList) return;
         
-        // ==================== HELPER FUNCTIONS ====================
-        
-        function updateProgressBar() {
-            const answeredCount = appState.results.size;
-            const totalQuestions = appState.questions.length;
-            const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
-            elements.progressBar.style.width = `${progress}%`;
-        }
-        
-        function updateCharCount() {
-            const count = elements.answerTextarea.value.length;
-            elements.charCount.textContent = count;
+        try {
+            const querySnapshot = await getDocs(collection(db, 'questions'));
+            let html = '';
             
-            // Change color based on length
-            if (count < 50) {
-                elements.charCount.style.color = '#f44336'; // Red for too short
-            } else if (count < 200) {
-                elements.charCount.style.color = '#ff9800'; // Orange for okay
-            } else {
-                elements.charCount.style.color = '#4caf50'; // Green for good
-            }
-        }
-        
-        function showError(message) {
-            elements.errorMessage.textContent = message;
-            elements.errorState.style.display = 'block';
-            elements.loadingState.style.display = 'none';
-            elements.questionContainer.style.display = 'none';
-        }
-        
-        // ==================== EVENT LISTENERS ====================
-        
-        function setupEventListeners() {
-            // Navigation buttons
-            elements.prevBtn.addEventListener('click', navigatePrevious);
-            elements.nextBtn.addEventListener('click', navigateNext);
-            
-            // Submit button
-            elements.submitBtn.addEventListener('click', submitAnswer);
-            
-            // Answer textarea
-            elements.answerTextarea.addEventListener('input', (e) => {
-                const question = appState.questions[appState.currentIndex];
-                if (question) {
-                    appState.answers.set(question.id, e.target.value);
-                }
-                updateCharCount();
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                html += `
+                    <div class="question-card">
+                        <div class="question-header">
+                            <div class="question-meta">
+                                <span class="badge badge-category">${data.category}</span>
+                                <span class="badge badge-marks">${data.marks} marks</span>
+                            </div>
+                        </div>
+                        <p>${data.text}</p>
+                    </div>
+                `;
             });
             
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                // Ctrl/Cmd + Enter to submit
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    if (!elements.submitBtn.disabled) {
-                        submitAnswer();
-                    }
-                }
-                
-                // Alt + Left Arrow for previous
-                if (e.altKey && e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                    if (!elements.prevBtn.disabled) {
-                        navigatePrevious();
-                    }
-                }
-                
-                // Alt + Right Arrow for next
-                if (e.altKey && e.key === 'ArrowRight') {
-                    e.preventDefault();
-                    if (!elements.nextBtn.disabled) {
-                        navigateNext();
-                    }
-                }
-                
-                // Escape to blur textarea
-                if (e.key === 'Escape') {
-                    if (document.activeElement === elements.answerTextarea) {
-                        elements.answerTextarea.blur();
-                    }
-                }
-            });
+            elements.questionsList.innerHTML = html || '<p>No questions found</p>';
+        } catch (error) {
+            console.error('Error loading questions:', error);
+            elements.questionsList.innerHTML = '<p>Error loading questions</p>';
+        }
+    }
+
+    // Load Statistics
+    async function loadStatistics() {
+        if (!elements.statsGrid) return;
+        
+        try {
+            const querySnapshot = await getDocs(collection(db, 'questions'));
+            const totalQuestions = querySnapshot.size;
             
-            // Warn before leaving with unsaved work
-            window.addEventListener('beforeunload', (e) => {
-                const hasUnsaved = appState.answers.size > 0 && 
-                                  appState.results.size < appState.answers.size;
-                if (hasUnsaved) {
-                    e.preventDefault();
-                    e.returnValue = 'You have unevaluated answers. Are you sure you want to leave?';
-                }
-            });
+            elements.statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <h3>Total Questions</h3>
+                    <p style="font-size: 2rem; color: #1e3c72;">${totalQuestions}</p>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error loading statistics:', error);
+            elements.statsGrid.innerHTML = '<p>Error loading statistics</p>';
         }
+    }
+
+    // Show Toast
+    function showToast(message, type = 'success') {
+        elements.toast.textContent = message;
+        elements.toast.className = `toast ${type} show`;
         
-        // ==================== AUTO-SAVE ====================
-        
-        // Auto-save every 30 seconds
-        setInterval(() => {
-            if (appState.answers.size > 0) {
-                const saveData = {
-                    answers: Array.from(appState.answers.entries()),
-                    results: Array.from(appState.results.entries()),
-                    currentIndex: appState.currentIndex,
-                    timestamp: new Date().toISOString()
-                };
-                sessionStorage.setItem('test_autosave', JSON.stringify(saveData));
-                console.log('💾 Auto-saved progress');
-            }
-        }, 30000); // Every 30 seconds
-        
-        // Restore from auto-save on load
-        function restoreAutoSave() {
-            const saved = sessionStorage.getItem('test_autosave');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    const savedTime = new Date(data.timestamp);
-                    const now = new Date();
-                    const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
-                    
-                    // Only restore if saved within last 24 hours
-                    if (hoursDiff < 24) {
-                        if (confirm('Found a previous session. Restore your progress?')) {
-                            appState.answers = new Map(data.answers);
-                            appState.results = new Map(data.results);
-                            appState.currentIndex = data.currentIndex || 0;
-                            console.log('✅ Restored previous session');
-                        }
-                    } else {
-                        sessionStorage.removeItem('test_autosave');
-                    }
-                } catch (error) {
-                    console.error('Failed to restore auto-save:', error);
-                }
-            }
-        }
-        
-        // ==================== START APPLICATION ====================
-        
-        restoreAutoSave();
-        init();
-        
-        console.log('✅ Test Platform Ready');
-        console.log('📌 Keyboard shortcuts:');
-        console.log('   - Ctrl+Enter: Submit answer');
-        console.log('   - Alt+←: Previous question');
-        console.log('   - Alt+→: Next question');
-        
-    </script>
+        setTimeout(() => {
+            elements.toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Initialize app
+    init();
+</script>
 </body>
 </html>

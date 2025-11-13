@@ -6,170 +6,334 @@
     <title>Economics Test Platform</title>
     
     <style>
-        /* Reset & Base Styles */
+        /* ==================== RESET & BASE STYLES ==================== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #2d3748;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
-        /* Container */
+
+        /* ==================== CONTAINER ==================== */
         .container {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             overflow: hidden;
+            animation: fadeInUp 0.6s ease-out;
         }
-        
-        /* Header */
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== HEADER ==================== */
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        header h1 {
-            font-size: 2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .auth-status {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-top: 0.5rem;
-        }
-        
-        /* Progress Bar */
-        .progress-container {
-            background: #f0f0f0;
-            height: 6px;
+            padding: 2rem 2rem 2.5rem;
             position: relative;
+            overflow: hidden;
         }
-        
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.4;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-status {
+            text-align: center;
+            font-size: 0.95rem;
+            opacity: 0.95;
+            margin-top: 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: #e2e8f0;
+            height: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
         .progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #667eea, #764ba2);
             width: 0%;
-            transition: width 0.3s ease;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
-        
-        /* Main Content */
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
         main {
-            padding: 2rem;
+            padding: 2.5rem;
         }
-        
-        /* Question Header */
+
+        /* ==================== STATUS BANNER ==================== */
+        .status-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-info {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #92400e;
+        }
+
+        .status-item span {
+            font-size: 1.1rem;
+        }
+
+        .answered-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* ==================== QUESTION HEADER ==================== */
         .question-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
             gap: 1rem;
         }
-        
+
         .question-meta {
             display: flex;
             gap: 0.75rem;
             flex-wrap: wrap;
         }
-        
+
         .badge {
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            padding: 0.5rem 1.2rem;
+            border-radius: 25px;
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
         }
-        
+
+        .badge:hover {
+            transform: translateY(-2px);
+        }
+
         .badge-category {
-            background: #e3f2fd;
-            color: #1976d2;
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            color: #075985;
         }
-        
+
         .badge-marks {
-            background: #f3e5f5;
-            color: #7b1fa2;
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            color: #9f1239;
         }
-        
+
         .badge-difficulty {
-            background: #fff3e0;
-            color: #e65100;
+            background: linear-gradient(135deg, #fed7aa, #fdba74);
+            color: #9a3412;
         }
-        
+
+        .badge-answered {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
         .question-counter {
-            font-weight: 600;
-            color: #666;
-            font-size: 1rem;
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+            background: #f0f4ff;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
         }
-        
-        /* Question Card */
+
+        /* ==================== QUESTION CARD ==================== */
         .question-card {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            border-radius: 8px;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-left: 6px solid #667eea;
+            border-radius: 15px;
+            padding: 2rem;
             margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
         }
-        
+
+        .question-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
         .question-text {
-            font-size: 1.15rem;
-            line-height: 1.8;
-            color: #2c3e50;
+            font-size: 1.2rem;
+            line-height: 1.9;
+            color: #1e293b;
             white-space: pre-wrap;
+            font-weight: 500;
         }
-        
-        /* Answer Section */
+
+        /* ==================== ANSWER SECTION ==================== */
         .answer-section {
             margin-bottom: 2rem;
+            background: #fafbfc;
+            padding: 1.5rem;
+            border-radius: 15px;
         }
-        
+
         .answer-label {
-            display: block;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-            font-size: 1rem;
-            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #334155;
         }
-        
+
         .answer-textarea {
             width: 100%;
-            min-height: 250px;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-family: inherit;
+            min-height: 280px;
+            padding: 1.25rem;
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             resize: vertical;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: all 0.3s;
+            background: white;
+            line-height: 1.8;
         }
-        
+
         .answer-textarea:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            background: #ffffff;
         }
-        
+
         .char-count {
             text-align: right;
-            font-size: 0.85rem;
-            color: #999;
-            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 0.75rem;
+            font-weight: 600;
         }
-        
-        /* Controls */
+
+        /* ==================== CONTROLS ==================== */
         .controls {
             display: flex;
             justify-content: space-between;
@@ -178,192 +342,349 @@
             gap: 1rem;
             margin-bottom: 2rem;
         }
-        
+
         .nav-buttons {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
         }
-        
+
         button {
-            padding: 0.75rem 1.5rem;
+            padding: 0.85rem 2rem;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        
+
         button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
         }
-        
+
+        button:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
-        
+
         .btn-primary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            font-size: 1.1rem;
+            padding: 1rem 2.5rem;
         }
-        
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5568d3, #6a3f8f);
+        }
+
         .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
+            background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+            color: #475569;
         }
-        
+
         .btn-secondary:hover:not(:disabled) {
-            background: #e0e0e0;
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
         }
-        
-        /* Loading State */
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            font-size: 1.2rem;
+            padding: 1.2rem 3rem;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        /* ==================== LOADING STATE ==================== */
         .loading {
             text-align: center;
-            padding: 3rem;
-            color: #666;
+            padding: 4rem 2rem;
+            color: #64748b;
         }
-        
+
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 5px solid #f1f5f9;
+            border-top: 5px solid #667eea;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.5rem;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        /* Error State */
+
+        /* ==================== ERROR STATE ==================== */
         .error {
-            background: #ffebee;
-            color: #c62828;
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            color: #991b1b;
             padding: 1.5rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            border-left: 4px solid #c62828;
-        }
-        
-        /* Result Panel */
-        .result-panel {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             border-radius: 12px;
-            padding: 2rem;
+            margin: 1rem 0;
+            border-left: 6px solid #dc2626;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ==================== RESULTS SUMMARY ==================== */
+        .results-summary {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 20px;
+            padding: 3rem;
             margin-top: 2rem;
-            display: none;
-            animation: slideIn 0.4s ease;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 3px solid #bae6fd;
+            animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .result-panel.show {
-            display: block;
-        }
-        
-        @keyframes slideIn {
+
+        @keyframes slideInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
-        .score-display {
+
+        .summary-header {
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 3rem;
         }
-        
-        .score-number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #667eea;
+
+        .summary-header h2 {
+            font-size: 2.5rem;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .total-score {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             display: block;
+            margin: 1rem 0;
         }
-        
+
         .score-label {
-            font-size: 1rem;
-            color: #666;
-            margin-top: 0.5rem;
+            font-size: 1.2rem;
+            color: #64748b;
+            font-weight: 600;
         }
-        
-        .feedback-section {
+
+        .performance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
             background: white;
             padding: 1.5rem;
-            border-radius: 8px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .question-results {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .question-results h3 {
+            font-size: 1.5rem;
+            color: #1e293b;
             margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .feedback-section h3 {
-            color: #333;
+
+        .result-item {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid #cbd5e1;
+            transition: all 0.3s;
+        }
+
+        .result-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item.high-score {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        }
+
+        .result-item.medium-score {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        }
+
+        .result-item.low-score {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
             margin-bottom: 1rem;
-            font-size: 1.2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        
-        .feedback-text {
-            color: #555;
+
+        .result-question {
+            font-weight: 600;
+            color: #1e293b;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .result-score {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #667eea;
+            white-space: nowrap;
+        }
+
+        .result-feedback {
+            color: #475569;
             line-height: 1.8;
-            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
         }
-        
-        .improvements-list {
+
+        .result-improvements {
+            margin-top: 1rem;
+        }
+
+        .result-improvements h4 {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .result-improvements ul {
             list-style: none;
             padding: 0;
         }
-        
-        .improvements-list li {
-            padding: 0.75rem;
-            padding-left: 2rem;
+
+        .result-improvements li {
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
             position: relative;
             background: white;
             margin-bottom: 0.5rem;
             border-radius: 6px;
-            color: #555;
+            color: #475569;
+            font-size: 0.95rem;
         }
-        
-        .improvements-list li::before {
+
+        .result-improvements li::before {
             content: "💡";
             position: absolute;
             left: 0.75rem;
         }
-        
-        /* Shortcuts Hint */
+
+        /* ==================== SHORTCUTS HINT ==================== */
         .shortcuts-hint {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 6px;
-            padding: 0.75rem 1rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            color: #856404;
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border: 2px solid #fbbf24;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            color: #78350f;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        
-        /* Responsive */
-        @media (max-width: 640px) {
+
+        .shortcuts-hint strong {
+            color: #92400e;
+        }
+
+        /* ==================== RESPONSIVE DESIGN ==================== */
+        @media (max-width: 768px) {
             body {
                 padding: 10px;
+            }
+            
+            .container {
+                border-radius: 15px;
             }
             
             header {
                 padding: 1.5rem;
             }
             
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
             header h1 {
-                font-size: 1.5rem;
+                font-size: 1.6rem;
             }
             
             main {
                 padding: 1.5rem;
+            }
+            
+            .status-banner {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
             .question-header {
@@ -383,53 +704,121 @@
             
             button {
                 flex: 1;
+                justify-content: center;
             }
             
-            .score-number {
-                font-size: 2rem;
+            .total-score {
+                font-size: 2.5rem;
+            }
+            
+            .summary-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .performance-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .answer-textarea {
+                font-size: 1rem;
+                min-height: 200px;
             }
         }
-        
-        /* Accessibility */
+
+        /* ==================== ACCESSIBILITY ==================== */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
                 transition-duration: 0.01ms !important;
             }
         }
+
+        button:focus-visible,
+        .answer-textarea:focus-visible,
+        .back-button:focus-visible {
+            outline: 3px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+            
+            .back-button,
+            .controls,
+            .shortcuts-hint {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- ==================== HEADER ==================== -->
         <header>
-            <h1>📚 Economics Test Platform</h1>
-            <div class="auth-status" id="authStatus">Initializing...</div>
+            <div class="header-content">
+                <div class="header-top">
+                    <a href="index.html" class="back-button">
+                        ← Back to Home
+                    </a>
+                </div>
+                <h1>📚 Economics Test Platform</h1>
+                <div class="auth-status" id="authStatus">Initializing...</div>
+            </div>
         </header>
         
-        <!-- Progress Bar -->
+        <!-- ==================== PROGRESS BAR ==================== -->
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
         
-        <!-- Main Content -->
+        <!-- ==================== MAIN CONTENT ==================== -->
         <main>
-            <!-- Loading State -->
+            <!-- ==================== LOADING STATE ==================== -->
             <div class="loading" id="loadingState">
                 <div class="spinner"></div>
                 <p>Loading questions from database...</p>
             </div>
             
-            <!-- Error State -->
+            <!-- ==================== ERROR STATE ==================== -->
             <div class="error" id="errorState" style="display: none;">
                 <strong>⚠️ Error:</strong> <span id="errorMessage">Something went wrong</span>
             </div>
             
-            <!-- Question Container -->
+            <!-- ==================== QUESTION CONTAINER ==================== -->
             <div id="questionContainer" style="display: none;">
+                
+                <!-- Status Banner (shows answered count) -->
+                <div class="status-banner">
+                    <div class="status-info">
+                        <div class="status-item">
+                            <span>📝</span>
+                            <span>Total Questions: <strong id="totalQuestions">0</strong></span>
+                        </div>
+                        <div class="status-item">
+                            <span>✅</span>
+                            <span>Answered: <strong id="answeredCount">0</strong></span>
+                        </div>
+                    </div>
+                    <div class="answered-badge" id="answeredBadge">
+                        0/0 Completed
+                    </div>
+                </div>
+                
                 <!-- Keyboard Shortcuts Hint -->
                 <div class="shortcuts-hint">
-                    ⌨️ <strong>Shortcuts:</strong> Ctrl+Enter to submit • Alt+← Previous • Alt+→ Next
+                    ⌨️ <strong>Shortcuts:</strong> Alt+← Previous • Alt+→ Next • Answer all questions to submit test
                 </div>
                 
                 <!-- Question Header -->
@@ -438,6 +827,9 @@
                         <span class="badge badge-category" id="categoryBadge">Category</span>
                         <span class="badge badge-marks" id="marksBadge">0 marks</span>
                         <span class="badge badge-difficulty" id="difficultyBadge">Medium</span>
+                        <span class="badge badge-answered" id="answeredStatusBadge" style="display: none;">
+                            ✓ Answered
+                        </span>
                     </div>
                     <div class="question-counter" id="questionCounter">
                         Question 1 of 1
@@ -454,25 +846,25 @@
                 <!-- Answer Section -->
                 <div class="answer-section">
                     <label class="answer-label" for="answerTextarea">
-                        ✍️ Your Answer
+                        <span>✍️</span> Your Answer
                     </label>
                     <textarea 
                         class="answer-textarea" 
                         id="answerTextarea"
                         placeholder="Type your detailed answer here...
 
-Tips for better answers:
-• Define key economic terms
-• Use relevant examples
-• Show your reasoning step-by-step
-• Include diagrams or graphs if applicable"
+                        Tips for better answers:
+                        • Define key economic terms
+                        • Use relevant examples
+                        • Show your reasoning step-by-step
+                        • Include diagrams or graphs if applicable"
                     ></textarea>
                     <div class="char-count">
                         <span id="charCount">0</span> characters
                     </div>
                 </div>
                 
-                <!-- Controls -->
+                <!-- Navigation Controls -->
                 <div class="controls">
                     <div class="nav-buttons">
                         <button class="btn-secondary" id="prevBtn">
@@ -482,417 +874,692 @@ Tips for better answers:
                             Next →
                         </button>
                     </div>
-                    <button class="btn-primary" id="submitBtn">
-                        🚀 Evaluate Answer
+                    
+                    <!-- Submit Test Button (only shows when all answered) -->
+                    <button class="btn-success" id="submitTestBtn" style="display: none;">
+                        🚀 Submit Test & Get Results
                     </button>
                 </div>
                 
-                <!-- Result Panel -->
-                <div class="result-panel" id="resultPanel">
-                    <div class="score-display">
-                        <span class="score-number" id="scoreDisplay">0/10</span>
-                        <div class="score-label">Your Score</div>
+            </div>
+            
+            <!-- ==================== RESULTS SUMMARY ==================== -->
+            <div id="resultsSummary" style="display: none;">
+                <div class="results-summary">
+                    
+                    <!-- Summary Header -->
+                    <div class="summary-header">
+                        <h2>🎉 Test Completed!</h2>
+                        <span class="total-score" id="totalScore">0/0</span>
+                        <div class="score-label">Total Score</div>
                     </div>
                     
-                    <div class="feedback-section">
-                        <h3>📝 Overall Feedback</h3>
-                        <p class="feedback-text" id="feedbackText">
-                            Your feedback will appear here...
-                        </p>
+                    <!-- Performance Statistics -->
+                    <div class="performance-stats">
+                        <div class="stat-card">
+                            <span class="stat-value" id="totalQuestionsResult">0</span>
+                            <span class="stat-label">Questions</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="scorePercentage">0%</span>
+                            <span class="stat-label">Percentage</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-value" id="averageScore">0</span>
+                            <span class="stat-label">Average per Question</span>
+                        </div>
                     </div>
                     
-                    <div class="feedback-section">
-                        <h3>💡 Suggestions for Improvement</h3>
-                        <ul class="improvements-list" id="improvementsList">
-                            <!-- Improvements will be inserted here -->
-                        </ul>
+                    <!-- Individual Question Results -->
+                    <div class="question-results">
+                        <h3>📋 Detailed Results</h3>
+                        <div id="questionResultsList">
+                            <!-- Results will be inserted here by JavaScript -->
+                        </div>
                     </div>
+                    
+                    <!-- Action Buttons -->
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <a href="index.html" class="btn-primary" style="text-decoration: none; display: inline-flex;">
+                            🏠 Back to Home
+                        </a>
+                    </div>
+                    
                 </div>
             </div>
+            
         </main>
     </div>
 
-        <script type="module">
-        // Import Firebase services (already initialized in firebase-config.js)
-        import { auth, db } from './firebase-config.js';
-        import { evaluateWithGemini } from './gemini-config.js';
+    <script type="module">
+    // ==================== FIREBASE IMPORTS ====================
+    import { auth, db } from './firebase-config.js';
+    import { evaluateWithGemini } from './gemini-config.js';
+
+    import { 
+        signInAnonymously, 
+        onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+    import {
+        collection, 
+        query, 
+        where, 
+        getDocs,
+        addDoc,
+        serverTimestamp,
+        orderBy
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    // ==================== APPLICATION STATE ====================
+    const appState = {
+        user: null,
+        questions: [],
+        currentIndex: 0,
+        answers: new Map(),          // Stores all answers (questionId -> answer text)
+        results: new Map(),          // Stores evaluation results (questionId -> result object)
+        isEvaluating: false,
+        isSubmitting: false,         // NEW: Track if test is being submitted
+        testCompleted: false         // NEW: Track if test is completed
+    };
+
+    // ==================== DOM ELEMENTS ====================
+    const elements = {
+        // Auth & Status
+        authStatus: document.getElementById('authStatus'),
+        loadingState: document.getElementById('loadingState'),
+        errorState: document.getElementById('errorState'),
+        errorMessage: document.getElementById('errorMessage'),
+        progressBar: document.getElementById('progressBar'),
         
-        import { 
-            signInAnonymously, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        // Question Container
+        questionContainer: document.getElementById('questionContainer'),
         
-        import {
-            collection, 
-            query, 
-            where, 
-            getDocs,
-            addDoc,
-            serverTimestamp,
-            orderBy
-        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        // Status Banner (NEW)
+        totalQuestions: document.getElementById('totalQuestions'),
+        answeredCount: document.getElementById('answeredCount'),
+        answeredBadge: document.getElementById('answeredBadge'),
         
-        // Application State
-        const appState = {
-            user: null,
-            questions: [],
-            currentIndex: 0,
-            answers: new Map(),
-            results: new Map(),
-            isEvaluating: false
-        };
+        // Question Info
+        categoryBadge: document.getElementById('categoryBadge'),
+        marksBadge: document.getElementById('marksBadge'),
+        difficultyBadge: document.getElementById('difficultyBadge'),
+        answeredStatusBadge: document.getElementById('answeredStatusBadge'),
+        questionCounter: document.getElementById('questionCounter'),
+        questionText: document.getElementById('questionText'),
         
-        // DOM Elements
-        const elements = {
-            authStatus: document.getElementById('authStatus'),
-            loadingState: document.getElementById('loadingState'),
-            errorState: document.getElementById('errorState'),
-            errorMessage: document.getElementById('errorMessage'),
-            questionContainer: document.getElementById('questionContainer'),
-            categoryBadge: document.getElementById('categoryBadge'),
-            marksBadge: document.getElementById('marksBadge'),
-            difficultyBadge: document.getElementById('difficultyBadge'),
-            questionCounter: document.getElementById('questionCounter'),
-            questionText: document.getElementById('questionText'),
-            answerTextarea: document.getElementById('answerTextarea'),
-            charCount: document.getElementById('charCount'),
-            prevBtn: document.getElementById('prevBtn'),
-            nextBtn: document.getElementById('nextBtn'),
-            submitBtn: document.getElementById('submitBtn'),
-            resultPanel: document.getElementById('resultPanel'),
-            scoreDisplay: document.getElementById('scoreDisplay'),
-            feedbackText: document.getElementById('feedbackText'),
-            improvementsList: document.getElementById('improvementsList'),
-            progressBar: document.getElementById('progressBar')
-        };
+        // Answer Section
+        answerTextarea: document.getElementById('answerTextarea'),
+        charCount: document.getElementById('charCount'),
         
-        // ==================== INITIALIZATION ====================
+        // Navigation
+        prevBtn: document.getElementById('prevBtn'),
+        nextBtn: document.getElementById('nextBtn'),
+        submitTestBtn: document.getElementById('submitTestBtn'),
         
-        async function init() {
-            try {
-                console.log('🚀 Initializing app...');
+        // Results (NEW)
+        resultsSummary: document.getElementById('resultsSummary'),
+        totalScore: document.getElementById('totalScore'),
+        totalQuestionsResult: document.getElementById('totalQuestionsResult'),
+        scorePercentage: document.getElementById('scorePercentage'),
+        averageScore: document.getElementById('averageScore'),
+        questionResultsList: document.getElementById('questionResultsList')
+    };
+
+    // ==================== INITIALIZATION ====================
+    async function init() {
+        try {
+            console.log('🚀 Initializing app...');
+            
+            // Setup authentication
+            await setupAuth();
+            
+            // Load questions from Firestore
+            await loadQuestions();
+            
+            // Setup all event listeners
+            setupEventListeners();
+            
+            // Check if we have questions
+            if (appState.questions.length > 0) {
+                // Update status banner
+                updateStatusBanner();
                 
-                await setupAuth();
-                await loadQuestions();
-                setupEventListeners();
+                // Render first question
+                renderQuestion();
                 
-                if (appState.questions.length > 0) {
-                    renderQuestion();
-                    elements.loadingState.style.display = 'none';
-                    elements.questionContainer.style.display = 'block';
-                } else {
-                    showError('No active questions found. Please contact admin.');
-                }
+                // Hide loading, show question container
+                elements.loadingState.style.display = 'none';
+                elements.questionContainer.style.display = 'block';
                 
-            } catch (error) {
-                console.error('❌ Initialization error:', error);
-                showError('Failed to initialize. Please refresh the page.');
+                console.log('✅ App initialized successfully');
+            } else {
+                showError('No active questions found. Please contact admin.');
             }
+            
+        } catch (error) {
+            console.error('❌ Initialization error:', error);
+            showError('Failed to initialize. Please refresh the page.');
         }
-        
-        // ==================== AUTHENTICATION ====================
-        
-        async function setupAuth() {
-            return new Promise((resolve, reject) => {
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        appState.user = user;
-                        elements.authStatus.textContent = `👤 Student ID: ${user.uid.substring(0, 8)}`;
-                        console.log('✅ User authenticated:', user.uid);
-                        resolve(user);
-                    } else {
-                        elements.authStatus.textContent = 'Signing in...';
-                        try {
-                            const credential = await signInAnonymously(auth);
-                            appState.user = credential.user;
-                            elements.authStatus.textContent = `👤 Student ID: ${credential.user.uid.substring(0, 8)}`;
-                            console.log('✅ Anonymous sign-in:', credential.user.uid);
-                            resolve(credential.user);
-                        } catch (error) {
-                            console.error('❌ Auth error:', error);
-                            elements.authStatus.textContent = '❌ Authentication failed';
-                            reject(error);
-                        }
+    }
+
+    // ==================== AUTHENTICATION ====================
+    async function setupAuth() {
+        return new Promise((resolve, reject) => {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    // User already authenticated
+                    appState.user = user;
+                    elements.authStatus.textContent = `👤 Student ID: ${user.uid.substring(0, 8)}`;
+                    console.log('✅ User authenticated:', user.uid);
+                    resolve(user);
+                } else {
+                    // Sign in anonymously
+                    elements.authStatus.textContent = 'Signing in...';
+                    try {
+                        const credential = await signInAnonymously(auth);
+                        appState.user = credential.user;
+                        elements.authStatus.textContent = `👤 Student ID: ${credential.user.uid.substring(0, 8)}`;
+                        console.log('✅ Anonymous sign-in:', credential.user.uid);
+                        resolve(credential.user);
+                    } catch (error) {
+                        console.error('❌ Auth error:', error);
+                        elements.authStatus.textContent = '❌ Authentication failed';
+                        reject(error);
                     }
+                }
+            });
+        });
+    }
+
+    // ==================== LOAD QUESTIONS FROM FIRESTORE ====================
+    async function loadQuestions() {
+        try {
+            console.log('📥 Loading questions from Firestore...');
+            
+            const questionsRef = collection(db, 'questions');
+            const querySnapshot = await getDocs(questionsRef);
+            
+            console.log('📊 Total documents in questions collection:', querySnapshot.size);
+            
+            appState.questions = [];
+            
+            // Process each question document
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                console.log('📄 Question found:', {
+                    id: doc.id,
+                    status: data.status,
+                    category: data.category,
+                    text: data.text?.substring(0, 50) + '...'
+                });
+                
+                // Load ALL questions (you can filter by status: 'active' if needed)
+                appState.questions.push({
+                    id: doc.id,
+                    ...data
                 });
             });
+            
+            console.log(`✅ Total questions loaded: ${appState.questions.length}`);
+            
+            // Show active vs inactive count
+            const activeCount = appState.questions.filter(q => q.status === 'active').length;
+            const inactiveCount = appState.questions.filter(q => q.status === 'inactive').length;
+            console.log(`📊 Active: ${activeCount}, Inactive: ${inactiveCount}`);
+            
+            // Sort questions by creation date (newest first)
+            appState.questions.sort((a, b) => {
+                const timeA = a.createdAt?.seconds || 0;
+                const timeB = b.createdAt?.seconds || 0;
+                return timeB - timeA;
+            });
+            
+            // Validate we have questions
+            if (appState.questions.length === 0) {
+                throw new Error('No questions found in database. Please add questions from admin panel.');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error loading questions:', error);
+            throw error;
         }
-        
-        // ==================== LOAD QUESTIONS (DEBUG VERSION) ====================
+    }
 
-        async function loadQuestions() {
-            try {
-                console.log('📥 Loading questions from Firestore...');
-                
-                const questionsRef = collection(db, 'questions');
-                const querySnapshot = await getDocs(questionsRef);
-                
-                console.log('📊 Total documents in questions collection:', querySnapshot.size);
-                
-                appState.questions = [];
-                
-                // Log each question for debugging
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    console.log('📄 Question found:', {
-                        id: doc.id,
-                        status: data.status,
-                        category: data.category,
-                        text: data.text?.substring(0, 50) + '...'
-                    });
-                    
-                    // Load ALL questions regardless of status (for testing)
-                    appState.questions.push({
-                        id: doc.id,
-                        ...data
-                    });
-                });
-                
-                console.log(`✅ Total questions loaded: ${appState.questions.length}`);
-                
-                // Show active vs inactive
-                const activeCount = appState.questions.filter(q => q.status === 'active').length;
-                const inactiveCount = appState.questions.filter(q => q.status === 'inactive').length;
-                console.log(`📊 Active: ${activeCount}, Inactive: ${inactiveCount}`);
-                
-                // Sort by creation date
-                appState.questions.sort((a, b) => {
-                    const timeA = a.createdAt?.seconds || 0;
-                    const timeB = b.createdAt?.seconds || 0;
-                    return timeB - timeA;
-                });
-                
-                if (appState.questions.length === 0) {
-                    throw new Error('No questions found in database. Please add questions from admin panel.');
-                }
-                
-            } catch (error) {
-                console.error('❌ Error loading questions:', error);
-                throw error;
-            }
+    // ==================== UPDATE STATUS BANNER ====================
+    function updateStatusBanner() {
+        const totalCount = appState.questions.length;
+        const answeredCountValue = appState.answers.size;
+        
+        // Update status info
+        elements.totalQuestions.textContent = totalCount;
+        elements.answeredCount.textContent = answeredCountValue;
+        elements.answeredBadge.textContent = `${answeredCountValue}/${totalCount} Completed`;
+        
+        // Update progress bar
+        const progress = totalCount > 0 ? (answeredCountValue / totalCount) * 100 : 0;
+        elements.progressBar.style.width = `${progress}%`;
+        
+        // Show/hide submit button based on completion
+        if (answeredCountValue === totalCount && totalCount > 0) {
+            elements.submitTestBtn.style.display = 'inline-flex';
+            console.log('✅ All questions answered! Submit button shown.');
+        } else {
+            elements.submitTestBtn.style.display = 'none';
+        }
+    }
+
+    // ==================== HELPER: SHOW ERROR ====================
+    function showError(message) {
+        elements.errorMessage.textContent = message;
+        elements.errorState.style.display = 'block';
+        elements.loadingState.style.display = 'none';
+        elements.questionContainer.style.display = 'none';
+    }
+
+    // ==================== RENDER QUESTION ====================
+    function renderQuestion() {
+        const question = appState.questions[appState.currentIndex];
+        if (!question) return;
+        
+        console.log('📄 Rendering question:', appState.currentIndex + 1);
+        
+        // Update question metadata badges
+        elements.categoryBadge.textContent = question.category || 'General';
+        elements.marksBadge.textContent = `${question.marks || 10} marks`;
+        elements.difficultyBadge.textContent = question.difficulty || 'Medium';
+        
+        // Update question counter
+        elements.questionCounter.textContent = 
+            `Question ${appState.currentIndex + 1} of ${appState.questions.length}`;
+        
+        // Display question text
+        elements.questionText.textContent = question.text || 'Question text not available';
+        
+        // Load saved answer if exists
+        const savedAnswer = appState.answers.get(question.id);
+        elements.answerTextarea.value = savedAnswer || '';
+        updateCharCount();
+        
+        // Show "Answered" badge if this question has been answered
+        if (savedAnswer && savedAnswer.trim().length > 0) {
+            elements.answeredStatusBadge.style.display = 'inline-block';
+        } else {
+            elements.answeredStatusBadge.style.display = 'none';
         }
         
-        // ==================== RENDER QUESTION ====================
+        // Update navigation buttons
+        elements.prevBtn.disabled = appState.currentIndex === 0;
+        elements.nextBtn.disabled = appState.currentIndex === appState.questions.length - 1;
         
-        function renderQuestion() {
-            const question = appState.questions[appState.currentIndex];
-            if (!question) return;
+        // Update status banner
+        updateStatusBanner();
+        
+        // Focus on textarea for easy typing
+        elements.answerTextarea.focus();
+    }
+
+    // ==================== NAVIGATION: PREVIOUS ====================
+    function navigatePrevious() {
+        if (appState.currentIndex > 0) {
+            // Save current answer before navigating
+            saveCurrentAnswer();
             
-            elements.categoryBadge.textContent = question.category || 'General';
-            elements.marksBadge.textContent = `${question.marks || 10} marks`;
-            elements.difficultyBadge.textContent = question.difficulty || 'Medium';
-            elements.questionCounter.textContent = 
-                `Question ${appState.currentIndex + 1} of ${appState.questions.length}`;
-            elements.questionText.textContent = question.text || 'Question text not available';
+            // Move to previous question
+            appState.currentIndex--;
+            renderQuestion();
             
-            const savedAnswer = appState.answers.get(question.id);
-            elements.answerTextarea.value = savedAnswer || '';
-            updateCharCount();
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            const savedResult = appState.results.get(question.id);
-            if (savedResult) {
-                displayResult(savedResult);
+            console.log('⬅️ Navigated to previous question:', appState.currentIndex + 1);
+        }
+    }
+
+    // ==================== NAVIGATION: NEXT ====================
+    function navigateNext() {
+        if (appState.currentIndex < appState.questions.length - 1) {
+            // Save current answer before navigating
+            saveCurrentAnswer();
+            
+            // Move to next question
+            appState.currentIndex++;
+            renderQuestion();
+            
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            console.log('➡️ Navigated to next question:', appState.currentIndex + 1);
+        }
+    }
+
+    // ==================== SAVE CURRENT ANSWER ====================
+    function saveCurrentAnswer() {
+        const question = appState.questions[appState.currentIndex];
+        const answerText = elements.answerTextarea.value.trim();
+        
+        if (question) {
+            if (answerText.length > 0) {
+                // Save answer to state
+                appState.answers.set(question.id, answerText);
+                console.log(`💾 Answer saved for question ${appState.currentIndex + 1}`);
             } else {
-                elements.resultPanel.classList.remove('show');
+                // Remove answer if empty (user deleted it)
+                appState.answers.delete(question.id);
+                console.log(`🗑️ Answer removed for question ${appState.currentIndex + 1}`);
             }
             
-            elements.prevBtn.disabled = appState.currentIndex === 0;
-            elements.nextBtn.disabled = appState.currentIndex === appState.questions.length - 1;
-            
-            updateProgressBar();
-            elements.answerTextarea.focus();
+            // Update status banner after saving
+            updateStatusBanner();
         }
+    }
+
+    // ==================== UPDATE CHARACTER COUNT ====================
+    function updateCharCount() {
+        const count = elements.answerTextarea.value.length;
+        elements.charCount.textContent = count;
         
-        // ==================== SUBMIT & EVALUATE ====================
+        // Optional: Change color based on length
+        if (count === 0) {
+            elements.charCount.style.color = '#64748b';
+        } else if (count < 50) {
+            elements.charCount.style.color = '#f59e0b'; // Orange - might be too short
+        } else {
+            elements.charCount.style.color = '#10b981'; // Green - good length
+        }
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    function setupEventListeners() {
+        console.log('🎧 Setting up event listeners...');
         
-        async function submitAnswer() {
+        // ===== NAVIGATION BUTTONS =====
+        elements.prevBtn.addEventListener('click', navigatePrevious);
+        elements.nextBtn.addEventListener('click', navigateNext);
+        
+        // ===== SUBMIT TEST BUTTON =====
+        elements.submitTestBtn.addEventListener('click', submitTest);
+        
+        // ===== TEXTAREA INPUT =====
+        // Auto-save answer as user types
+        elements.answerTextarea.addEventListener('input', (e) => {
             const question = appState.questions[appState.currentIndex];
-            const studentAnswer = elements.answerTextarea.value.trim();
-            
-            if (!studentAnswer) {
-                alert('⚠️ Please write an answer before submitting!');
-                elements.answerTextarea.focus();
-                return;
-            }
-            
-            if (studentAnswer.length < 50) {
-                if (!confirm('Your answer is quite short. Submit anyway?')) {
-                    return;
-                }
-            }
-            
-            appState.answers.set(question.id, studentAnswer);
-            
-            appState.isEvaluating = true;
-            elements.submitBtn.disabled = true;
-            elements.submitBtn.innerHTML = '🔄 Evaluating with AI...';
-            elements.answerTextarea.disabled = true;
-            
-            try {
-                console.log('🤖 Evaluating answer with Gemini...');
-                
-                const result = await evaluateWithGemini({
-                    question: question.text,
-                    modelAnswer: question.modelAnswer || '',
-                    studentAnswer: studentAnswer,
-                    maxMarks: question.marks || 10
-                });
-                
-                console.log('✅ Evaluation result:', result);
-                
-                appState.results.set(question.id, result);
-                displayResult(result);
-                await saveResultToFirestore(question, studentAnswer, result);
-                
-            } catch (error) {
-                console.error('❌ Evaluation error:', error);
-                alert('Failed to evaluate answer. Please try again.');
-            } finally {
-                appState.isEvaluating = false;
-                elements.submitBtn.disabled = false;
-                elements.submitBtn.innerHTML = '🚀 Evaluate Answer';
-                elements.answerTextarea.disabled = false;
-                updateProgressBar();
-            }
-        }
-        
-        // ==================== DISPLAY RESULT ====================
-        
-        function displayResult(result) {
-            const question = appState.questions[appState.currentIndex];
-            const maxMarks = question.marks || 10;
-            
-            elements.scoreDisplay.textContent = `${result.score}/${maxMarks}`;
-            elements.feedbackText.textContent = result.feedback || 'No detailed feedback available.';
-            
-            elements.improvementsList.innerHTML = '';
-            if (result.improvements && result.improvements.length > 0) {
-                result.improvements.forEach(improvement => {
-                    const li = document.createElement('li');
-                    li.textContent = improvement;
-                    elements.improvementsList.appendChild(li);
-                });
-            } else {
-                const li = document.createElement('li');
-                li.textContent = 'Good job! Keep it up.';
-                elements.improvementsList.appendChild(li);
-            }
-            
-            elements.resultPanel.classList.add('show');
-            
-            setTimeout(() => {
-                elements.resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }, 100);
-        }
-        
-        // ==================== SAVE TO FIRESTORE ====================
-        
-        async function saveResultToFirestore(question, studentAnswer, result) {
-            if (!appState.user) return;
-            
-            try {
-                const attemptData = {
-                    userId: appState.user.uid,
-                    questionId: question.id,
-                    questionText: question.text,
-                    category: question.category,
-                    maxMarks: question.marks,
-                    studentAnswer: studentAnswer,
-                    score: result.score,
-                    feedback: result.feedback || '',
-                    improvements: result.improvements || [],
-                    submittedAt: serverTimestamp()
-                };
-                
-                await addDoc(collection(db, 'users', appState.user.uid, 'test_attempts'), attemptData);
-                console.log('✅ Result saved to Firestore');
-                
-            } catch (error) {
-                console.error('❌ Error saving to Firestore:', error);
-                localStorage.setItem(
-                    `test_${question.id}_${appState.user.uid}`,
-                    JSON.stringify({ studentAnswer, result, timestamp: new Date().toISOString() })
-                );
-            }
-        }
-        
-        // ==================== NAVIGATION ====================
-        
-        function navigatePrevious() {
-            if (appState.currentIndex > 0) {
-                appState.currentIndex--;
-                renderQuestion();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-        
-        function navigateNext() {
-            if (appState.currentIndex < appState.questions.length - 1) {
-                appState.currentIndex++;
-                renderQuestion();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-        
-        // ==================== HELPER FUNCTIONS ====================
-        
-        function updateProgressBar() {
-            const answeredCount = appState.results.size;
-            const totalQuestions = appState.questions.length;
-            const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
-            elements.progressBar.style.width = `${progress}%`;
-        }
-        
-        function updateCharCount() {
-            const count = elements.answerTextarea.value.length;
-            elements.charCount.textContent = count;
-        }
-        
-        function showError(message) {
-            elements.errorMessage.textContent = message;
-            elements.errorState.style.display = 'block';
-            elements.loadingState.style.display = 'none';
-            elements.questionContainer.style.display = 'none';
-        }
-        
-        // ==================== EVENT LISTENERS ====================
-        
-        function setupEventListeners() {
-            elements.prevBtn.addEventListener('click', navigatePrevious);
-            elements.nextBtn.addEventListener('click', navigateNext);
-            elements.submitBtn.addEventListener('click', submitAnswer);
-            
-            elements.answerTextarea.addEventListener('input', (e) => {
-                const question = appState.questions[appState.currentIndex];
-                if (question) {
-                    appState.answers.set(question.id, e.target.value);
+            if (question) {
+                const answerText = e.target.value.trim();
+                if (answerText.length > 0) {
+                    appState.answers.set(question.id, answerText);
+                } else {
+                    appState.answers.delete(question.id);
                 }
                 updateCharCount();
-            });
+                updateStatusBanner();
+            }
+        });
+        
+        // ===== KEYBOARD SHORTCUTS =====
+        document.addEventListener('keydown', (e) => {
+            // Alt + Left Arrow = Previous Question
+            if (e.altKey && e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (!elements.prevBtn.disabled) {
+                    navigatePrevious();
+                }
+            }
             
-            document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    if (!elements.submitBtn.disabled) submitAnswer();
+            // Alt + Right Arrow = Next Question
+            if (e.altKey && e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (!elements.nextBtn.disabled) {
+                    navigateNext();
                 }
-                
-                if (e.altKey && e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                    if (!elements.prevBtn.disabled) navigatePrevious();
+            }
+            
+            // Ctrl/Cmd + Enter = Submit Test (if all answered)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                if (elements.submitTestBtn.style.display !== 'none') {
+                    submitTest();
                 }
-                
-                if (e.altKey && e.key === 'ArrowRight') {
-                    e.preventDefault();
-                    if (!elements.nextBtn.disabled) navigateNext();
-                }
-            });
+            }
+        });
+        
+        // ===== PREVENT ACCIDENTAL PAGE LEAVE =====
+        // Warn user if they try to leave with unanswered questions
+        window.addEventListener('beforeunload', (e) => {
+            if (appState.answers.size > 0 && !appState.testCompleted) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved answers. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+        
+        console.log('✅ Event listeners set up successfully');
+    }
+
+    // ==================== SUBMIT TEST VALIDATION ====================
+    function submitTest() {
+        console.log('🚀 Submit Test clicked');
+        
+        // Save current answer first
+        saveCurrentAnswer();
+        
+        // Validate all questions are answered
+        const totalQuestions = appState.questions.length;
+        const answeredQuestions = appState.answers.size;
+        
+        if (answeredQuestions < totalQuestions) {
+            alert(`⚠️ Please answer all questions before submitting!\n\nAnswered: ${answeredQuestions}/${totalQuestions}`);
+            return;
         }
         
-        // ==================== START APPLICATION ====================
+        // Check for very short answers
+        let hasShortAnswers = false;
+        let shortAnswerQuestions = [];
         
-        init();
-        console.log('✅ Test Platform Ready');
+        appState.questions.forEach((question, index) => {
+            const answer = appState.answers.get(question.id);
+            if (answer && answer.length < 50) {
+                hasShortAnswers = true;
+                shortAnswerQuestions.push(index + 1);
+            }
+        });
         
+        if (hasShortAnswers) {
+            const confirm = window.confirm(
+                `⚠️ Some answers are quite short (Questions: ${shortAnswerQuestions.join(', ')})\n\n` +
+                `Short answers may receive lower scores.\n\n` +
+                `Do you want to submit anyway?`
+            );
+            
+            if (!confirm) {
+                return;
+            }
+        }
+        
+        // Final confirmation
+        const finalConfirm = window.confirm(
+            `📝 Ready to submit your test?\n\n` +
+            `Total Questions: ${totalQuestions}\n` +
+            `Answered: ${answeredQuestions}\n\n` +
+            `Once submitted, you cannot change your answers.\n\n` +
+            `Click OK to submit and get your results.`
+        );
+        
+        if (finalConfirm) {
+            evaluateAllAnswers();
+        }
+    }
+
+    // ==================== SUBMIT & EVALUATE ALL ANSWERS ====================
+async function evaluateAllAnswers() {
+    // Prevent multiple submissions
+    if (appState.isSubmitting) return;
+    appState.isSubmitting = true;
+
+    console.log('🤖 Starting batch evaluation of all answers...');
+
+    // Switch to a loading view
+    elements.questionContainer.style.display = 'none';
+    elements.loadingState.querySelector('p').textContent = 'Evaluating your answers with AI... This may take a moment.';
+    elements.loadingState.style.display = 'block';
+
+    // Loop through all questions and evaluate them one by one
+    for (const question of appState.questions) {
+        const studentAnswer = appState.answers.get(question.id);
+
+        if (!studentAnswer) {
+            console.warn(`⚠️ No answer found for question ${question.id}. Skipping.`);
+            const emptyResult = { score: 0, feedback: 'No answer was provided.', improvements: [] };
+            appState.results.set(question.id, emptyResult);
+            continue;
+        }
+
+        try {
+            console.log(`Evaluating question: "${question.text.substring(0, 30)}..."`);
+            const result = await evaluateWithGemini({
+                question: question.text,
+                modelAnswer: question.modelAnswer || '',
+                studentAnswer: studentAnswer,
+                maxMarks: question.marks || 10
+            });
+            
+            console.log('✅ Evaluation result:', result);
+            appState.results.set(question.id, result);
+
+        } catch (error) {
+            console.error(`❌ Evaluation failed for question ${question.id}:`, error);
+            // Store a failed result so the UI can still display something
+            const errorResult = { 
+                score: 0, 
+                feedback: 'An error occurred while evaluating this answer. Please try again later.', 
+                improvements: [] 
+            };
+            appState.results.set(question.id, errorResult);
+        }
+    }
+
+    // Mark test as completed
+    appState.testCompleted = true;
+    console.log('🎉 All evaluations complete!');
+
+    // Display the final results summary
+    displayResultsSummary();
+    
+    // Save results to Firestore in the background
+    saveAllResultsToFirestore();
+}
+
+// ==================== DISPLAY RESULTS SUMMARY ====================
+function displayResultsSummary() {
+    // === CALCULATE FINAL SCORES ===
+    let totalPossibleMarks = 0;
+    let totalEarnedMarks = 0;
+
+    appState.questions.forEach(question => {
+        totalPossibleMarks += question.marks || 10;
+        const result = appState.results.get(question.id);
+        if (result) {
+            totalEarnedMarks += result.score || 0;
+        }
+    });
+
+    const percentage = totalPossibleMarks > 0 ? (totalEarnedMarks / totalPossibleMarks) * 100 : 0;
+    const averageScore = appState.questions.length > 0 ? (totalEarnedMarks / appState.questions.length) : 0;
+
+    // === POPULATE SUMMARY HEADER ===
+    elements.totalScore.textContent = `${totalEarnedMarks}/${totalPossibleMarks}`;
+    elements.totalQuestionsResult.textContent = appState.questions.length;
+    elements.scorePercentage.textContent = `${percentage.toFixed(1)}%`;
+    elements.averageScore.textContent = averageScore.toFixed(1);
+
+    // === POPULATE DETAILED RESULTS LIST ===
+    elements.questionResultsList.innerHTML = ''; // Clear previous list
+
+    appState.questions.forEach((question, index) => {
+        const result = appState.results.get(question.id);
+        if (!result) return;
+
+        const maxMarks = question.marks || 10;
+        const scorePercent = maxMarks > 0 ? (result.score / maxMarks) * 100 : 0;
+        let scoreClass = 'medium-score';
+        if (scorePercent >= 80) scoreClass = 'high-score';
+        if (scorePercent < 50) scoreClass = 'low-score';
+
+        const improvementsHTML = result.improvements && result.improvements.length > 0
+            ? result.improvements.map(item => `<li>${item}</li>`).join('')
+            : '<li>Well done! No major improvements needed for this answer.</li>';
+
+        const resultItemHTML = `
+            <div class="result-item ${scoreClass}">
+                <div class="result-header">
+                    <div class="result-question">${index + 1}. ${question.text}</div>
+                    <div class="result-score">${result.score}/${maxMarks}</div>
+                </div>
+                <div class="result-feedback">
+                    <strong>Feedback:</strong> ${result.feedback || 'No feedback available.'}
+                </div>
+                <div class="result-improvements">
+                    <h4>💡 Suggestions for Improvement</h4>
+                    <ul>
+                        ${improvementsHTML}
+                    </ul>
+                </div>
+            </div>
+        `;
+        elements.questionResultsList.innerHTML += resultItemHTML;
+    });
+
+    // === SHOW THE RESULTS PAGE ===
+    elements.loadingState.style.display = 'none';
+    elements.resultsSummary.style.display = 'block';
+    
+    // Scroll to the top of the results for a better UX
+    elements.resultsSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ==================== SAVE ALL RESULTS TO FIRESTORE ====================
+async function saveAllResultsToFirestore() {
+    if (!appState.user) {
+        console.error('❌ Cannot save results: User not authenticated.');
+        return;
+    }
+    
+    console.log('💾 Saving all test attempts to Firestore...');
+    
+    for (const question of appState.questions) {
+        const studentAnswer = appState.answers.get(question.id);
+        const result = appState.results.get(question.id);
+
+        if (!studentAnswer || !result) continue; // Skip if no answer or result
+
+        const attemptData = {
+            userId: appState.user.uid,
+            questionId: question.id,
+            questionText: question.text,
+            category: question.category,
+            maxMarks: question.marks || 10,
+            studentAnswer: studentAnswer,
+            score: result.score,
+            feedback: result.feedback || '',
+            improvements: result.improvements || [],
+            submittedAt: serverTimestamp()
+        };
+        
+        try {
+            await addDoc(collection(db, 'users', appState.user.uid, 'test_attempts'), attemptData);
+            console.log(`✅ Result for question ${question.id} saved to Firestore.`);
+        } catch (error) {
+            console.error(`❌ Error saving result for question ${question.id} to Firestore:`, error);
+            // Optional: Implement a localStorage fallback here for failed saves
+        }
+    }
+    
+    console.log('💾 All results have been sent to Firestore.');
+}
+
+// ==================== START APPLICATION ====================
+init();
+console.log('✅ Test Platform Ready');
     </script>
 </body>
 </html>
