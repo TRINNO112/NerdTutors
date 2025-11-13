@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Question Management</title>
+    
+    <style>
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        /* Container */
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .admin-header {
+            background: white;
+            border-radius: 12px 12px 0 0;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .admin-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .admin-title h1 {
+            color: #1e3c72;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-badge {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .admin-badge {
+            background: #4caf50;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .btn-logout {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #d32f2f;
+        }
+        
+        /* Main Content */
+        .admin-content {
+            background: white;
+            border-radius: 0 0 12px 12px;
+            padding: 2rem;
+            margin-top: 2px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s;
+        }
+        
+        .tab-btn.active {
+            color: #1e3c72;
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #1e3c72;
+        }
+        
+        /* Tab Panels */
+        .tab-panel {
+            display: none;
+        }
+        
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Form Styles */
+        .question-form {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        /* Submit Button */
+        .btn-submit {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
+        }
+        
+        /* Question Cards */
+        .question-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+        
+        .question-card:hover {
+            border-color: #1e3c72;
+            transform: translateX(4px);
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .question-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .badge-category {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .badge-marks {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .question-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: 1px solid #e0e0e0;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+        
+        .btn-icon.edit {
+            color: #1565c0;
+        }
+        
+        .btn-icon.delete {
+            color: #c62828;
+        }
+        
+        /* Login Form */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-header h2 {
+            color: #1e3c72;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn-google {
+            width: 100%;
+            padding: 0.75rem;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-google:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+
+        /* Access Denied */
+        .access-denied {
+            text-align: center;
+            padding: 3rem;
+            background: #ffebee;
+            border-radius: 8px;
+            color: #c62828;
+        }
+
+        .access-denied h2 {
+            margin-bottom: 1rem;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1e3c72;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #333;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            animation: slideUp 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.success {
+            background: #4caf50;
+        }
+        
+        .toast.error {
+            background: #f44336;
+        }
+        
+        .toast.show {
+            display: block;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-header">
+            <h2>🔐 Admin Login</h2>
+            <p>Sign in with admin account</p>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="adminEmail">Email</label>
+                <input type="email" id="adminEmail" placeholder="admin@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn-submit" style="width: 100%; margin-top: 1rem;">
+                Sign In
+            </button>
+            <div style="text-align: center; margin: 1rem 0; color: #666;">OR</div>
+            <button type="button" class="btn-google" id="googleSignIn">
+                <span>🔷</span> Sign in with Google
+            </button>
+        </form>
+    </div>
+
+        <!-- Admin Container -->
+    <div class="admin-container" id="adminContainer" style="display: none;">
+        <!-- Header -->
+        <div class="admin-header">
+            <div class="admin-title">
+                <h1>📚 Economics Question Admin</h1>
+                <div class="user-info">
+                    <span class="admin-badge">ADMIN</span>
+                    <span class="user-badge" id="userEmail">Loading...</span>
+                    <button class="btn-logout" id="btnLogout">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="add">➕ Add Question</button>
+                <button class="tab-btn" data-tab="manage">📋 Manage Questions</button>
+                <button class="tab-btn" data-tab="stats">📊 Statistics</button>
+            </div>
+
+            <!-- Add Question Tab -->
+            <div class="tab-panel active" id="addTab">
+                <div class="question-form">
+                    <form id="questionForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="questionText">Question Text *</label>
+                                <textarea id="questionText" required 
+                                    placeholder="Enter your economics question here..."></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="category">Category *</label>
+                                    <select id="category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Microeconomics">Microeconomics</option>
+                                        <option value="Macroeconomics">Macroeconomics</option>
+                                        <option value="International Economics">International Economics</option>
+                                        <option value="Development Economics">Development Economics</option>
+                                        <option value="Public Economics">Public Economics</option>
+                                        <option value="Monetary Economics">Monetary Economics</option>
+                                        <option value="Labor Economics">Labor Economics</option>
+                                        <option value="Environmental Economics">Environmental Economics</option>
+                                        <option value="Econometrics">Econometrics</option>
+                                        <option value="Economic Theory">Economic Theory</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="marks">Marks *</label>
+                                    <input type="number" id="marks" min="1" max="100" required 
+                                        placeholder="e.g., 10">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="modelAnswer">Model Answer *</label>
+                                <textarea id="modelAnswer" required 
+                                    placeholder="Provide the ideal answer for this question..."></textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="difficulty">Difficulty Level</label>
+                                    <select id="difficulty">
+                                        <option value="Easy">Easy</option>
+                                        <option value="Medium" selected>Medium</option>
+                                        <option value="Hard">Hard</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="status">Status</label>
+                                    <select id="status">
+                                        <option value="active" selected>Active</option>
+                                        <option value="inactive">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-submit" id="submitBtn">
+                                Add Question
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Manage Questions Tab -->
+            <div class="tab-panel" id="manageTab">
+                <div class="questions-list">
+                    <div class="list-header">
+                        <h2>All Questions</h2>
+                        <div class="filter-controls">
+                            <input type="text" class="search-box" id="searchBox" 
+                                placeholder="Search questions...">
+                            <select class="filter-select" id="filterCategory">
+                                <option value="">All Categories</option>
+                                <option value="Microeconomics">Microeconomics</option>
+                                <option value="Macroeconomics">Macroeconomics</option>
+                                <option value="International Economics">International Economics</option>
+                                <option value="Development Economics">Development Economics</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="questionsList">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div class="tab-panel" id="statsTab">
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Stats will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Access Denied Container -->
+    <div class="admin-container" id="accessDeniedContainer" style="display: none;">
+        <div class="access-denied">
+            <h2>🚫 Access Denied</h2>
+            <p>You don't have admin privileges to access this page.</p>
+            <p>Your email: <strong id="deniedEmail"></strong></p>
+            <button class="btn-logout" onclick="location.reload()">Go Back</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- JavaScript Module -->
+        <script type="module">
+        // Import Firebase services (already initialized in firebase-config.js)
+        import { auth, db } from './firebase-config.js';
+        import { evaluateWithGemini } from './gemini-config.js';
+        
+        import { 
+            signInAnonymously, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        
+        import {
+            collection, 
+            getDocs,
+            addDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        
+        // Application State
+        const appState = {
+            user: null,
+            questions: [],
+            currentIndex: 0,
+            answers: new Map(),
+            results: new Map(),
+            isEvaluating: false
+        };
+        
+        // DOM Elements
+        const elements = {
+            authStatus: document.getElementById('authStatus'),
+            loadingState: document.getElementById('loadingState'),
+            errorState: document.getElementById('errorState'),
+            errorMessage: document.getElementById('errorMessage'),
+            questionContainer: document.getElementById('questionContainer'),
+            categoryBadge: document.getElementById('categoryBadge'),
+            marksBadge: document.getElementById('marksBadge'),
+            difficultyBadge: document.getElementById('difficultyBadge'),
+            questionCounter: document.getElementById('questionCounter'),
+            questionText: document.getElementById('questionText'),
+            answerTextarea: document.getElementById('answerTextarea'),
+            charCount: document.getElementById('charCount'),
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            submitBtn: document.getElementById('submitBtn'),
+            resultPanel: document.getElementById('resultPanel'),
+            scoreDisplay: document.getElementById('scoreDisplay'),
+            feedbackText: document.getElementById('feedbackText'),
+            improvementsList: document.getElementById('improvementsList'),
+            progressBar: document.getElementById('progressBar')
+        };
+        
+        // ==================== INITIALIZATION ====================
+        
+        async function init() {
+            try {
+                console.log('🚀 Initializing app...');
+                
+                await setupAuth();
+                await loadQuestions();
+                setupEventListeners();
+                
+                if (appState.questions.length > 0) {
+                    renderQuestion();
+                    elements.loadingState.style.display = 'none';
+                    elements.questionContainer.style.display = 'block';
+                } else {
+                    showError('No active questions found. Please add questions from admin panel.');
+                }
+                
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                showError('Failed to initialize. Please refresh the page.');
+            }
+        }
+        
+        // ==================== AUTHENTICATION ====================
+        
+        async function setupAuth() {
+            return new Promise((resolve, reject) => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        appState.user = user;
+                        elements.authStatus.textContent = `👤 Student ID: ${user.uid.substring(0, 8)}`;
+                        console.log('✅ User authenticated:', user.uid);
+                        resolve(user);
+                    } else {
+                        elements.authStatus.textContent = 'Signing in...';
+                        try {
+                            const credential = await signInAnonymously(auth);
+                            appState.user = credential.user;
+                            elements.authStatus.textContent = `👤 Student ID: ${credential.user.uid.substring(0, 8)}`;
+                            console.log('✅ Anonymous sign-in:', credential.user.uid);
+                            resolve(credential.user);
+                        } catch (error) {
+                            console.error('❌ Auth error:', error);
+                            elements.authStatus.textContent = '❌ Authentication failed';
+                            reject(error);
+                        }
+                    }
+                });
+            });
+        }
+        
+        // ==================== LOAD QUESTIONS (FIXED - NO INDEX NEEDED) ====================
+        
+        async function loadQuestions() {
+            try {
+                console.log('📥 Loading questions from Firestore...');
+                
+                const questionsRef = collection(db, 'questions');
+                const querySnapshot = await getDocs(questionsRef);
+                
+                appState.questions = [];
+                
+                // Filter and collect active questions
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // Only include active questions
+                    if (data.status === 'active') {
+                        appState.questions.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    }
+                });
+                
+                // Sort by creation date (newest first) - done in JavaScript, no index needed
+                appState.questions.sort((a, b) => {
+                    const timeA = a.createdAt?.seconds || 0;
+                    const timeB = b.createdAt?.seconds || 0;
+                    return timeB - timeA; // Descending order (newest first)
+                });
+                
+                console.log(`✅ Loaded ${appState.questions.length} active questions`);
+                
+                if (appState.questions.length === 0) {
+                    throw new Error('No active questions available');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading questions:', error);
+                throw error;
+            }
+        }
+        
+        // ==================== RENDER QUESTION ====================
+        
+        function renderQuestion() {
+            const question = appState.questions[appState.currentIndex];
+            if (!question) {
+                console.error('No question at current index');
+                return;
+            }
+            
+            console.log('📄 Rendering question:', appState.currentIndex + 1);
+            
+            elements.categoryBadge.textContent = question.category || 'General';
+            elements.marksBadge.textContent = `${question.marks || 10} marks`;
+            elements.difficultyBadge.textContent = question.difficulty || 'Medium';
+            elements.questionCounter.textContent = 
+                `Question ${appState.currentIndex + 1} of ${appState.questions.length}`;
+            elements.questionText.textContent = question.text || 'Question text not available';
+            
+            const savedAnswer = appState.answers.get(question.id);
+            elements.answerTextarea.value = savedAnswer || '';
+            updateCharCount();
+            
+            const savedResult = appState.results.get(question.id);
+            if (savedResult) {
+                displayResult(savedResult);
+            } else {
+                elements.resultPanel.classList.remove('show');
+            }
+            
+            elements.prevBtn.disabled = appState.currentIndex === 0;
+            elements.nextBtn.disabled = appState.currentIndex === appState.questions.length - 1;
+            
+            updateProgressBar();
+            elements.answerTextarea.focus();
+        }
+        
+        // ==================== SUBMIT & EVALUATE ====================
+        
+        async function submitAnswer() {
+            const question = appState.questions[appState.currentIndex];
+            const studentAnswer = elements.answerTextarea.value.trim();
+            
+            if (!studentAnswer) {
+                alert('⚠️ Please write an answer before submitting!');
+                elements.answerTextarea.focus();
+                return;
+            }
+            
+            if (studentAnswer.length < 50) {
+                if (!confirm('Your answer is quite short (less than 50 characters). Submit anyway?')) {
+                    return;
+                }
+            }
+            
+            appState.answers.set(question.id, studentAnswer);
+            
+            appState.isEvaluating = true;
+            elements.submitBtn.disabled = true;
+            elements.submitBtn.innerHTML = '🔄 Evaluating with AI...';
+            elements.answerTextarea.disabled = true;
+            
+            try {
+                console.log('🤖 Evaluating answer with Gemini AI...');
+                
+                const result = await evaluateWithGemini({
+                    question: question.text,
+                    modelAnswer: question.modelAnswer || '',
+                    studentAnswer: studentAnswer,
+                    maxMarks: question.marks || 10
+                });
+                
+                console.log('✅ Evaluation complete:', result);
+                
+                appState.results.set(question.id, result);
+                displayResult(result);
+                await saveResultToFirestore(question, studentAnswer, result);
+                
+            } catch (error) {
+                console.error('❌ Evaluation error:', error);
+                alert('Failed to evaluate answer. Please check your Gemini API key and try again.');
+            } finally {
+                appState.isEvaluating = false;
+                elements.submitBtn.disabled = false;
+                elements.submitBtn.innerHTML = '🚀 Evaluate Answer';
+                elements.answerTextarea.disabled = false;
+                updateProgressBar();
+            }
+        }
+        
+        // ==================== DISPLAY RESULT ====================
+        
+        function displayResult(result) {
+            const question = appState.questions[appState.currentIndex];
+            const maxMarks = question.marks || 10;
+            
+            elements.scoreDisplay.textContent = `${result.score}/${maxMarks}`;
+            elements.feedbackText.textContent = result.feedback || 'No detailed feedback available.';
+            
+            elements.improvementsList.innerHTML = '';
+            if (result.improvements && result.improvements.length > 0) {
+                result.improvements.forEach(improvement => {
+                    const li = document.createElement('li');
+                    li.textContent = improvement;
+                    elements.improvementsList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = 'Great work! No major improvements needed.';
+                elements.improvementsList.appendChild(li);
+            }
+            
+            elements.resultPanel.classList.add('show');
+            
+            setTimeout(() => {
+                elements.resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+        
+        // ==================== SAVE TO FIRESTORE ====================
+        
+        async function saveResultToFirestore(question, studentAnswer, result) {
+            if (!appState.user) {
+                console.warn('No authenticated user - cannot save to Firestore');
+                return;
+            }
+            
+            try {
+                const attemptData = {
+                    userId: appState.user.uid,
+                    questionId: question.id,
+                    questionText: question.text,
+                    category: question.category,
+                    maxMarks: question.marks,
+                    studentAnswer: studentAnswer,
+                    score: result.score,
+                    feedback: result.feedback || '',
+                    improvements: result.improvements || [],
+                    submittedAt: serverTimestamp()
+                };
+                
+                await addDoc(collection(db, 'users', appState.user.uid, 'test_attempts'), attemptData);
+                console.log('✅ Result saved to Firestore successfully');
+                
+            } catch (error) {
+                console.error('❌ Error saving to Firestore:', error);
+                // Fallback to localStorage
+                const fallbackKey = `test_${question.id}_${appState.user.uid}`;
+                localStorage.setItem(
+                    fallbackKey,
+                    JSON.stringify({ 
+                        studentAnswer, 
+                        result, 
+                        timestamp: new Date().toISOString() 
+                    })
+                );
+                console.log('💾 Saved to localStorage as fallback');
+            }
+        }
+        
+        // ==================== NAVIGATION ====================
+        
+        function navigatePrevious() {
+            if (appState.currentIndex > 0) {
+                appState.currentIndex--;
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+        
+        function navigateNext() {
+            if (appState.currentIndex < appState.questions.length - 1) {
+                appState.currentIndex++;
+                renderQuestion();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+        
+        // ==================== HELPER FUNCTIONS ====================
+        
+        function updateProgressBar() {
+            const answeredCount = appState.results.size;
+            const totalQuestions = appState.questions.length;
+            const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
+            elements.progressBar.style.width = `${progress}%`;
+        }
+        
+        function updateCharCount() {
+            const count = elements.answerTextarea.value.length;
+            elements.charCount.textContent = count;
+            
+            // Change color based on length
+            if (count < 50) {
+                elements.charCount.style.color = '#f44336'; // Red for too short
+            } else if (count < 200) {
+                elements.charCount.style.color = '#ff9800'; // Orange for okay
+            } else {
+                elements.charCount.style.color = '#4caf50'; // Green for good
+            }
+        }
+        
+        function showError(message) {
+            elements.errorMessage.textContent = message;
+            elements.errorState.style.display = 'block';
+            elements.loadingState.style.display = 'none';
+            elements.questionContainer.style.display = 'none';
+        }
+        
+        // ==================== EVENT LISTENERS ====================
+        
+        function setupEventListeners() {
+            // Navigation buttons
+            elements.prevBtn.addEventListener('click', navigatePrevious);
+            elements.nextBtn.addEventListener('click', navigateNext);
+            
+            // Submit button
+            elements.submitBtn.addEventListener('click', submitAnswer);
+            
+            // Answer textarea
+            elements.answerTextarea.addEventListener('input', (e) => {
+                const question = appState.questions[appState.currentIndex];
+                if (question) {
+                    appState.answers.set(question.id, e.target.value);
+                }
+                updateCharCount();
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + Enter to submit
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!elements.submitBtn.disabled) {
+                        submitAnswer();
+                    }
+                }
+                
+                // Alt + Left Arrow for previous
+                if (e.altKey && e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    if (!elements.prevBtn.disabled) {
+                        navigatePrevious();
+                    }
+                }
+                
+                // Alt + Right Arrow for next
+                if (e.altKey && e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (!elements.nextBtn.disabled) {
+                        navigateNext();
+                    }
+                }
+                
+                // Escape to blur textarea
+                if (e.key === 'Escape') {
+                    if (document.activeElement === elements.answerTextarea) {
+                        elements.answerTextarea.blur();
+                    }
+                }
+            });
+            
+            // Warn before leaving with unsaved work
+            window.addEventListener('beforeunload', (e) => {
+                const hasUnsaved = appState.answers.size > 0 && 
+                                  appState.results.size < appState.answers.size;
+                if (hasUnsaved) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unevaluated answers. Are you sure you want to leave?';
+                }
+            });
+        }
+        
+        // ==================== AUTO-SAVE ====================
+        
+        // Auto-save every 30 seconds
+        setInterval(() => {
+            if (appState.answers.size > 0) {
+                const saveData = {
+                    answers: Array.from(appState.answers.entries()),
+                    results: Array.from(appState.results.entries()),
+                    currentIndex: appState.currentIndex,
+                    timestamp: new Date().toISOString()
+                };
+                sessionStorage.setItem('test_autosave', JSON.stringify(saveData));
+                console.log('💾 Auto-saved progress');
+            }
+        }, 30000); // Every 30 seconds
+        
+        // Restore from auto-save on load
+        function restoreAutoSave() {
+            const saved = sessionStorage.getItem('test_autosave');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    const savedTime = new Date(data.timestamp);
+                    const now = new Date();
+                    const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
+                    
+                    // Only restore if saved within last 24 hours
+                    if (hoursDiff < 24) {
+                        if (confirm('Found a previous session. Restore your progress?')) {
+                            appState.answers = new Map(data.answers);
+                            appState.results = new Map(data.results);
+                            appState.currentIndex = data.currentIndex || 0;
+                            console.log('✅ Restored previous session');
+                        }
+                    } else {
+                        sessionStorage.removeItem('test_autosave');
+                    }
+                } catch (error) {
+                    console.error('Failed to restore auto-save:', error);
+                }
+            }
+        }
+        
+        // ==================== START APPLICATION ====================
+        
+        restoreAutoSave();
+        init();
+        
+        console.log('✅ Test Platform Ready');
+        console.log('📌 Keyboard shortcuts:');
+        console.log('   - Ctrl+Enter: Submit answer');
+        console.log('   - Alt+←: Previous question');
+        console.log('   - Alt+→: Next question');
+        
+    </script>
+</body>
+</html>

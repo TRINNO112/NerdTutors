@@ -1458,42 +1458,52 @@
             }
         }
 
-        /* Modal Styles */
-        .modal-overlay {
+        .login-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            z-index: 99999;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10000;
-            opacity: 1;
-            visibility: visible;
+            opacity: 0;
+            visibility: hidden;
             transition: all 0.3s ease;
         }
 
-        .modal-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
+        .login-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
+            position: relative;
             background: white;
-            padding: 3rem;
             border-radius: 20px;
+            padding: 2.5rem;
             max-width: 450px;
             width: 90%;
-            position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
         }
 
-        @keyframes modalSlideIn {
+        @keyframes slideUp {
             from {
-                transform: translateY(-50px);
+                transform: translateY(50px);
                 opacity: 0;
             }
             to {
@@ -1502,62 +1512,189 @@
             }
         }
 
-        .modal-close {
+        .modal-close-btn {
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background: none;
+            width: 36px;
+            height: 36px;
             border: none;
-            font-size: 2rem;
+            background: var(--gray-light);
+            border-radius: 50%;
+            font-size: 1.5rem;
             cursor: pointer;
-            color: var(--gray);
-            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
-        .modal-close:hover {
-            color: var(--dark);
+        .modal-close-btn:hover {
+            background: var(--error);
+            color: white;
+            transform: rotate(90deg);
         }
 
-        .modal-content h2 {
+        .modal-header {
+            text-align: center;
             margin-bottom: 2rem;
+        }
+
+        .modal-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-header p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .modal-message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
             text-align: center;
         }
 
-        .modal-content .form-group {
-            margin-bottom: 1.5rem;
+        .modal-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
         }
 
-        .modal-content label {
-            display: block;
-            margin-bottom: 0.5rem;
+        .modal-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
             font-weight: 600;
+            font-size: 0.9rem;
             color: var(--dark);
         }
 
-        .modal-content input {
-            width: 100%;
-            padding: 0.875rem;
+        .input-group input {
+            padding: 0.875rem 1rem;
             border: 2px solid var(--gray-light);
             border-radius: 10px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
-        .modal-content input:focus {
+        .input-group input:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
-        .modal-content .btn {
-            width: 100%;
-            margin-top: 1rem;
+        .modal-btn-primary {
+            padding: 1rem;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .form-note {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.875rem;
+        .modal-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .modal-btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-loader {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .modal-divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
             color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .modal-divider::before,
+        .modal-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--gray-light);
+        }
+
+        .modal-divider span {
+            padding: 0 1rem;
+        }
+
+        .modal-btn-google {
+            width: 100%;
+            padding: 1rem;
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-google:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .modal-footer-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .modal-footer-text a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .modal-footer-text a:hover {
+            text-decoration: underline;
         }
 
         .hidden {
@@ -1566,6 +1703,52 @@
     </style>
 </head>
 <body>
+    <!-- Login Modal Popup -->
+    <div id="loginModal" class="login-modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeLoginModal()">×</button>
+            
+            <div class="modal-header">
+                <h2>Welcome Back!</h2>
+                <p>Sign in to continue your learning journey</p>
+            </div>
+
+            <div id="modalMessage" class="modal-message hidden"></div>
+
+            <!-- Login Form -->
+            <form id="modalLoginForm" class="modal-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="modalEmail" placeholder="your.email@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="modalPassword" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="modal-btn-primary">
+                    <span>Sign In</span>
+                    <div class="btn-loader hidden"></div>
+                </button>
+            </form>
+
+            <div class="modal-divider"><span>OR</span></div>
+
+            <button class="modal-btn-google" onclick="googleLogin()">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Sign in with Google
+            </button>
+
+            <p class="modal-footer-text">Don't have an account? <a href="#" onclick="showSignupForm()">Sign Up</a></p>
+        </div>
+    </div>
+
+
     <!-- ==================== NAVIGATION ==================== -->
     <nav class="navbar" id="navbar">
         <div class="navbar-container">
@@ -2121,50 +2304,221 @@
         </div>
     </footer>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <button class="modal-close" id="closeModal">&times;</button>
-            <h2>Login</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input type="email" id="loginEmail" required placeholder="student@example.com">
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-                <p class="form-note">Demo: email: student@test.com, password: test123</p>
-            </form>
-        </div>
-    </div>
-
+    <!-- ==================== JAVASCRIPT (ALL IN ONE PLACE) ==================== -->
     <script type="module">
-        // ==================== SIMPLE LOGIN REDIRECT ====================
-        document.querySelector('.navbar-actions .btn-ghost').addEventListener('click', () => {
-            window.location.href = 'login.html';
+        // Import from your existing firebase-config.js
+        import { auth, db, googleProvider } from './firebase-config.js';
+        import { 
+            onAuthStateChanged, 
+            signInWithEmailAndPassword, 
+            signInWithPopup, 
+            signOut 
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { 
+            doc, 
+            setDoc, 
+            serverTimestamp 
+        } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        let currentUser = null;
+
+        // ==================== MODAL FUNCTIONS ====================
+        window.showLoginModal = () => {
+            document.getElementById('loginModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('loginModal').classList.add('show'), 10);
+        };
+
+        window.closeLoginModal = () => {
+            document.getElementById('loginModal').classList.remove('show');
+            setTimeout(() => document.getElementById('loginModal').classList.add('hidden'), 300);
+        };
+
+        function showModalMessage(message, type) {
+            const msgBox = document.getElementById('modalMessage');
+            msgBox.textContent = message;
+            msgBox.className = `modal-message ${type}`;
+            msgBox.classList.remove('hidden');
+            setTimeout(() => msgBox.classList.add('hidden'), 4000);
+        }
+
+        // ==================== SAVE USER DATA ====================
+        async function saveUserData(user) {
+            try {
+                await setDoc(doc(db, 'users', user.uid), {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0],
+                    lastLogin: serverTimestamp()
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error saving user:', error);
+            }
+        }
+
+        // ==================== EMAIL LOGIN ====================
+        document.getElementById('modalLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('modalEmail').value;
+            const password = document.getElementById('modalPassword').value;
+            const btn = e.target.querySelector('.modal-btn-primary');
+            const loader = btn.querySelector('.btn-loader');
+            const span = btn.querySelector('span');
+
+            span.style.opacity = '0';
+            loader.classList.remove('hidden');
+            btn.disabled = true;
+
+            try {
+                const result = await signInWithEmailAndPassword(auth, email, password);
+                await saveUserData(result.user);
+                showModalMessage('✓ Login successful!', 'success');
+                setTimeout(() => closeLoginModal(), 1500);
+            } catch (error) {
+                let msg = 'Login failed!';
+                if (error.code === 'auth/user-not-found') msg = 'No account found';
+                if (error.code === 'auth/wrong-password') msg = 'Wrong password';
+                if (error.code === 'auth/invalid-credential') msg = 'Invalid credentials';
+                showModalMessage(msg, 'error');
+            } finally {
+                span.style.opacity = '1';
+                loader.classList.add('hidden');
+                btn.disabled = false;
+            }
         });
 
-        document.querySelector('.navbar-actions .btn-primary').addEventListener('click', () => {
-            window.location.href = 'login.html';
-        });
+        // ==================== GOOGLE LOGIN ====================
+        window.googleLogin = async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                await saveUserData(result.user);
+                showModalMessage('✓ Google login successful!', 'success');
+                setTimeout(() => closeLoginModal(), 1500);
+            } catch (error) {
+                showModalMessage('Google login failed!', 'error');
+            }
+        };
 
-        document.getElementById('startLearning').addEventListener('click', () => {
-            window.location.href = 'login.html';
-        });
+        // ==================== AUTH STATE LISTENER ====================
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            const loginBtn = document.querySelector('.btn-ghost');
+            const getStartedBtn = document.querySelector('.navbar-actions .btn-primary');
 
-        // ==================== RESOURCE BUTTONS ====================
-        document.querySelectorAll('.resource-btn-primary').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const cardTitle = this.closest('.resource-card-horizontal').querySelector('.resource-title').textContent;
+            if (user) {
+                console.log('User logged in:', user.email);
+                loginBtn.textContent = user.displayName || user.email.split('@')[0];
+                loginBtn.onclick = null;
+                loginBtn.style.cursor = 'default';
                 
-                if (cardTitle === 'Class Tests') {
-                    window.location.href = 'login.html'; // Just redirect to login!
-                } else {
-                    alert(`🎉 ${cardTitle} section coming soon!`);
+                getStartedBtn.textContent = 'Logout';
+                getStartedBtn.onclick = async () => {
+                    await signOut(auth);
+                    alert('✓ Logged out!');
+                    location.reload();
+                };
+            } else {
+                console.log('No user logged in');
+                loginBtn.textContent = 'Login';
+                loginBtn.onclick = showLoginModal;
+                loginBtn.style.cursor = 'pointer';
+                
+                getStartedBtn.textContent = 'Get Started';
+                getStartedBtn.onclick = showLoginModal;
+            }
+        });
+
+        // ==================== SIGNUP PLACEHOLDER ====================
+        window.showSignupForm = () => {
+            alert('📝 Signup coming soon! Use Google login for now.');
+        };
+
+        // ==================== MOBILE MENU TOGGLE ====================
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+        const navbarActions = document.getElementById('navbarActions');
+        const overlay = document.getElementById('overlay');
+        const navbar = document.getElementById('navbar');
+
+        mobileToggle.addEventListener('click', () => {
+            mobileToggle.classList.toggle('active');
+            navbarMenu.classList.toggle('active');
+            navbarActions.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = navbarMenu.classList.contains('active') ? 'hidden' : '';
+        });
+
+        overlay.addEventListener('click', () => {
+            mobileToggle.classList.remove('active');
+            navbarMenu.classList.remove('active');
+            navbarActions.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // Close mobile menu on link click
+        document.querySelectorAll('.navbar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 968) {
+                    mobileToggle.classList.remove('active');
+                    navbarMenu.classList.remove('active');
+                    navbarActions.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
                 }
+            });
+        });
+
+        // ==================== NAVBAR SCROLL EFFECT ====================
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ==================== ACTIVE LINK ON SCROLL ====================
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.navbar-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // ==================== SMOOTH SCROLL ====================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // ==================== START LEARNING & WATCH DEMO ====================
+        document.getElementById('startLearning').addEventListener('click', () => {
+            const resourcesSection = document.getElementById('resources');
+            window.scrollTo({
+                top: resourcesSection.offsetTop - 80,
+                behavior: 'smooth'
             });
         });
 
@@ -2178,21 +2532,27 @@
 
         // ==================== ANIMATED COUNTERS ====================
         function animateCounter(element, target, duration = 2000) {
+            const start = 0;
             const increment = target / (duration / 16);
-            let current = 0;
+            let current = start;
             
             const timer = setInterval(() => {
                 current += increment;
                 if (current >= target) {
-                    element.textContent = target + '+';
+                    element.textContent = target + (target === 500 || target === 50 || target === 100 ? '+' : '');
                     clearInterval(timer);
                 } else {
-                    element.textContent = Math.floor(current) + '+';
+                    element.textContent = Math.floor(current) + (target === 500 || target === 50 || target === 100 ? '+' : '');
                 }
             }, 16);
         }
 
-        const observerOptions = { threshold: 0.3 };
+        // Intersection Observer for counter animation
+        const observerOptions = {
+            threshold: 0.3,
+            rootMargin: '0px'
+        };
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting && entry.target.classList.contains('stat-number')) {
@@ -2203,7 +2563,9 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.stat-number').forEach(el => observer.observe(el));
+        document.querySelectorAll('.stat-number').forEach(el => {
+            observer.observe(el);
+        });
 
         // ==================== RESOURCE TABS ====================
         const resourceTabs = document.querySelectorAll('.resource-tab');
@@ -2215,24 +2577,31 @@
                 tab.classList.add('active');
                 
                 const category = tab.dataset.category;
+                
                 resourceCards.forEach(card => {
-                    card.style.display = (category === 'all' || card.dataset.category === category) ? 'block' : 'none';
+                    if (category === 'all' || card.dataset.category === category) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
                 });
             });
         });
 
-        // ==================== RESOURCE BUTTONS ====================
+        // ==================== RESOURCE CARD BUTTONS WITH CLASS TEST PROTECTION ====================
         document.querySelectorAll('.resource-btn-primary').forEach(btn => {
             btn.addEventListener('click', function() {
                 const cardTitle = this.closest('.resource-card-horizontal').querySelector('.resource-title').textContent;
                 
-                // Check if it's the "Class Tests" card
+                // Check if it's Class Tests
                 if (cardTitle === 'Class Tests') {
                     if (currentUser) {
+                        // User is logged in, go to test page
                         window.location.href = 'test.html';
                     } else {
-                        alert('🔒 Please login to access tests');
-                        loginModal.classList.remove('hidden');
+                        // User not logged in, show alert and open login modal
+                        alert('🔐 Please login first to access Class Tests!');
+                        showLoginModal();
                     }
                 } else {
                     alert(`🎉 ${cardTitle} section coming soon! We're preparing amazing content for you.`);
