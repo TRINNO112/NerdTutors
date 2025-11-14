@@ -764,8 +764,8 @@
             const querySnapshot = await getDocs(collection(db, 'questions'));
             let html = '';
             
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
                 html += `
                     <div class="question-card">
                         <div class="question-header">
@@ -773,13 +773,36 @@
                                 <span class="badge badge-category">${data.category}</span>
                                 <span class="badge badge-marks">${data.marks} marks</span>
                             </div>
+                            <div class="question-actions">
+                                <button class="btn-icon edit" data-id="${docSnap.id}" title="Edit">✏️</button>
+                                <button class="btn-icon delete" data-id="${docSnap.id}" title="Delete">🗑️</button>
+                            </div>
                         </div>
                         <p>${data.text}</p>
                     </div>
                 `;
             });
-            
+
             elements.questionsList.innerHTML = html || '<p>No questions found</p>';
+
+            // Attach delete handlers
+            document.querySelectorAll('.btn-icon.delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = btn.dataset.id;
+                    if (!id) return;
+                    const confirmDelete = confirm('Are you sure you want to delete this question?');
+                    if (!confirmDelete) return;
+
+                    try {
+                        await deleteDoc(doc(db, 'questions', id));
+                        showToast('Question deleted successfully', 'success');
+                        loadQuestions();
+                    } catch (error) {
+                        console.error('Delete failed:', error);
+                        showToast('Failed to delete question: ' + error.message, 'error');
+                    }
+                });
+            });
         } catch (error) {
             console.error('Error loading questions:', error);
             elements.questionsList.innerHTML = '<p>Error loading questions</p>';

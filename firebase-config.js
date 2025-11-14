@@ -27,6 +27,7 @@ export const googleProvider = new GoogleAuthProvider();
 // ADMIN EMAILS - Add your admin emails here
 export const ADMIN_EMAILS = [
   "kaushtubh457@gmail.com",
+  "jatinthacker000@gmail.com",
   // Add more admin emails as needed
 ];
 
