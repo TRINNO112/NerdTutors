@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Performance Analytics</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .dashboard-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header-content h1 {
+            color: #667eea;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-refresh {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .btn-refresh:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+        
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            border-left: 4px solid;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .stat-box.purple { border-color: #667eea; }
+        .stat-box.green { border-color: #4caf50; }
+        .stat-box.orange { border-color: #ff9800; }
+        .stat-box.blue { border-color: #2196f3; }
+        
+        .stat-box h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-box .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-box .label {
+            font-size: 0.85rem;
+            color: #999;
+        }
+        
+        /* Main Content */
+        .dashboard-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .filter-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            min-width: 200px;
+        }
+        
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        /* Student Cards */
+        .students-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .student-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .student-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+        
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .student-info h3 {
+            color: #333;
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .student-email {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .student-stats {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat-badge.answered {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .stat-badge.score {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .stat-badge.avg {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        /* Answer Details */
+        .answer-details {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .answer-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid #667eea;
+        }
+        
+        .answer-question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .answer-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        
+        .answer-text {
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        /* Toggle Button */
+        .btn-toggle {
+            background: none;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .btn-toggle:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #999;
+        }
+        
+        /* Loading */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 3rem auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #333;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .toast.success { background: #4caf50; }
+        .toast.error { background: #f44336; }
+        .toast.show { display: block; animation: slideUp 0.3s; }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+            
+            .filter-group select,
+            .filter-group input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1>📊 Student Performance Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn-refresh" id="btnRefresh">🔄 Refresh</button>
+                    <a href="admin.html" class="btn-back">← Back to Admin</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <div class="stat-box purple">
+                <h3>Total Students</h3>
+                <div class="value" id="totalStudents">0</div>
+                <div class="label">Active Users</div>
+            </div>
+            
+            <div class="stat-box green">
+                <h3>Total Submissions</h3>
+                <div class="value" id="totalSubmissions">0</div>
+                <div class="label">Answers Submitted</div>
+            </div>
+            
+            <div class="stat-box orange">
+                <h3>Average Score</h3>
+                <div class="value" id="avgScore">0%</div>
+                <div class="label">Overall Performance</div>
+            </div>
+            
+            <div class="stat-box blue">
+                <h3>Completion Rate</h3>
+                <div class="value" id="completionRate">0%</div>
+                <div class="label">Questions Answered</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dashboard-content">
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Search Student</label>
+                    <input type="text" id="searchStudent" placeholder="🔍 Search by name or email...">
+                </div>
+                
+                <div class="filter-group">
+                    <label>Sort By</label>
+                    <select id="sortBy">
+                        <option value="name">Name (A-Z)</option>
+                        <option value="submissions">Most Submissions</option>
+                        <option value="score">Highest Score</option>
+                        <option value="recent">Most Recent</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Students Grid -->
+            <div class="students-grid" id="studentsGrid">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { auth, db } from './firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { 
+            collection, 
+            getDocs,
+            query,
+            orderBy 
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // Check admin access
+        const ADMIN_EMAILS = [
+            'kaushtubh457@gmail.com',
+            'jatinthacker000@gmail.com'
+        ];
+
+        let allStudentData = [];
+
+        // Initialize
+        onAuthStateChanged(auth, (user) => {
+            if (user && (ADMIN_EMAILS.includes(user.email) || user.email?.includes('admin'))) {
+                loadDashboardData();
+            } else {
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+                        <div style="text-align: center; background: white; padding: 3rem; border-radius: 12px;">
+                            <h2 style="color: #c62828; margin-bottom: 1rem;">🚫 Access Denied</h2>
+                            <p style="color: #666; margin-bottom: 1.5rem;">You need admin privileges to access this dashboard.</p>
+                            <a href="admin.html" style="background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none;">Back to Admin</a>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // Load Dashboard Data
+        async function loadDashboardData() {
+            try {
+                // Fetch student submissions from 'submissions' collection
+                const submissionsSnapshot = await getDocs(collection(db, 'submissions'));
+                
+                // Organize data by student
+                const studentMap = {};
+                
+                submissionsSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const studentEmail = data.studentEmail || data.userEmail || 'Unknown';
+                    
+                    if (!studentMap[studentEmail]) {
+                        studentMap[studentEmail] = {
+                            email: studentEmail,
+                            name: data.studentName || studentEmail.split('@')[0],
+                            submissions: [],
+                            totalScore: 0,
+                            answersCount: 0
+                        };
+                    }
+                    
+                    studentMap[studentEmail].submissions.push({
+                        id: doc.id,
+                        questionText: data.questionText || 'N/A',
+                        answer: data.answer || data.studentAnswer || '',
+                        score: data.score || 0,
+                        maxScore: data.maxScore || data.marks || 10,
+                        category: data.category || 'N/A',
+                        submittedAt: data.submittedAt || data.timestamp || new Date(),
+                        feedback: data.feedback || ''
+                    });
+                    
+                    studentMap[studentEmail].answersCount++;
+                    studentMap[studentEmail].totalScore += (data.score || 0);
+                });
+
+                allStudentData = Object.values(studentMap);
+                
+                displayStatistics(allStudentData);
+                displayStudents(allStudentData);
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showToast('Failed to load dashboard data', 'error');
+                document.getElementById('studentsGrid').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Loading Data</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display Statistics
+        function displayStatistics(students) {
+            const totalStudents = students.length;
+            const totalSubmissions = students.reduce((sum, s) => sum + s.answersCount, 0);
+            
+            let totalScoreSum = 0;
+            let totalMaxScore = 0;
+            
+            students.forEach(student => {
+                student.submissions.forEach(sub => {
+                    totalScoreSum += sub.score;
+                    totalMaxScore += sub.maxScore;
+                });
+            });
+            
+            const avgScore = totalMaxScore > 0 ? ((totalScoreSum / totalMaxScore) * 100).toFixed(1) : 0;
+            
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('totalSubmissions').textContent = totalSubmissions;
+            document.getElementById('avgScore').textContent = avgScore + '%';
+            document.getElementById('completionRate').textContent = avgScore + '%';
+        }
+
+        // Display Students
+        function displayStudents(students) {
+            const grid = document.getElementById('studentsGrid');
+            
+            if (students.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📭 No Student Data Yet</h3>
+                        <p>Student submissions will appear here once they start answering questions.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            
+            students.forEach((student, index) => {
+                const avgScore = student.submissions.length > 0 
+                    ? (student.submissions.reduce((sum, s) => sum + s.score, 0) / 
+                       student.submissions.reduce((sum, s) => sum + s.maxScore, 0) * 100).toFixed(1)
+                    : 0;
+
+                html += `
+                    <div class="student-card">
+                        <div class="student-header">
+                            <div class="student-info">
+                                <h3>👤 ${student.name}</h3>
+                                <div class="student-email">${student.email}</div>
+                            </div>
+                            <div class="student-stats">
+                                <div class="stat-badge answered">
+                                    📝 ${student.answersCount} Submitted
+                                </div>
+                                <div class="stat-badge score">
+                                    ⭐ ${student.totalScore} Points
+                                </div>
+                                <div class="stat-badge avg">
+                                    📊 ${avgScore}% Avg
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn-toggle" onclick="toggleAnswers(${index})">
+                            View Submissions
+                        </button>
+                        
+                        <div class="answer-details" id="answers-${index}" style="display: none;">
+                            ${student.submissions.map(sub => `
+                                <div class="answer-item">
+                                    <div class="answer-question">Q: ${sub.questionText}</div>
+                                    <div class="answer-meta">
+                                        <span>📁 ${sub.category}</span>
+                                        <span>🎯 Score: ${sub.score}/${sub.maxScore}</span>
+                                        <span>📅 ${new Date(sub.submittedAt.seconds * 1000 || sub.submittedAt).toLocaleDateString()}</span>
+                                    </div>
+                                    <div class="answer-text">
+                                        <strong>Answer:</strong> ${sub.answer || 'No answer provided'}
+                                    </div>
+                                    ${sub.feedback ? `
+                                        <div class="answer-text" style="background: #e3f2fd;">
+                                            <strong>Feedback:</strong> ${sub.feedback}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        }
+
+        // Toggle answers visibility
+        window.toggleAnswers = function(index) {
+            const answersDiv = document.getElementById(`answers-${index}`);
+            if (answersDiv.style.display === 'none') {
+                answersDiv.style.display = 'block';
+            } else {
+                answersDiv.style.display = 'none';
+            }
+        };
+
+        // Search and Sort
+        document.getElementById('searchStudent')?.addEventListener('input', filterAndSort);
+        document.getElementById('sortBy')?.addEventListener('change', filterAndSort);
+        document.getElementById('btnRefresh')?.addEventListener('click', () => {
+            loadDashboardData();
+            showToast('Dashboard refreshed!', 'success');
+        });
+
+        function filterAndSort() {
+            const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
+            const sortBy = document.getElementById('sortBy').value;
+
+            let filtered = allStudentData.filter(student => 
+                student.name.toLowerCase().includes(searchTerm) || 
+                student.email.toLowerCase().includes(searchTerm)
+            );
+
+            // Sort
+            if (sortBy === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'submissions') {
+                filtered.sort((a, b) => b.answersCount - a.answersCount);
+            } else if (sortBy === 'score') {
+                filtered.sort((a, b) => b.totalScore - a.totalScore);
+            }
+
+            displayStudents(filtered);
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
