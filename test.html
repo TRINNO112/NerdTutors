@@ -932,634 +932,634 @@
     </div>
 
     <script type="module">
-    // ==================== FIREBASE IMPORTS ====================
-    import { auth, db } from './firebase-config.js';
-    import { evaluateWithGemini } from './gemini-config.js';
+        // ==================== FIREBASE IMPORTS ====================
+        import { auth, db } from './firebase-config.js';
+        import { evaluateWithGemini } from './gemini-config.js';
 
-    import { 
-        signInAnonymously, 
-        onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { 
+            signInAnonymously, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
-    import {
-        collection, 
-        query, 
-        where, 
-        getDocs,
-        addDoc,
-        serverTimestamp,
-        orderBy
-    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import {
+            collection, 
+            query, 
+            where, 
+            getDocs,
+            addDoc,
+            serverTimestamp,
+            orderBy
+        } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-    // ==================== APPLICATION STATE ====================
-    const appState = {
-        user: null,
-        questions: [],
-        currentIndex: 0,
-        answers: new Map(),          // Stores all answers (questionId -> answer text)
-        results: new Map(),          // Stores evaluation results (questionId -> result object)
-        isEvaluating: false,
-        isSubmitting: false,         // NEW: Track if test is being submitted
-        testCompleted: false         // NEW: Track if test is completed
-    };
+        // ==================== APPLICATION STATE ====================
+        const appState = {
+            user: null,
+            questions: [],
+            currentIndex: 0,
+            answers: new Map(),          // Stores all answers (questionId -> answer text)
+            results: new Map(),          // Stores evaluation results (questionId -> result object)
+            isEvaluating: false,
+            isSubmitting: false,         // NEW: Track if test is being submitted
+            testCompleted: false         // NEW: Track if test is completed
+        };
 
-    // ==================== DOM ELEMENTS ====================
-    const elements = {
-        // Auth & Status
-        authStatus: document.getElementById('authStatus'),
-        loadingState: document.getElementById('loadingState'),
-        errorState: document.getElementById('errorState'),
-        errorMessage: document.getElementById('errorMessage'),
-        progressBar: document.getElementById('progressBar'),
-        
-        // Question Container
-        questionContainer: document.getElementById('questionContainer'),
-        
-        // Status Banner (NEW)
-        totalQuestions: document.getElementById('totalQuestions'),
-        answeredCount: document.getElementById('answeredCount'),
-        answeredBadge: document.getElementById('answeredBadge'),
-        
-        // Question Info
-        categoryBadge: document.getElementById('categoryBadge'),
-        marksBadge: document.getElementById('marksBadge'),
-        difficultyBadge: document.getElementById('difficultyBadge'),
-        answeredStatusBadge: document.getElementById('answeredStatusBadge'),
-        questionCounter: document.getElementById('questionCounter'),
-        questionText: document.getElementById('questionText'),
-        
-        // Answer Section
-        answerTextarea: document.getElementById('answerTextarea'),
-        charCount: document.getElementById('charCount'),
-        
-        // Navigation
-        prevBtn: document.getElementById('prevBtn'),
-        nextBtn: document.getElementById('nextBtn'),
-        submitTestBtn: document.getElementById('submitTestBtn'),
-        
-        // Results (NEW)
-        resultsSummary: document.getElementById('resultsSummary'),
-        totalScore: document.getElementById('totalScore'),
-        totalQuestionsResult: document.getElementById('totalQuestionsResult'),
-        scorePercentage: document.getElementById('scorePercentage'),
-        averageScore: document.getElementById('averageScore'),
-        questionResultsList: document.getElementById('questionResultsList')
-    };
-
-    // ==================== INITIALIZATION ====================
-    async function init() {
-        try {
-            console.log('🚀 Initializing app...');
+        // ==================== DOM ELEMENTS ====================
+        const elements = {
+            // Auth & Status
+            authStatus: document.getElementById('authStatus'),
+            loadingState: document.getElementById('loadingState'),
+            errorState: document.getElementById('errorState'),
+            errorMessage: document.getElementById('errorMessage'),
+            progressBar: document.getElementById('progressBar'),
             
-            // Setup authentication
-            await setupAuth();
+            // Question Container
+            questionContainer: document.getElementById('questionContainer'),
             
-            // Load questions from Firestore
-            await loadQuestions();
+            // Status Banner (NEW)
+            totalQuestions: document.getElementById('totalQuestions'),
+            answeredCount: document.getElementById('answeredCount'),
+            answeredBadge: document.getElementById('answeredBadge'),
             
-            // Setup all event listeners
-            setupEventListeners();
+            // Question Info
+            categoryBadge: document.getElementById('categoryBadge'),
+            marksBadge: document.getElementById('marksBadge'),
+            difficultyBadge: document.getElementById('difficultyBadge'),
+            answeredStatusBadge: document.getElementById('answeredStatusBadge'),
+            questionCounter: document.getElementById('questionCounter'),
+            questionText: document.getElementById('questionText'),
             
-            // Check if we have questions
-            if (appState.questions.length > 0) {
-                // Update status banner
-                updateStatusBanner();
+            // Answer Section
+            answerTextarea: document.getElementById('answerTextarea'),
+            charCount: document.getElementById('charCount'),
+            
+            // Navigation
+            prevBtn: document.getElementById('prevBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            submitTestBtn: document.getElementById('submitTestBtn'),
+            
+            // Results (NEW)
+            resultsSummary: document.getElementById('resultsSummary'),
+            totalScore: document.getElementById('totalScore'),
+            totalQuestionsResult: document.getElementById('totalQuestionsResult'),
+            scorePercentage: document.getElementById('scorePercentage'),
+            averageScore: document.getElementById('averageScore'),
+            questionResultsList: document.getElementById('questionResultsList')
+        };
+
+        // ==================== INITIALIZATION ====================
+        async function init() {
+            try {
+                console.log('🚀 Initializing app...');
                 
-                // Render first question
-                renderQuestion();
+                // Setup authentication
+                await setupAuth();
                 
-                // Hide loading, show question container
-                elements.loadingState.style.display = 'none';
-                elements.questionContainer.style.display = 'block';
+                // Load questions from Firestore
+                await loadQuestions();
                 
-                console.log('✅ App initialized successfully');
+                // Setup all event listeners
+                setupEventListeners();
+                
+                // Check if we have questions
+                if (appState.questions.length > 0) {
+                    // Update status banner
+                    updateStatusBanner();
+                    
+                    // Render first question
+                    renderQuestion();
+                    
+                    // Hide loading, show question container
+                    elements.loadingState.style.display = 'none';
+                    elements.questionContainer.style.display = 'block';
+                    
+                    console.log('✅ App initialized successfully');
+                } else {
+                    showError('No active questions found. Please contact admin.');
+                }
+                
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                showError('Failed to initialize. Please refresh the page.');
+            }
+        }
+
+        // ==================== AUTHENTICATION ====================
+        async function setupAuth() {
+            return new Promise((resolve, reject) => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        // User already authenticated
+                        appState.user = user;
+                        elements.authStatus.textContent = `👤 Student ID: ${user.uid.substring(0, 8)}`;
+                        console.log('✅ User authenticated:', user.uid);
+                        resolve(user);
+                    } else {
+                        // Sign in anonymously
+                        elements.authStatus.textContent = 'Signing in...';
+                        try {
+                            const credential = await signInAnonymously(auth);
+                            appState.user = credential.user;
+                            elements.authStatus.textContent = `👤 Student ID: ${credential.user.uid.substring(0, 8)}`;
+                            console.log('✅ Anonymous sign-in:', credential.user.uid);
+                            resolve(credential.user);
+                        } catch (error) {
+                            console.error('❌ Auth error:', error);
+                            elements.authStatus.textContent = '❌ Authentication failed';
+                            reject(error);
+                        }
+                    }
+                });
+            });
+        }
+
+        // ==================== LOAD QUESTIONS FROM FIRESTORE ====================
+        async function loadQuestions() {
+            try {
+                console.log('📥 Loading questions from Firestore...');
+                
+                const questionsRef = collection(db, 'questions');
+                const querySnapshot = await getDocs(questionsRef);
+                
+                console.log('📊 Total documents in questions collection:', querySnapshot.size);
+                
+                appState.questions = [];
+                
+                // Process each question document
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    console.log('📄 Question found:', {
+                        id: doc.id,
+                        status: data.status,
+                        category: data.category,
+                        text: data.text?.substring(0, 50) + '...'
+                    });
+                    
+                    // Load ALL questions (you can filter by status: 'active' if needed)
+                    appState.questions.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+                
+                console.log(`✅ Total questions loaded: ${appState.questions.length}`);
+                
+                // Show active vs inactive count
+                const activeCount = appState.questions.filter(q => q.status === 'active').length;
+                const inactiveCount = appState.questions.filter(q => q.status === 'inactive').length;
+                console.log(`📊 Active: ${activeCount}, Inactive: ${inactiveCount}`);
+                
+                // Sort questions by creation date (newest first)
+                appState.questions.sort((a, b) => {
+                    const timeA = a.createdAt?.seconds || 0;
+                    const timeB = b.createdAt?.seconds || 0;
+                    return timeB - timeA;
+                });
+                
+                // Validate we have questions
+                if (appState.questions.length === 0) {
+                    throw new Error('No questions found in database. Please add questions from admin panel.');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error loading questions:', error);
+                throw error;
+            }
+        }
+
+        // ==================== UPDATE STATUS BANNER ====================
+        function updateStatusBanner() {
+            const totalCount = appState.questions.length;
+            const answeredCountValue = appState.answers.size;
+            
+            // Update status info
+            elements.totalQuestions.textContent = totalCount;
+            elements.answeredCount.textContent = answeredCountValue;
+            elements.answeredBadge.textContent = `${answeredCountValue}/${totalCount} Completed`;
+            
+            // Update progress bar
+            const progress = totalCount > 0 ? (answeredCountValue / totalCount) * 100 : 0;
+            elements.progressBar.style.width = `${progress}%`;
+            
+            // Show/hide submit button based on completion
+            if (answeredCountValue === totalCount && totalCount > 0) {
+                elements.submitTestBtn.style.display = 'inline-flex';
+                console.log('✅ All questions answered! Submit button shown.');
             } else {
-                showError('No active questions found. Please contact admin.');
+                elements.submitTestBtn.style.display = 'none';
+            }
+        }
+
+        // ==================== HELPER: SHOW ERROR ====================
+        function showError(message) {
+            elements.errorMessage.textContent = message;
+            elements.errorState.style.display = 'block';
+            elements.loadingState.style.display = 'none';
+            elements.questionContainer.style.display = 'none';
+        }
+
+        // ==================== RENDER QUESTION ====================
+        function renderQuestion() {
+            const question = appState.questions[appState.currentIndex];
+            if (!question) return;
+            
+            console.log('📄 Rendering question:', appState.currentIndex + 1);
+            
+            // Update question metadata badges
+            elements.categoryBadge.textContent = question.category || 'General';
+            elements.marksBadge.textContent = `${question.marks || 10} marks`;
+            elements.difficultyBadge.textContent = question.difficulty || 'Medium';
+            
+            // Update question counter
+            elements.questionCounter.textContent = 
+                `Question ${appState.currentIndex + 1} of ${appState.questions.length}`;
+            
+            // Display question text
+            elements.questionText.textContent = question.text || 'Question text not available';
+            
+            // Load saved answer if exists
+            const savedAnswer = appState.answers.get(question.id);
+            elements.answerTextarea.value = savedAnswer || '';
+            updateCharCount();
+            
+            // Show "Answered" badge if this question has been answered
+            if (savedAnswer && savedAnswer.trim().length > 0) {
+                elements.answeredStatusBadge.style.display = 'inline-block';
+            } else {
+                elements.answeredStatusBadge.style.display = 'none';
             }
             
-        } catch (error) {
-            console.error('❌ Initialization error:', error);
-            showError('Failed to initialize. Please refresh the page.');
+            // Update navigation buttons
+            elements.prevBtn.disabled = appState.currentIndex === 0;
+            elements.nextBtn.disabled = appState.currentIndex === appState.questions.length - 1;
+            
+            // Update status banner
+            updateStatusBanner();
+            
+            // Focus on textarea for easy typing
+            elements.answerTextarea.focus();
         }
-    }
 
-    // ==================== AUTHENTICATION ====================
-    async function setupAuth() {
-        return new Promise((resolve, reject) => {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    // User already authenticated
-                    appState.user = user;
-                    elements.authStatus.textContent = `👤 Student ID: ${user.uid.substring(0, 8)}`;
-                    console.log('✅ User authenticated:', user.uid);
-                    resolve(user);
+        // ==================== NAVIGATION: PREVIOUS ====================
+        function navigatePrevious() {
+            if (appState.currentIndex > 0) {
+                // Save current answer before navigating
+                saveCurrentAnswer();
+                
+                // Move to previous question
+                appState.currentIndex--;
+                renderQuestion();
+                
+                // Scroll to top smoothly
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                console.log('⬅️ Navigated to previous question:', appState.currentIndex + 1);
+            }
+        }
+
+        // ==================== NAVIGATION: NEXT ====================
+        function navigateNext() {
+            if (appState.currentIndex < appState.questions.length - 1) {
+                // Save current answer before navigating
+                saveCurrentAnswer();
+                
+                // Move to next question
+                appState.currentIndex++;
+                renderQuestion();
+                
+                // Scroll to top smoothly
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                console.log('➡️ Navigated to next question:', appState.currentIndex + 1);
+            }
+        }
+
+        // ==================== SAVE CURRENT ANSWER ====================
+        function saveCurrentAnswer() {
+            const question = appState.questions[appState.currentIndex];
+            const answerText = elements.answerTextarea.value.trim();
+            
+            if (question) {
+                if (answerText.length > 0) {
+                    // Save answer to state
+                    appState.answers.set(question.id, answerText);
+                    console.log(`💾 Answer saved for question ${appState.currentIndex + 1}`);
                 } else {
-                    // Sign in anonymously
-                    elements.authStatus.textContent = 'Signing in...';
-                    try {
-                        const credential = await signInAnonymously(auth);
-                        appState.user = credential.user;
-                        elements.authStatus.textContent = `👤 Student ID: ${credential.user.uid.substring(0, 8)}`;
-                        console.log('✅ Anonymous sign-in:', credential.user.uid);
-                        resolve(credential.user);
-                    } catch (error) {
-                        console.error('❌ Auth error:', error);
-                        elements.authStatus.textContent = '❌ Authentication failed';
-                        reject(error);
+                    // Remove answer if empty (user deleted it)
+                    appState.answers.delete(question.id);
+                    console.log(`🗑️ Answer removed for question ${appState.currentIndex + 1}`);
+                }
+                
+                // Update status banner after saving
+                updateStatusBanner();
+            }
+        }
+
+        // ==================== UPDATE CHARACTER COUNT ====================
+        function updateCharCount() {
+            const count = elements.answerTextarea.value.length;
+            elements.charCount.textContent = count;
+            
+            // Optional: Change color based on length
+            if (count === 0) {
+                elements.charCount.style.color = '#64748b';
+            } else if (count < 50) {
+                elements.charCount.style.color = '#f59e0b'; // Orange - might be too short
+            } else {
+                elements.charCount.style.color = '#10b981'; // Green - good length
+            }
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        function setupEventListeners() {
+            console.log('🎧 Setting up event listeners...');
+            
+            // ===== NAVIGATION BUTTONS =====
+            elements.prevBtn.addEventListener('click', navigatePrevious);
+            elements.nextBtn.addEventListener('click', navigateNext);
+            
+            // ===== SUBMIT TEST BUTTON =====
+            elements.submitTestBtn.addEventListener('click', submitTest);
+            
+            // ===== TEXTAREA INPUT =====
+            // Auto-save answer as user types
+            elements.answerTextarea.addEventListener('input', (e) => {
+                const question = appState.questions[appState.currentIndex];
+                if (question) {
+                    const answerText = e.target.value.trim();
+                    if (answerText.length > 0) {
+                        appState.answers.set(question.id, answerText);
+                    } else {
+                        appState.answers.delete(question.id);
+                    }
+                    updateCharCount();
+                    updateStatusBanner();
+                }
+            });
+            
+            // ===== KEYBOARD SHORTCUTS =====
+            document.addEventListener('keydown', (e) => {
+                // Alt + Left Arrow = Previous Question
+                if (e.altKey && e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    if (!elements.prevBtn.disabled) {
+                        navigatePrevious();
+                    }
+                }
+                
+                // Alt + Right Arrow = Next Question
+                if (e.altKey && e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    if (!elements.nextBtn.disabled) {
+                        navigateNext();
+                    }
+                }
+                
+                // Ctrl/Cmd + Enter = Submit Test (if all answered)
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    if (elements.submitTestBtn.style.display !== 'none') {
+                        submitTest();
                     }
                 }
             });
-        });
-    }
+            
+            // ===== PREVENT ACCIDENTAL PAGE LEAVE =====
+            // Warn user if they try to leave with unanswered questions
+            window.addEventListener('beforeunload', (e) => {
+                if (appState.answers.size > 0 && !appState.testCompleted) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved answers. Are you sure you want to leave?';
+                    return e.returnValue;
+                }
+            });
+            
+            console.log('✅ Event listeners set up successfully');
+        }
 
-    // ==================== LOAD QUESTIONS FROM FIRESTORE ====================
-    async function loadQuestions() {
-        try {
-            console.log('📥 Loading questions from Firestore...');
+        // ==================== SUBMIT TEST VALIDATION ====================
+        function submitTest() {
+            console.log('🚀 Submit Test clicked');
             
-            const questionsRef = collection(db, 'questions');
-            const querySnapshot = await getDocs(questionsRef);
+            // Save current answer first
+            saveCurrentAnswer();
             
-            console.log('📊 Total documents in questions collection:', querySnapshot.size);
+            // Validate all questions are answered
+            const totalQuestions = appState.questions.length;
+            const answeredQuestions = appState.answers.size;
             
-            appState.questions = [];
+            if (answeredQuestions < totalQuestions) {
+                alert(`⚠️ Please answer all questions before submitting!\n\nAnswered: ${answeredQuestions}/${totalQuestions}`);
+                return;
+            }
             
-            // Process each question document
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                console.log('📄 Question found:', {
-                    id: doc.id,
-                    status: data.status,
-                    category: data.category,
-                    text: data.text?.substring(0, 50) + '...'
+            // Check for very short answers
+            let hasShortAnswers = false;
+            let shortAnswerQuestions = [];
+            
+            appState.questions.forEach((question, index) => {
+                const answer = appState.answers.get(question.id);
+                if (answer && answer.length < 50) {
+                    hasShortAnswers = true;
+                    shortAnswerQuestions.push(index + 1);
+                }
+            });
+            
+            if (hasShortAnswers) {
+                const confirm = window.confirm(
+                    `⚠️ Some answers are quite short (Questions: ${shortAnswerQuestions.join(', ')})\n\n` +
+                    `Short answers may receive lower scores.\n\n` +
+                    `Do you want to submit anyway?`
+                );
+                
+                if (!confirm) {
+                    return;
+                }
+            }
+            
+            // Final confirmation
+            const finalConfirm = window.confirm(
+                `📝 Ready to submit your test?\n\n` +
+                `Total Questions: ${totalQuestions}\n` +
+                `Answered: ${answeredQuestions}\n\n` +
+                `Once submitted, you cannot change your answers.\n\n` +
+                `Click OK to submit and get your results.`
+            );
+            
+            if (finalConfirm) {
+                evaluateAllAnswers();
+            }
+        }
+
+        // ==================== SUBMIT & EVALUATE ALL ANSWERS ====================
+    async function evaluateAllAnswers() {
+        // Prevent multiple submissions
+        if (appState.isSubmitting) return;
+        appState.isSubmitting = true;
+
+        console.log('🤖 Starting batch evaluation of all answers...');
+
+        // Switch to a loading view
+        elements.questionContainer.style.display = 'none';
+        elements.loadingState.querySelector('p').textContent = 'Evaluating your answers with AI... This may take a moment.';
+        elements.loadingState.style.display = 'block';
+
+        // Loop through all questions and evaluate them one by one
+        for (const question of appState.questions) {
+            const studentAnswer = appState.answers.get(question.id);
+
+            if (!studentAnswer) {
+                console.warn(`⚠️ No answer found for question ${question.id}. Skipping.`);
+                const emptyResult = { score: 0, feedback: 'No answer was provided.', improvements: [] };
+                appState.results.set(question.id, emptyResult);
+                continue;
+            }
+
+            try {
+                console.log(`Evaluating question: "${question.text.substring(0, 30)}..."`);
+                const result = await evaluateWithGemini({
+                    question: question.text,
+                    modelAnswer: question.modelAnswer || '',
+                    studentAnswer: studentAnswer,
+                    maxMarks: question.marks || 10
                 });
                 
-                // Load ALL questions (you can filter by status: 'active' if needed)
-                appState.questions.push({
-                    id: doc.id,
-                    ...data
-                });
-            });
-            
-            console.log(`✅ Total questions loaded: ${appState.questions.length}`);
-            
-            // Show active vs inactive count
-            const activeCount = appState.questions.filter(q => q.status === 'active').length;
-            const inactiveCount = appState.questions.filter(q => q.status === 'inactive').length;
-            console.log(`📊 Active: ${activeCount}, Inactive: ${inactiveCount}`);
-            
-            // Sort questions by creation date (newest first)
-            appState.questions.sort((a, b) => {
-                const timeA = a.createdAt?.seconds || 0;
-                const timeB = b.createdAt?.seconds || 0;
-                return timeB - timeA;
-            });
-            
-            // Validate we have questions
-            if (appState.questions.length === 0) {
-                throw new Error('No questions found in database. Please add questions from admin panel.');
+                console.log('✅ Evaluation result:', result);
+                appState.results.set(question.id, result);
+
+            } catch (error) {
+                console.error(`❌ Evaluation failed for question ${question.id}:`, error);
+                // Store a failed result so the UI can still display something
+                const errorResult = { 
+                    score: 0, 
+                    feedback: 'An error occurred while evaluating this answer. Please try again later.', 
+                    improvements: [] 
+                };
+                appState.results.set(question.id, errorResult);
             }
-            
-        } catch (error) {
-            console.error('❌ Error loading questions:', error);
-            throw error;
         }
+
+        // Mark test as completed
+        appState.testCompleted = true;
+        console.log('🎉 All evaluations complete!');
+
+        // Display the final results summary
+        displayResultsSummary();
+        
+        // Save results to Firestore in the background
+        saveAllResultsToFirestore();
     }
 
-    // ==================== UPDATE STATUS BANNER ====================
-    function updateStatusBanner() {
-        const totalCount = appState.questions.length;
-        const answeredCountValue = appState.answers.size;
-        
-        // Update status info
-        elements.totalQuestions.textContent = totalCount;
-        elements.answeredCount.textContent = answeredCountValue;
-        elements.answeredBadge.textContent = `${answeredCountValue}/${totalCount} Completed`;
-        
-        // Update progress bar
-        const progress = totalCount > 0 ? (answeredCountValue / totalCount) * 100 : 0;
-        elements.progressBar.style.width = `${progress}%`;
-        
-        // Show/hide submit button based on completion
-        if (answeredCountValue === totalCount && totalCount > 0) {
-            elements.submitTestBtn.style.display = 'inline-flex';
-            console.log('✅ All questions answered! Submit button shown.');
-        } else {
-            elements.submitTestBtn.style.display = 'none';
-        }
-    }
+    // ==================== DISPLAY RESULTS SUMMARY ====================
+    function displayResultsSummary() {
+        // === CALCULATE FINAL SCORES ===
+        let totalPossibleMarks = 0;
+        let totalEarnedMarks = 0;
 
-    // ==================== HELPER: SHOW ERROR ====================
-    function showError(message) {
-        elements.errorMessage.textContent = message;
-        elements.errorState.style.display = 'block';
+        appState.questions.forEach(question => {
+            totalPossibleMarks += question.marks || 10;
+            const result = appState.results.get(question.id);
+            if (result) {
+                totalEarnedMarks += result.score || 0;
+            }
+        });
+
+        const percentage = totalPossibleMarks > 0 ? (totalEarnedMarks / totalPossibleMarks) * 100 : 0;
+        const averageScore = appState.questions.length > 0 ? (totalEarnedMarks / appState.questions.length) : 0;
+
+        // === POPULATE SUMMARY HEADER ===
+        elements.totalScore.textContent = `${totalEarnedMarks}/${totalPossibleMarks}`;
+        elements.totalQuestionsResult.textContent = appState.questions.length;
+        elements.scorePercentage.textContent = `${percentage.toFixed(1)}%`;
+        elements.averageScore.textContent = averageScore.toFixed(1);
+
+        // === POPULATE DETAILED RESULTS LIST ===
+        elements.questionResultsList.innerHTML = ''; // Clear previous list
+
+        appState.questions.forEach((question, index) => {
+            const result = appState.results.get(question.id);
+            if (!result) return;
+
+            const maxMarks = question.marks || 10;
+            const scorePercent = maxMarks > 0 ? (result.score / maxMarks) * 100 : 0;
+            let scoreClass = 'medium-score';
+            if (scorePercent >= 80) scoreClass = 'high-score';
+            if (scorePercent < 50) scoreClass = 'low-score';
+
+            const improvementsHTML = result.improvements && result.improvements.length > 0
+                ? result.improvements.map(item => `<li>${item}</li>`).join('')
+                : '<li>Well done! No major improvements needed for this answer.</li>';
+
+            const resultItemHTML = `
+                <div class="result-item ${scoreClass}">
+                    <div class="result-header">
+                        <div class="result-question">${index + 1}. ${question.text}</div>
+                        <div class="result-score">${result.score}/${maxMarks}</div>
+                    </div>
+                    <div class="result-feedback">
+                        <strong>Feedback:</strong> ${result.feedback || 'No feedback available.'}
+                    </div>
+                    <div class="result-improvements">
+                        <h4>💡 Suggestions for Improvement</h4>
+                        <ul>
+                            ${improvementsHTML}
+                        </ul>
+                    </div>
+                </div>
+            `;
+            elements.questionResultsList.innerHTML += resultItemHTML;
+        });
+
+        // === SHOW THE RESULTS PAGE ===
         elements.loadingState.style.display = 'none';
-        elements.questionContainer.style.display = 'none';
+        elements.resultsSummary.style.display = 'block';
+        
+        // Scroll to the top of the results for a better UX
+        elements.resultsSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    // ==================== RENDER QUESTION ====================
-    function renderQuestion() {
-        const question = appState.questions[appState.currentIndex];
-        if (!question) return;
-        
-        console.log('📄 Rendering question:', appState.currentIndex + 1);
-        
-        // Update question metadata badges
-        elements.categoryBadge.textContent = question.category || 'General';
-        elements.marksBadge.textContent = `${question.marks || 10} marks`;
-        elements.difficultyBadge.textContent = question.difficulty || 'Medium';
-        
-        // Update question counter
-        elements.questionCounter.textContent = 
-            `Question ${appState.currentIndex + 1} of ${appState.questions.length}`;
-        
-        // Display question text
-        elements.questionText.textContent = question.text || 'Question text not available';
-        
-        // Load saved answer if exists
-        const savedAnswer = appState.answers.get(question.id);
-        elements.answerTextarea.value = savedAnswer || '';
-        updateCharCount();
-        
-        // Show "Answered" badge if this question has been answered
-        if (savedAnswer && savedAnswer.trim().length > 0) {
-            elements.answeredStatusBadge.style.display = 'inline-block';
-        } else {
-            elements.answeredStatusBadge.style.display = 'none';
-        }
-        
-        // Update navigation buttons
-        elements.prevBtn.disabled = appState.currentIndex === 0;
-        elements.nextBtn.disabled = appState.currentIndex === appState.questions.length - 1;
-        
-        // Update status banner
-        updateStatusBanner();
-        
-        // Focus on textarea for easy typing
-        elements.answerTextarea.focus();
-    }
-
-    // ==================== NAVIGATION: PREVIOUS ====================
-    function navigatePrevious() {
-        if (appState.currentIndex > 0) {
-            // Save current answer before navigating
-            saveCurrentAnswer();
-            
-            // Move to previous question
-            appState.currentIndex--;
-            renderQuestion();
-            
-            // Scroll to top smoothly
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            console.log('⬅️ Navigated to previous question:', appState.currentIndex + 1);
-        }
-    }
-
-    // ==================== NAVIGATION: NEXT ====================
-    function navigateNext() {
-        if (appState.currentIndex < appState.questions.length - 1) {
-            // Save current answer before navigating
-            saveCurrentAnswer();
-            
-            // Move to next question
-            appState.currentIndex++;
-            renderQuestion();
-            
-            // Scroll to top smoothly
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            console.log('➡️ Navigated to next question:', appState.currentIndex + 1);
-        }
-    }
-
-    // ==================== SAVE CURRENT ANSWER ====================
-    function saveCurrentAnswer() {
-        const question = appState.questions[appState.currentIndex];
-        const answerText = elements.answerTextarea.value.trim();
-        
-        if (question) {
-            if (answerText.length > 0) {
-                // Save answer to state
-                appState.answers.set(question.id, answerText);
-                console.log(`💾 Answer saved for question ${appState.currentIndex + 1}`);
-            } else {
-                // Remove answer if empty (user deleted it)
-                appState.answers.delete(question.id);
-                console.log(`🗑️ Answer removed for question ${appState.currentIndex + 1}`);
-            }
-            
-            // Update status banner after saving
-            updateStatusBanner();
-        }
-    }
-
-    // ==================== UPDATE CHARACTER COUNT ====================
-    function updateCharCount() {
-        const count = elements.answerTextarea.value.length;
-        elements.charCount.textContent = count;
-        
-        // Optional: Change color based on length
-        if (count === 0) {
-            elements.charCount.style.color = '#64748b';
-        } else if (count < 50) {
-            elements.charCount.style.color = '#f59e0b'; // Orange - might be too short
-        } else {
-            elements.charCount.style.color = '#10b981'; // Green - good length
-        }
-    }
-
-    // ==================== EVENT LISTENERS ====================
-    function setupEventListeners() {
-        console.log('🎧 Setting up event listeners...');
-        
-        // ===== NAVIGATION BUTTONS =====
-        elements.prevBtn.addEventListener('click', navigatePrevious);
-        elements.nextBtn.addEventListener('click', navigateNext);
-        
-        // ===== SUBMIT TEST BUTTON =====
-        elements.submitTestBtn.addEventListener('click', submitTest);
-        
-        // ===== TEXTAREA INPUT =====
-        // Auto-save answer as user types
-        elements.answerTextarea.addEventListener('input', (e) => {
-            const question = appState.questions[appState.currentIndex];
-            if (question) {
-                const answerText = e.target.value.trim();
-                if (answerText.length > 0) {
-                    appState.answers.set(question.id, answerText);
-                } else {
-                    appState.answers.delete(question.id);
-                }
-                updateCharCount();
-                updateStatusBanner();
-            }
-        });
-        
-        // ===== KEYBOARD SHORTCUTS =====
-        document.addEventListener('keydown', (e) => {
-            // Alt + Left Arrow = Previous Question
-            if (e.altKey && e.key === 'ArrowLeft') {
-                e.preventDefault();
-                if (!elements.prevBtn.disabled) {
-                    navigatePrevious();
-                }
-            }
-            
-            // Alt + Right Arrow = Next Question
-            if (e.altKey && e.key === 'ArrowRight') {
-                e.preventDefault();
-                if (!elements.nextBtn.disabled) {
-                    navigateNext();
-                }
-            }
-            
-            // Ctrl/Cmd + Enter = Submit Test (if all answered)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                if (elements.submitTestBtn.style.display !== 'none') {
-                    submitTest();
-                }
-            }
-        });
-        
-        // ===== PREVENT ACCIDENTAL PAGE LEAVE =====
-        // Warn user if they try to leave with unanswered questions
-        window.addEventListener('beforeunload', (e) => {
-            if (appState.answers.size > 0 && !appState.testCompleted) {
-                e.preventDefault();
-                e.returnValue = 'You have unsaved answers. Are you sure you want to leave?';
-                return e.returnValue;
-            }
-        });
-        
-        console.log('✅ Event listeners set up successfully');
-    }
-
-    // ==================== SUBMIT TEST VALIDATION ====================
-    function submitTest() {
-        console.log('🚀 Submit Test clicked');
-        
-        // Save current answer first
-        saveCurrentAnswer();
-        
-        // Validate all questions are answered
-        const totalQuestions = appState.questions.length;
-        const answeredQuestions = appState.answers.size;
-        
-        if (answeredQuestions < totalQuestions) {
-            alert(`⚠️ Please answer all questions before submitting!\n\nAnswered: ${answeredQuestions}/${totalQuestions}`);
+    // ==================== SAVE ALL RESULTS TO FIRESTORE ====================
+    async function saveAllResultsToFirestore() {
+        if (!appState.user) {
+            console.error('❌ Cannot save results: User not authenticated.');
             return;
         }
         
-        // Check for very short answers
-        let hasShortAnswers = false;
-        let shortAnswerQuestions = [];
+        console.log('💾 Saving all test attempts to Firestore...');
         
-        appState.questions.forEach((question, index) => {
-            const answer = appState.answers.get(question.id);
-            if (answer && answer.length < 50) {
-                hasShortAnswers = true;
-                shortAnswerQuestions.push(index + 1);
-            }
-        });
-        
-        if (hasShortAnswers) {
-            const confirm = window.confirm(
-                `⚠️ Some answers are quite short (Questions: ${shortAnswerQuestions.join(', ')})\n\n` +
-                `Short answers may receive lower scores.\n\n` +
-                `Do you want to submit anyway?`
-            );
-            
-            if (!confirm) {
-                return;
-            }
-        }
-        
-        // Final confirmation
-        const finalConfirm = window.confirm(
-            `📝 Ready to submit your test?\n\n` +
-            `Total Questions: ${totalQuestions}\n` +
-            `Answered: ${answeredQuestions}\n\n` +
-            `Once submitted, you cannot change your answers.\n\n` +
-            `Click OK to submit and get your results.`
-        );
-        
-        if (finalConfirm) {
-            evaluateAllAnswers();
-        }
-    }
+        for (const question of appState.questions) {
+            const studentAnswer = appState.answers.get(question.id);
+            const result = appState.results.get(question.id);
 
-    // ==================== SUBMIT & EVALUATE ALL ANSWERS ====================
-async function evaluateAllAnswers() {
-    // Prevent multiple submissions
-    if (appState.isSubmitting) return;
-    appState.isSubmitting = true;
+            if (!studentAnswer || !result) continue; // Skip if no answer or result
 
-    console.log('🤖 Starting batch evaluation of all answers...');
-
-    // Switch to a loading view
-    elements.questionContainer.style.display = 'none';
-    elements.loadingState.querySelector('p').textContent = 'Evaluating your answers with AI... This may take a moment.';
-    elements.loadingState.style.display = 'block';
-
-    // Loop through all questions and evaluate them one by one
-    for (const question of appState.questions) {
-        const studentAnswer = appState.answers.get(question.id);
-
-        if (!studentAnswer) {
-            console.warn(`⚠️ No answer found for question ${question.id}. Skipping.`);
-            const emptyResult = { score: 0, feedback: 'No answer was provided.', improvements: [] };
-            appState.results.set(question.id, emptyResult);
-            continue;
-        }
-
-        try {
-            console.log(`Evaluating question: "${question.text.substring(0, 30)}..."`);
-            const result = await evaluateWithGemini({
-                question: question.text,
-                modelAnswer: question.modelAnswer || '',
+            const attemptData = {
+                userId: appState.user.uid,
+                questionId: question.id,
+                questionText: question.text,
+                category: question.category,
+                maxMarks: question.marks || 10,
                 studentAnswer: studentAnswer,
-                maxMarks: question.marks || 10
-            });
-            
-            console.log('✅ Evaluation result:', result);
-            appState.results.set(question.id, result);
-
-        } catch (error) {
-            console.error(`❌ Evaluation failed for question ${question.id}:`, error);
-            // Store a failed result so the UI can still display something
-            const errorResult = { 
-                score: 0, 
-                feedback: 'An error occurred while evaluating this answer. Please try again later.', 
-                improvements: [] 
+                score: result.score,
+                feedback: result.feedback || '',
+                improvements: result.improvements || [],
+                submittedAt: serverTimestamp()
             };
-            appState.results.set(question.id, errorResult);
+            
+            try {
+                await addDoc(collection(db, 'users', appState.user.uid, 'test_attempts'), attemptData);
+                console.log(`✅ Result for question ${question.id} saved to Firestore.`);
+            } catch (error) {
+                console.error(`❌ Error saving result for question ${question.id} to Firestore:`, error);
+                // Optional: Implement a localStorage fallback here for failed saves
+            }
         }
-    }
-
-    // Mark test as completed
-    appState.testCompleted = true;
-    console.log('🎉 All evaluations complete!');
-
-    // Display the final results summary
-    displayResultsSummary();
-    
-    // Save results to Firestore in the background
-    saveAllResultsToFirestore();
-}
-
-// ==================== DISPLAY RESULTS SUMMARY ====================
-function displayResultsSummary() {
-    // === CALCULATE FINAL SCORES ===
-    let totalPossibleMarks = 0;
-    let totalEarnedMarks = 0;
-
-    appState.questions.forEach(question => {
-        totalPossibleMarks += question.marks || 10;
-        const result = appState.results.get(question.id);
-        if (result) {
-            totalEarnedMarks += result.score || 0;
-        }
-    });
-
-    const percentage = totalPossibleMarks > 0 ? (totalEarnedMarks / totalPossibleMarks) * 100 : 0;
-    const averageScore = appState.questions.length > 0 ? (totalEarnedMarks / appState.questions.length) : 0;
-
-    // === POPULATE SUMMARY HEADER ===
-    elements.totalScore.textContent = `${totalEarnedMarks}/${totalPossibleMarks}`;
-    elements.totalQuestionsResult.textContent = appState.questions.length;
-    elements.scorePercentage.textContent = `${percentage.toFixed(1)}%`;
-    elements.averageScore.textContent = averageScore.toFixed(1);
-
-    // === POPULATE DETAILED RESULTS LIST ===
-    elements.questionResultsList.innerHTML = ''; // Clear previous list
-
-    appState.questions.forEach((question, index) => {
-        const result = appState.results.get(question.id);
-        if (!result) return;
-
-        const maxMarks = question.marks || 10;
-        const scorePercent = maxMarks > 0 ? (result.score / maxMarks) * 100 : 0;
-        let scoreClass = 'medium-score';
-        if (scorePercent >= 80) scoreClass = 'high-score';
-        if (scorePercent < 50) scoreClass = 'low-score';
-
-        const improvementsHTML = result.improvements && result.improvements.length > 0
-            ? result.improvements.map(item => `<li>${item}</li>`).join('')
-            : '<li>Well done! No major improvements needed for this answer.</li>';
-
-        const resultItemHTML = `
-            <div class="result-item ${scoreClass}">
-                <div class="result-header">
-                    <div class="result-question">${index + 1}. ${question.text}</div>
-                    <div class="result-score">${result.score}/${maxMarks}</div>
-                </div>
-                <div class="result-feedback">
-                    <strong>Feedback:</strong> ${result.feedback || 'No feedback available.'}
-                </div>
-                <div class="result-improvements">
-                    <h4>💡 Suggestions for Improvement</h4>
-                    <ul>
-                        ${improvementsHTML}
-                    </ul>
-                </div>
-            </div>
-        `;
-        elements.questionResultsList.innerHTML += resultItemHTML;
-    });
-
-    // === SHOW THE RESULTS PAGE ===
-    elements.loadingState.style.display = 'none';
-    elements.resultsSummary.style.display = 'block';
-    
-    // Scroll to the top of the results for a better UX
-    elements.resultsSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-// ==================== SAVE ALL RESULTS TO FIRESTORE ====================
-async function saveAllResultsToFirestore() {
-    if (!appState.user) {
-        console.error('❌ Cannot save results: User not authenticated.');
-        return;
-    }
-    
-    console.log('💾 Saving all test attempts to Firestore...');
-    
-    for (const question of appState.questions) {
-        const studentAnswer = appState.answers.get(question.id);
-        const result = appState.results.get(question.id);
-
-        if (!studentAnswer || !result) continue; // Skip if no answer or result
-
-        const attemptData = {
-            userId: appState.user.uid,
-            questionId: question.id,
-            questionText: question.text,
-            category: question.category,
-            maxMarks: question.marks || 10,
-            studentAnswer: studentAnswer,
-            score: result.score,
-            feedback: result.feedback || '',
-            improvements: result.improvements || [],
-            submittedAt: serverTimestamp()
-        };
         
-        try {
-            await addDoc(collection(db, 'users', appState.user.uid, 'test_attempts'), attemptData);
-            console.log(`✅ Result for question ${question.id} saved to Firestore.`);
-        } catch (error) {
-            console.error(`❌ Error saving result for question ${question.id} to Firestore:`, error);
-            // Optional: Implement a localStorage fallback here for failed saves
-        }
+        console.log('💾 All results have been sent to Firestore.');
     }
-    
-    console.log('💾 All results have been sent to Firestore.');
-}
 
-// ==================== START APPLICATION ====================
-init();
-console.log('✅ Test Platform Ready');
+    // ==================== START APPLICATION ====================
+    init();
+    console.log('✅ Test Platform Ready');
     </script>
 </body>
 </html>

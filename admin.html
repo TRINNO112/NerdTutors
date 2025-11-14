@@ -23,7 +23,7 @@
         
         /* Container */
         .admin-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         
@@ -106,6 +106,7 @@
             gap: 1rem;
             margin-bottom: 2rem;
             border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
         }
         
         .tab-btn {
@@ -118,6 +119,7 @@
             cursor: pointer;
             position: relative;
             transition: color 0.3s;
+            white-space: nowrap;
         }
         
         .tab-btn.active {
@@ -220,20 +222,57 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
         }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
         
-        /* Question Cards */
+        /* Question Cards - IMPROVED */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .list-header h2 {
+            color: #1e3c72;
+            font-size: 1.5rem;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box, .filter-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .search-box {
+            min-width: 250px;
+        }
+
         .question-card {
             background: white;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             padding: 1.5rem;
             margin-bottom: 1rem;
-            transition: border-color 0.3s, transform 0.2s;
+            transition: all 0.3s;
         }
         
         .question-card:hover {
             border-color: #1e3c72;
-            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.1);
         }
         
         .question-header {
@@ -241,6 +280,7 @@
             justify-content: space-between;
             align-items: start;
             margin-bottom: 1rem;
+            gap: 1rem;
         }
         
         .question-meta {
@@ -265,6 +305,21 @@
             background: #fff3e0;
             color: #e65100;
         }
+
+        .badge-difficulty {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .badge-difficulty.hard {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge-difficulty.easy {
+            background: #f1f8e9;
+            color: #558b2f;
+        }
         
         .question-actions {
             display: flex;
@@ -272,7 +327,7 @@
         }
         
         .btn-icon {
-            background: none;
+            background: white;
             border: 1px solid #e0e0e0;
             width: 36px;
             height: 36px;
@@ -282,19 +337,226 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            font-size: 1.2rem;
         }
         
         .btn-icon:hover {
             background: #f5f5f5;
-            border-color: #999;
+            transform: scale(1.1);
         }
         
         .btn-icon.edit {
             color: #1565c0;
         }
+
+        .btn-icon.edit:hover {
+            background: #e3f2fd;
+            border-color: #1565c0;
+        }
         
         .btn-icon.delete {
             color: #c62828;
+        }
+
+        .btn-icon.delete:hover {
+            background: #ffebee;
+            border-color: #c62828;
+        }
+
+        .question-text {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .question-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        /* Modal Styles for Edit */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            color: #1e3c72;
+            font-size: 1.5rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-close:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* Statistics Grid - ENHANCED */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stat-card.orange {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-card.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        /* Category Breakdown */
+        .category-breakdown {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .category-breakdown h3 {
+            color: #1e3c72;
+            margin-bottom: 1rem;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .category-count {
+            background: #1e3c72;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Dashboard Link Button */
+        .btn-dashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
         
         /* Login Form */
@@ -399,6 +661,30 @@
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-title h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -427,13 +713,16 @@
         </form>
     </div>
 
-        <!-- Admin Container -->
+    <!-- Admin Container -->
     <div class="admin-container" id="adminContainer" style="display: none;">
         <!-- Header -->
         <div class="admin-header">
             <div class="admin-title">
                 <h1>📚 Economics Question Admin</h1>
                 <div class="user-info">
+                    <button class="btn-dashboard" onclick="window.open('dashboard.html', '_blank')">
+                        📊 Student Dashboard
+                    </button>
                     <span class="admin-badge">ADMIN</span>
                     <span class="user-badge" id="userEmail">Loading...</span>
                     <button class="btn-logout" id="btnLogout">Logout</button>
@@ -526,13 +815,15 @@
                         <h2>All Questions</h2>
                         <div class="filter-controls">
                             <input type="text" class="search-box" id="searchBox" 
-                                placeholder="Search questions...">
+                                placeholder="🔍 Search questions...">
                             <select class="filter-select" id="filterCategory">
                                 <option value="">All Categories</option>
                                 <option value="Microeconomics">Microeconomics</option>
                                 <option value="Macroeconomics">Macroeconomics</option>
                                 <option value="International Economics">International Economics</option>
                                 <option value="Development Economics">Development Economics</option>
+                                <option value="Public Economics">Public Economics</option>
+                                <option value="Monetary Economics">Monetary Economics</option>
                             </select>
                         </div>
                     </div>
@@ -544,8 +835,8 @@
 
             <!-- Statistics Tab -->
             <div class="tab-panel" id="statsTab">
-                <div class="stats-grid" id="statsGrid">
-                    <!-- Stats will be loaded here -->
+                <div id="statsGrid">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </div>
@@ -558,6 +849,78 @@
             <p>You don't have admin privileges to access this page.</p>
             <p>Your email: <strong id="deniedEmail"></strong></p>
             <button class="btn-logout" onclick="location.reload()">Go Back</button>
+        </div>
+    </div>
+
+    <!-- Edit Question Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Edit Question</h2>
+                <button class="btn-close" id="btnCloseModal">✕</button>
+            </div>
+            <form id="editQuestionForm">
+                <div class="form-grid">
+                    <input type="hidden" id="editQuestionId">
+                    
+                    <div class="form-group">
+                        <label for="editQuestionText">Question Text *</label>
+                        <textarea id="editQuestionText" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editCategory">Category *</label>
+                            <select id="editCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="Microeconomics">Microeconomics</option>
+                                <option value="Macroeconomics">Macroeconomics</option>
+                                <option value="International Economics">International Economics</option>
+                                <option value="Development Economics">Development Economics</option>
+                                <option value="Public Economics">Public Economics</option>
+                                <option value="Monetary Economics">Monetary Economics</option>
+                                <option value="Labor Economics">Labor Economics</option>
+                                <option value="Environmental Economics">Environmental Economics</option>
+                                <option value="Econometrics">Econometrics</option>
+                                <option value="Economic Theory">Economic Theory</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editMarks">Marks *</label>
+                            <input type="number" id="editMarks" min="1" max="100" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editModelAnswer">Model Answer *</label>
+                        <textarea id="editModelAnswer" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editDifficulty">Difficulty Level</label>
+                            <select id="editDifficulty">
+                                <option value="Easy">Easy</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editStatus">Status</label>
+                            <select id="editStatus">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        Update Question
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -602,13 +965,22 @@
         userEmail: document.getElementById('userEmail'),
         deniedEmail: document.getElementById('deniedEmail'),
         questionForm: document.getElementById('questionForm'),
+        editQuestionForm: document.getElementById('editQuestionForm'),
         loginForm: document.getElementById('loginForm'),
         googleSignIn: document.getElementById('googleSignIn'),
         btnLogout: document.getElementById('btnLogout'),
         questionsList: document.getElementById('questionsList'),
         statsGrid: document.getElementById('statsGrid'),
-        toast: document.getElementById('toast')
+        toast: document.getElementById('toast'),
+        editModal: document.getElementById('editModal'),
+        btnCloseModal: document.getElementById('btnCloseModal'),
+        searchBox: document.getElementById('searchBox'),
+        filterCategory: document.getElementById('filterCategory')
     };
+
+    // Global variables
+    let allQuestions = [];
+    let currentEditId = null;
 
     // Initialize
     function init() {
@@ -707,6 +1079,20 @@
             await addQuestion();
         });
 
+        // Edit question form
+        elements.editQuestionForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await updateQuestion();
+        });
+
+        // Close modal
+        elements.btnCloseModal?.addEventListener('click', closeEditModal);
+        elements.editModal?.addEventListener('click', (e) => {
+            if (e.target === elements.editModal) {
+                closeEditModal();
+            }
+        });
+
         // Tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -714,6 +1100,10 @@
                 switchTab(tabName);
             });
         });
+
+        // Search and filter
+        elements.searchBox?.addEventListener('input', filterQuestions);
+        elements.filterCategory?.addEventListener('change', filterQuestions);
     }
 
     // Switch tabs
@@ -733,7 +1123,7 @@
         }
     }
 
-    // Add Question
+    // Add Question (KEEPING YOUR ORIGINAL LOGIC)
     async function addQuestion() {
         const questionData = {
             text: document.getElementById('questionText').value,
@@ -756,60 +1146,152 @@
         }
     }
 
-    // Load Questions
+    // Load Questions with EDIT functionality
     async function loadQuestions() {
         if (!elements.questionsList) return;
         
         try {
             const querySnapshot = await getDocs(collection(db, 'questions'));
-            let html = '';
+            allQuestions = [];
             
             querySnapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                html += `
-                    <div class="question-card">
-                        <div class="question-header">
-                            <div class="question-meta">
-                                <span class="badge badge-category">${data.category}</span>
-                                <span class="badge badge-marks">${data.marks} marks</span>
-                            </div>
-                            <div class="question-actions">
-                                <button class="btn-icon edit" data-id="${docSnap.id}" title="Edit">✏️</button>
-                                <button class="btn-icon delete" data-id="${docSnap.id}" title="Delete">🗑️</button>
-                            </div>
-                        </div>
-                        <p>${data.text}</p>
-                    </div>
-                `;
-            });
-
-            elements.questionsList.innerHTML = html || '<p>No questions found</p>';
-
-            // Attach delete handlers
-            document.querySelectorAll('.btn-icon.delete').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const id = btn.dataset.id;
-                    if (!id) return;
-                    const confirmDelete = confirm('Are you sure you want to delete this question?');
-                    if (!confirmDelete) return;
-
-                    try {
-                        await deleteDoc(doc(db, 'questions', id));
-                        showToast('Question deleted successfully', 'success');
-                        loadQuestions();
-                    } catch (error) {
-                        console.error('Delete failed:', error);
-                        showToast('Failed to delete question: ' + error.message, 'error');
-                    }
+                allQuestions.push({
+                    id: docSnap.id,
+                    ...docSnap.data()
                 });
             });
+
+            displayQuestions(allQuestions);
         } catch (error) {
             console.error('Error loading questions:', error);
             elements.questionsList.innerHTML = '<p>Error loading questions</p>';
         }
     }
 
-    // Load Statistics
+    // Display questions
+    function displayQuestions(questions) {
+        let html = '';
+        
+        questions.forEach((data) => {
+            const difficultyClass = data.difficulty?.toLowerCase() || 'medium';
+            html += `
+                <div class="question-card">
+                    <div class="question-header">
+                        <div class="question-meta">
+                            <span class="badge badge-category">${data.category || 'N/A'}</span>
+                            <span class="badge badge-marks">${data.marks || 0} marks</span>
+                            <span class="badge badge-difficulty ${difficultyClass}">${data.difficulty || 'Medium'}</span>
+                        </div>
+                        <div class="question-actions">
+                            <button class="btn-icon edit" data-id="${data.id}" title="Edit">✏️</button>
+                            <button class="btn-icon delete" data-id="${data.id}" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                    <p class="question-text">${data.text || 'No question text'}</p>
+                    <div class="question-footer">
+                        <span>Created by: ${data.createdBy || 'Unknown'}</span>
+                        <span>Status: ${data.status || 'active'}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        elements.questionsList.innerHTML = html || '<p style="text-align: center; color: #666; padding: 2rem;">No questions found</p>';
+
+        // Attach edit handlers
+        document.querySelectorAll('.btn-icon.edit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                openEditModal(id);
+            });
+        });
+
+        // Attach delete handlers
+        document.querySelectorAll('.btn-icon.delete').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                if (!id) return;
+                const confirmDelete = confirm('Are you sure you want to delete this question?');
+                if (!confirmDelete) return;
+
+                try {
+                    await deleteDoc(doc(db, 'questions', id));
+                    showToast('Question deleted successfully', 'success');
+                    loadQuestions();
+                } catch (error) {
+                    console.error('Delete failed:', error);
+                    showToast('Failed to delete question: ' + error.message, 'error');
+                }
+            });
+        });
+    }
+
+    // Open Edit Modal
+    function openEditModal(questionId) {
+        const question = allQuestions.find(q => q.id === questionId);
+        if (!question) return;
+
+        currentEditId = questionId;
+
+        document.getElementById('editQuestionId').value = questionId;
+        document.getElementById('editQuestionText').value = question.text || '';
+        document.getElementById('editCategory').value = question.category || '';
+        document.getElementById('editMarks').value = question.marks || '';
+        document.getElementById('editModelAnswer').value = question.modelAnswer || '';
+        document.getElementById('editDifficulty').value = question.difficulty || 'Medium';
+        document.getElementById('editStatus').value = question.status || 'active';
+
+        elements.editModal.classList.add('show');
+    }
+
+    // Close Edit Modal
+    function closeEditModal() {
+        elements.editModal.classList.remove('show');
+        currentEditId = null;
+    }
+
+    // Update Question
+    async function updateQuestion() {
+        if (!currentEditId) return;
+
+        const updatedData = {
+            text: document.getElementById('editQuestionText').value,
+            category: document.getElementById('editCategory').value,
+            marks: parseInt(document.getElementById('editMarks').value),
+            modelAnswer: document.getElementById('editModelAnswer').value,
+            difficulty: document.getElementById('editDifficulty').value,
+            status: document.getElementById('editStatus').value,
+            updatedAt: serverTimestamp(),
+            updatedBy: auth.currentUser?.email
+        };
+
+        try {
+            await updateDoc(doc(db, 'questions', currentEditId), updatedData);
+            showToast('Question updated successfully!', 'success');
+            closeEditModal();
+            loadQuestions();
+        } catch (error) {
+            showToast('Failed to update question: ' + error.message, 'error');
+        }
+    }
+
+    // Filter Questions
+    function filterQuestions() {
+        const searchTerm = elements.searchBox?.value.toLowerCase() || '';
+        const categoryFilter = elements.filterCategory?.value || '';
+
+        const filtered = allQuestions.filter(q => {
+            const matchesSearch = q.text?.toLowerCase().includes(searchTerm) || 
+                                  q.category?.toLowerCase().includes(searchTerm);
+            const matchesCategory = !categoryFilter || q.category === categoryFilter;
+            
+            return matchesSearch && matchesCategory;
+        });
+
+        displayQuestions(filtered);
+    }
+
+    // Load Statistics - ENHANCED
     async function loadStatistics() {
         if (!elements.statsGrid) return;
         
@@ -817,10 +1299,90 @@
             const querySnapshot = await getDocs(collection(db, 'questions'));
             const totalQuestions = querySnapshot.size;
             
+            // Category breakdown
+            const categoryCount = {};
+            const difficultyCount = { Easy: 0, Medium: 0, Hard: 0 };
+            const statusCount = { active: 0, inactive: 0 };
+            let totalMarks = 0;
+
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                
+                // Count by category
+                const category = data.category || 'Uncategorized';
+                categoryCount[category] = (categoryCount[category] || 0) + 1;
+                
+                // Count by difficulty
+                const difficulty = data.difficulty || 'Medium';
+                difficultyCount[difficulty] = (difficultyCount[difficulty] || 0) + 1;
+                
+                // Count by status
+                const status = data.status || 'active';
+                statusCount[status] = (statusCount[status] || 0) + 1;
+                
+                // Total marks
+                totalMarks += data.marks || 0;
+            });
+
+            const avgMarks = totalQuestions > 0 ? (totalMarks / totalQuestions).toFixed(1) : 0;
+
             elements.statsGrid.innerHTML = `
-                <div class="stat-card">
-                    <h3>Total Questions</h3>
-                    <p style="font-size: 2rem; color: #1e3c72;">${totalQuestions}</p>
+                <div class="stats-grid">
+                    <div class="stat-card purple">
+                        <h3>Total Questions</h3>
+                        <div class="stat-value">${totalQuestions}</div>
+                        <div class="stat-label">In Database</div>
+                    </div>
+
+                    <div class="stat-card green">
+                        <h3>Active Questions</h3>
+                        <div class="stat-value">${statusCount.active}</div>
+                        <div class="stat-label">${statusCount.inactive} Inactive</div>
+                    </div>
+
+                    <div class="stat-card orange">
+                        <h3>Average Marks</h3>
+                        <div class="stat-value">${avgMarks}</div>
+                        <div class="stat-label">Per Question</div>
+                    </div>
+
+                    <div class="stat-card blue">
+                        <h3>Total Marks</h3>
+                        <div class="stat-value">${totalMarks}</div>
+                        <div class="stat-label">Sum of All Questions</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="margin-top: 1.5rem;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <h3>Easy Questions</h3>
+                        <div class="stat-value">${difficultyCount.Easy}</div>
+                        <div class="stat-label">${((difficultyCount.Easy/totalQuestions)*100).toFixed(1)}% of Total</div>
+                    </div>
+
+                    <div class="stat-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                        <h3>Medium Questions</h3>
+                        <div class="stat-value">${difficultyCount.Medium}</div>
+                        <div class="stat-label">${((difficultyCount.Medium/totalQuestions)*100).toFixed(1)}% of Total</div>
+                    </div>
+
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);">
+                        <h3>Hard Questions</h3>
+                        <div class="stat-value">${difficultyCount.Hard}</div>
+                        <div class="stat-label">${((difficultyCount.Hard/totalQuestions)*100).toFixed(1)}% of Total</div>
+                    </div>
+                </div>
+
+                <div class="category-breakdown">
+                    <h3>📊 Questions by Category</h3>
+                    ${Object.entries(categoryCount)
+                        .sort((a, b) => b[1] - a[1])
+                        .map(([category, count]) => `
+                            <div class="category-item">
+                                <span class="category-name">${category}</span>
+                                <span class="category-count">${count}</span>
+                            </div>
+                        `).join('')}
                 </div>
             `;
         } catch (error) {
