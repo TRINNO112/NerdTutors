@@ -170,6 +170,12 @@ Return JSON:
     });
   }
 
+  fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`)
+  .then(res => res.json())
+  .then(data => console.log(data))
+  .catch(err => console.error(err));
+
+
   // ================= SUCCESS ==================
   console.log("🎉 SUCCESS — sending result back:", finalJson);
 
