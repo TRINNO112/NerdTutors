@@ -44,6 +44,118 @@
             }
         }
 
+        /* ==================== NAME MODAL STYLES ==================== */
+        .name-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .name-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .name-modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .name-modal-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .name-modal-header p {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+
+        .name-modal-body {
+            padding: 2rem;
+        }
+
+        .name-label {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 1rem;
+        }
+
+        .name-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            border: 3px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .name-hint {
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .name-modal-footer {
+            padding: 1.5rem 2rem 2rem;
+            text-align: center;
+        }
+
+        .btn-start-test {
+            width: 100%;
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+        }
+
         /* ==================== HEADER ==================== */
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -727,6 +839,18 @@
                 font-size: 1rem;
                 min-height: 200px;
             }
+
+            .name-modal-content {
+                width: 95%;
+            }
+
+            .name-modal-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .name-modal-body {
+                padding: 1.5rem;
+            }
         }
 
         /* ==================== ACCESSIBILITY ==================== */
@@ -739,7 +863,8 @@
 
         button:focus-visible,
         .answer-textarea:focus-visible,
-        .back-button:focus-visible {
+        .back-button:focus-visible,
+        .name-input:focus-visible {
             outline: 3px solid #667eea;
             outline-offset: 2px;
         }
@@ -757,13 +882,47 @@
             
             .back-button,
             .controls,
-            .shortcuts-hint {
+            .shortcuts-hint,
+            .name-modal {
                 display: none;
             }
         }
     </style>
 </head>
 <body>
+    <!-- ==================== NAME COLLECTION MODAL ==================== -->
+    <div id="nameModal" class="name-modal">
+        <div class="name-modal-content">
+            <div class="name-modal-header">
+                <h2>👋 Welcome to Economics Test</h2>
+                <p>Please enter your name before starting the test</p>
+            </div>
+            
+            <div class="name-modal-body">
+                <label for="studentNameInput" class="name-label">
+                    📝 Your Full Name
+                </label>
+                <input 
+                    type="text" 
+                    id="studentNameInput" 
+                    class="name-input"
+                    placeholder="Enter your full name..."
+                    maxlength="100"
+                    autocomplete="name"
+                />
+                <div class="name-hint">
+                    This name will be saved with your test results
+                </div>
+            </div>
+            
+            <div class="name-modal-footer">
+                <button class="btn-primary btn-start-test" id="startTestBtn" disabled>
+                    🚀 Start Test
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- ==================== HEADER ==================== -->
         <header>
@@ -846,18 +1005,18 @@
                 <!-- Answer Section -->
                 <div class="answer-section">
                     <label class="answer-label" for="answerTextarea">
-                        <span>✍️</span> Your Answer
+                        <span>✏️</span> Your Answer
                     </label>
                     <textarea 
                         class="answer-textarea" 
                         id="answerTextarea"
                         placeholder="Type your detailed answer here...
 
-                        Tips for better answers:
-                        • Define key economic terms
-                        • Use relevant examples
-                        • Show your reasoning step-by-step
-                        • Include diagrams or graphs if applicable"
+Tips for better answers:
+- Define key economic terms
+- Use relevant examples
+- Show your reasoning step-by-step
+- Include diagrams or graphs if applicable"
                     ></textarea>
                     <div class="char-count">
                         <span id="charCount">0</span> characters
@@ -948,23 +1107,31 @@
             getDocs,
             addDoc,
             serverTimestamp,
-            orderBy
+            orderBy,
+            doc,
+            setDoc
         } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         // ==================== APPLICATION STATE ====================
         const appState = {
             user: null,
+            studentName: '',           // NEW: Store student's name
             questions: [],
             currentIndex: 0,
-            answers: new Map(),          // Stores all answers (questionId -> answer text)
-            results: new Map(),          // Stores evaluation results (questionId -> result object)
+            answers: new Map(),
+            results: new Map(),
             isEvaluating: false,
-            isSubmitting: false,         // NEW: Track if test is being submitted
-            testCompleted: false         // NEW: Track if test is completed
+            isSubmitting: false,
+            testCompleted: false
         };
 
         // ==================== DOM ELEMENTS ====================
         const elements = {
+            // Name Modal (NEW)
+            nameModal: document.getElementById('nameModal'),
+            studentNameInput: document.getElementById('studentNameInput'),
+            startTestBtn: document.getElementById('startTestBtn'),
+            
             // Auth & Status
             authStatus: document.getElementById('authStatus'),
             loadingState: document.getElementById('loadingState'),
@@ -975,7 +1142,7 @@
             // Question Container
             questionContainer: document.getElementById('questionContainer'),
             
-            // Status Banner (NEW)
+            // Status Banner
             totalQuestions: document.getElementById('totalQuestions'),
             answeredCount: document.getElementById('answeredCount'),
             answeredBadge: document.getElementById('answeredBadge'),
@@ -997,7 +1164,7 @@
             nextBtn: document.getElementById('nextBtn'),
             submitTestBtn: document.getElementById('submitTestBtn'),
             
-            // Results (NEW)
+            // Results
             resultsSummary: document.getElementById('resultsSummary'),
             totalScore: document.getElementById('totalScore'),
             totalQuestionsResult: document.getElementById('totalQuestionsResult'),
@@ -1011,9 +1178,102 @@
             try {
                 console.log('🚀 Initializing app...');
                 
-                // Setup authentication
+                // Setup authentication first
                 await setupAuth();
                 
+                // Setup name modal listeners
+                setupNameModalListeners();
+                
+                // Show name modal and wait for user to enter name
+                // The rest of initialization will happen after name is entered
+                
+                console.log('✅ App initialized - waiting for student name');
+                
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                showError('Failed to initialize. Please refresh the page.');
+            }
+        }
+
+        // ==================== AUTHENTICATION ====================
+        async function setupAuth() {
+            return new Promise((resolve, reject) => {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        appState.user = user;
+                        elements.authStatus.textContent = `👤 Student ID: ${user.uid.substring(0, 8)}`;
+                        console.log('✅ User authenticated:', user.uid);
+                        resolve(user);
+                    } else {
+                        elements.authStatus.textContent = 'Signing in...';
+                        try {
+                            const credential = await signInAnonymously(auth);
+                            appState.user = credential.user;
+                            elements.authStatus.textContent = `👤 Student ID: ${credential.user.uid.substring(0, 8)}`;
+                            console.log('✅ Anonymous sign-in:', credential.user.uid);
+                            resolve(credential.user);
+                        } catch (error) {
+                            console.error('❌ Auth error:', error);
+                            elements.authStatus.textContent = '❌ Authentication failed';
+                            reject(error);
+                        }
+                    }
+                });
+            });
+        }
+
+        // ==================== NAME MODAL LISTENERS ====================
+        function setupNameModalListeners() {
+            // Enable/disable start button based on name input
+            elements.studentNameInput.addEventListener('input', (e) => {
+                const name = e.target.value.trim();
+                if (name.length >= 3) {
+                    elements.startTestBtn.disabled = false;
+                } else {
+                    elements.startTestBtn.disabled = true;
+                }
+            });
+
+            // Handle Enter key in name input
+            elements.studentNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !elements.startTestBtn.disabled) {
+                    startTest();
+                }
+            });
+
+            // Start test button click
+            elements.startTestBtn.addEventListener('click', startTest);
+
+            // Auto-focus on name input
+            setTimeout(() => {
+                elements.studentNameInput.focus();
+            }, 500);
+        }
+
+        // ==================== START TEST (After Name Entry) ====================
+        async function startTest() {
+            const name = elements.studentNameInput.value.trim();
+            
+            if (name.length < 3) {
+                alert('⚠️ Please enter your full name (at least 3 characters)');
+                elements.studentNameInput.focus();
+                return;
+            }
+
+            // Save student name
+            appState.studentName = name;
+            console.log('✅ Student name saved:', appState.studentName);
+
+            // Hide name modal with animation
+            elements.nameModal.style.animation = 'fadeOut 0.3s ease-out';
+            setTimeout(() => {
+                elements.nameModal.style.display = 'none';
+            }, 300);
+
+            // Update auth status to show name
+            elements.authStatus.textContent = `👤 ${appState.studentName} (ID: ${appState.user.uid.substring(0, 8)})`;
+
+            try {
                 // Load questions from Firestore
                 await loadQuestions();
                 
@@ -1032,50 +1292,35 @@
                     elements.loadingState.style.display = 'none';
                     elements.questionContainer.style.display = 'block';
                     
-                    console.log('✅ App initialized successfully');
+                    console.log('✅ Test started successfully');
                 } else {
                     showError('No active questions found. Please contact admin.');
                 }
                 
             } catch (error) {
-                console.error('❌ Initialization error:', error);
-                showError('Failed to initialize. Please refresh the page.');
+                console.error('❌ Error starting test:', error);
+                showError('Failed to load questions. Please refresh the page.');
             }
         }
 
-        // ==================== AUTHENTICATION ====================
-        async function setupAuth() {
-            return new Promise((resolve, reject) => {
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        // User already authenticated
-                        appState.user = user;
-                        elements.authStatus.textContent = `👤 Student ID: ${user.uid.substring(0, 8)}`;
-                        console.log('✅ User authenticated:', user.uid);
-                        resolve(user);
-                    } else {
-                        // Sign in anonymously
-                        elements.authStatus.textContent = 'Signing in...';
-                        try {
-                            const credential = await signInAnonymously(auth);
-                            appState.user = credential.user;
-                            elements.authStatus.textContent = `👤 Student ID: ${credential.user.uid.substring(0, 8)}`;
-                            console.log('✅ Anonymous sign-in:', credential.user.uid);
-                            resolve(credential.user);
-                        } catch (error) {
-                            console.error('❌ Auth error:', error);
-                            elements.authStatus.textContent = '❌ Authentication failed';
-                            reject(error);
-                        }
-                    }
-                });
-            });
-        }
+        // Add fadeOut animation to CSS (add this via JavaScript since we can't modify CSS now)
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                }
+                to {
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
         // ==================== LOAD QUESTIONS FROM FIRESTORE ====================
         async function loadQuestions() {
             try {
-                console.log('📥 Loading questions from Firestore...');
+                console.log('🔥 Loading questions from Firestore...');
                 
                 const questionsRef = collection(db, 'questions');
                 const querySnapshot = await getDocs(questionsRef);
@@ -1084,7 +1329,6 @@
                 
                 appState.questions = [];
                 
-                // Process each question document
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     console.log('📄 Question found:', {
@@ -1094,7 +1338,6 @@
                         text: data.text?.substring(0, 50) + '...'
                     });
                     
-                    // Load ALL questions (you can filter by status: 'active' if needed)
                     appState.questions.push({
                         id: doc.id,
                         ...data
@@ -1103,19 +1346,16 @@
                 
                 console.log(`✅ Total questions loaded: ${appState.questions.length}`);
                 
-                // Show active vs inactive count
                 const activeCount = appState.questions.filter(q => q.status === 'active').length;
                 const inactiveCount = appState.questions.filter(q => q.status === 'inactive').length;
                 console.log(`📊 Active: ${activeCount}, Inactive: ${inactiveCount}`);
                 
-                // Sort questions by creation date (newest first)
                 appState.questions.sort((a, b) => {
                     const timeA = a.createdAt?.seconds || 0;
                     const timeB = b.createdAt?.seconds || 0;
                     return timeB - timeA;
                 });
                 
-                // Validate we have questions
                 if (appState.questions.length === 0) {
                     throw new Error('No questions found in database. Please add questions from admin panel.');
                 }
@@ -1131,16 +1371,13 @@
             const totalCount = appState.questions.length;
             const answeredCountValue = appState.answers.size;
             
-            // Update status info
             elements.totalQuestions.textContent = totalCount;
             elements.answeredCount.textContent = answeredCountValue;
             elements.answeredBadge.textContent = `${answeredCountValue}/${totalCount} Completed`;
             
-            // Update progress bar
             const progress = totalCount > 0 ? (answeredCountValue / totalCount) * 100 : 0;
             elements.progressBar.style.width = `${progress}%`;
             
-            // Show/hide submit button based on completion
             if (answeredCountValue === totalCount && totalCount > 0) {
                 elements.submitTestBtn.style.display = 'inline-flex';
                 console.log('✅ All questions answered! Submit button shown.');
@@ -1164,54 +1401,40 @@
             
             console.log('📄 Rendering question:', appState.currentIndex + 1);
             
-            // Update question metadata badges
             elements.categoryBadge.textContent = question.category || 'General';
             elements.marksBadge.textContent = `${question.marks || 10} marks`;
             elements.difficultyBadge.textContent = question.difficulty || 'Medium';
             
-            // Update question counter
             elements.questionCounter.textContent = 
                 `Question ${appState.currentIndex + 1} of ${appState.questions.length}`;
             
-            // Display question text
             elements.questionText.textContent = question.text || 'Question text not available';
             
-            // Load saved answer if exists
             const savedAnswer = appState.answers.get(question.id);
             elements.answerTextarea.value = savedAnswer || '';
             updateCharCount();
             
-            // Show "Answered" badge if this question has been answered
             if (savedAnswer && savedAnswer.trim().length > 0) {
                 elements.answeredStatusBadge.style.display = 'inline-block';
             } else {
                 elements.answeredStatusBadge.style.display = 'none';
             }
             
-            // Update navigation buttons
             elements.prevBtn.disabled = appState.currentIndex === 0;
             elements.nextBtn.disabled = appState.currentIndex === appState.questions.length - 1;
             
-            // Update status banner
             updateStatusBanner();
             
-            // Focus on textarea for easy typing
             elements.answerTextarea.focus();
         }
 
         // ==================== NAVIGATION: PREVIOUS ====================
         function navigatePrevious() {
             if (appState.currentIndex > 0) {
-                // Save current answer before navigating
                 saveCurrentAnswer();
-                
-                // Move to previous question
                 appState.currentIndex--;
                 renderQuestion();
-                
-                // Scroll to top smoothly
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                
                 console.log('⬅️ Navigated to previous question:', appState.currentIndex + 1);
             }
         }
@@ -1219,16 +1442,10 @@
         // ==================== NAVIGATION: NEXT ====================
         function navigateNext() {
             if (appState.currentIndex < appState.questions.length - 1) {
-                // Save current answer before navigating
                 saveCurrentAnswer();
-                
-                // Move to next question
                 appState.currentIndex++;
                 renderQuestion();
-                
-                // Scroll to top smoothly
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                
                 console.log('➡️ Navigated to next question:', appState.currentIndex + 1);
             }
         }
@@ -1240,16 +1457,13 @@
             
             if (question) {
                 if (answerText.length > 0) {
-                    // Save answer to state
                     appState.answers.set(question.id, answerText);
                     console.log(`💾 Answer saved for question ${appState.currentIndex + 1}`);
                 } else {
-                    // Remove answer if empty (user deleted it)
                     appState.answers.delete(question.id);
                     console.log(`🗑️ Answer removed for question ${appState.currentIndex + 1}`);
                 }
                 
-                // Update status banner after saving
                 updateStatusBanner();
             }
         }
@@ -1259,13 +1473,12 @@
             const count = elements.answerTextarea.value.length;
             elements.charCount.textContent = count;
             
-            // Optional: Change color based on length
             if (count === 0) {
                 elements.charCount.style.color = '#64748b';
             } else if (count < 50) {
-                elements.charCount.style.color = '#f59e0b'; // Orange - might be too short
+                elements.charCount.style.color = '#f59e0b';
             } else {
-                elements.charCount.style.color = '#10b981'; // Green - good length
+                elements.charCount.style.color = '#10b981';
             }
         }
 
@@ -1273,15 +1486,11 @@
         function setupEventListeners() {
             console.log('🎧 Setting up event listeners...');
             
-            // ===== NAVIGATION BUTTONS =====
             elements.prevBtn.addEventListener('click', navigatePrevious);
             elements.nextBtn.addEventListener('click', navigateNext);
             
-            // ===== SUBMIT TEST BUTTON =====
             elements.submitTestBtn.addEventListener('click', submitTest);
             
-            // ===== TEXTAREA INPUT =====
-            // Auto-save answer as user types
             elements.answerTextarea.addEventListener('input', (e) => {
                 const question = appState.questions[appState.currentIndex];
                 if (question) {
@@ -1296,9 +1505,7 @@
                 }
             });
             
-            // ===== KEYBOARD SHORTCUTS =====
             document.addEventListener('keydown', (e) => {
-                // Alt + Left Arrow = Previous Question
                 if (e.altKey && e.key === 'ArrowLeft') {
                     e.preventDefault();
                     if (!elements.prevBtn.disabled) {
@@ -1306,7 +1513,6 @@
                     }
                 }
                 
-                // Alt + Right Arrow = Next Question
                 if (e.altKey && e.key === 'ArrowRight') {
                     e.preventDefault();
                     if (!elements.nextBtn.disabled) {
@@ -1314,7 +1520,6 @@
                     }
                 }
                 
-                // Ctrl/Cmd + Enter = Submit Test (if all answered)
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
                     if (elements.submitTestBtn.style.display !== 'none') {
@@ -1323,8 +1528,6 @@
                 }
             });
             
-            // ===== PREVENT ACCIDENTAL PAGE LEAVE =====
-            // Warn user if they try to leave with unanswered questions
             window.addEventListener('beforeunload', (e) => {
                 if (appState.answers.size > 0 && !appState.testCompleted) {
                     e.preventDefault();
@@ -1340,10 +1543,8 @@
         function submitTest() {
             console.log('🚀 Submit Test clicked');
             
-            // Save current answer first
             saveCurrentAnswer();
             
-            // Validate all questions are answered
             const totalQuestions = appState.questions.length;
             const answeredQuestions = appState.answers.size;
             
@@ -1352,7 +1553,6 @@
                 return;
             }
             
-            // Check for very short answers
             let hasShortAnswers = false;
             let shortAnswerQuestions = [];
             
@@ -1376,9 +1576,9 @@
                 }
             }
             
-            // Final confirmation
             const finalConfirm = window.confirm(
                 `📝 Ready to submit your test?\n\n` +
+                `Student Name: ${appState.studentName}\n` +
                 `Total Questions: ${totalQuestions}\n` +
                 `Answered: ${answeredQuestions}\n\n` +
                 `Once submitted, you cannot change your answers.\n\n` +
@@ -1391,175 +1591,160 @@
         }
 
         // ==================== SUBMIT & EVALUATE ALL ANSWERS ====================
-    async function evaluateAllAnswers() {
-        // Prevent multiple submissions
-        if (appState.isSubmitting) return;
-        appState.isSubmitting = true;
+        async function evaluateAllAnswers() {
+            if (appState.isSubmitting) return;
+            appState.isSubmitting = true;
 
-        console.log('🤖 Starting batch evaluation of all answers...');
+            console.log('🤖 Starting batch evaluation of all answers...');
 
-        // Switch to a loading view
-        elements.questionContainer.style.display = 'none';
-        elements.loadingState.querySelector('p').textContent = 'Evaluating your answers with AI... This may take a moment.';
-        elements.loadingState.style.display = 'block';
+            elements.questionContainer.style.display = 'none';
+            elements.loadingState.querySelector('p').textContent = 'Evaluating your answers with AI... This may take a moment.';
+            elements.loadingState.style.display = 'block';
 
-        // Loop through all questions and evaluate them one by one
-        for (const question of appState.questions) {
-            const studentAnswer = appState.answers.get(question.id);
+            for (const question of appState.questions) {
+                const studentAnswer = appState.answers.get(question.id);
 
-            if (!studentAnswer) {
-                console.warn(`⚠️ No answer found for question ${question.id}. Skipping.`);
-                const emptyResult = { score: 0, feedback: 'No answer was provided.', improvements: [] };
-                appState.results.set(question.id, emptyResult);
-                continue;
+                if (!studentAnswer) {
+                    console.warn(`⚠️ No answer found for question ${question.id}. Skipping.`);
+                    const emptyResult = { score: 0, feedback: 'No answer was provided.', improvements: [] };
+                    appState.results.set(question.id, emptyResult);
+                    continue;
+                }
+
+                try {
+                    console.log(`Evaluating question: "${question.text.substring(0, 30)}..."`);
+                    const result = await evaluateWithGemini({
+                        question: question.text,
+                        modelAnswer: question.modelAnswer || '',
+                        studentAnswer: studentAnswer,
+                        maxMarks: question.marks || 10
+                    });
+                    
+                    console.log('✅ Evaluation result:', result);
+                    appState.results.set(question.id, result);
+
+                } catch (error) {
+                    console.error(`❌ Evaluation failed for question ${question.id}:`, error);
+                    const errorResult = { 
+                        score: 0, 
+                        feedback: 'An error occurred while evaluating this answer. Please try again later.', 
+                        improvements: [] 
+                    };
+                    appState.results.set(question.id, errorResult);
+                }
             }
 
-            try {
-                console.log(`Evaluating question: "${question.text.substring(0, 30)}..."`);
-                const result = await evaluateWithGemini({
-                    question: question.text,
-                    modelAnswer: question.modelAnswer || '',
-                    studentAnswer: studentAnswer,
-                    maxMarks: question.marks || 10
-                });
-                
-                console.log('✅ Evaluation result:', result);
-                appState.results.set(question.id, result);
+            appState.testCompleted = true;
+            console.log('🎉 All evaluations complete!');
 
-            } catch (error) {
-                console.error(`❌ Evaluation failed for question ${question.id}:`, error);
-                // Store a failed result so the UI can still display something
-                const errorResult = { 
-                    score: 0, 
-                    feedback: 'An error occurred while evaluating this answer. Please try again later.', 
-                    improvements: [] 
-                };
-                appState.results.set(question.id, errorResult);
-            }
+            displayResultsSummary();
+            saveAllResultsToFirestore();
         }
 
-        // Mark test as completed
-        appState.testCompleted = true;
-        console.log('🎉 All evaluations complete!');
+        // ==================== DISPLAY RESULTS SUMMARY ====================
+        function displayResultsSummary() {
+            let totalPossibleMarks = 0;
+            let totalEarnedMarks = 0;
 
-        // Display the final results summary
-        displayResultsSummary();
-        
-        // Save results to Firestore in the background
-        saveAllResultsToFirestore();
-    }
+            appState.questions.forEach(question => {
+                totalPossibleMarks += question.marks || 10;
+                const result = appState.results.get(question.id);
+                if (result) {
+                    totalEarnedMarks += result.score || 0;
+                }
+            });
 
-    // ==================== DISPLAY RESULTS SUMMARY ====================
-    function displayResultsSummary() {
-        // === CALCULATE FINAL SCORES ===
-        let totalPossibleMarks = 0;
-        let totalEarnedMarks = 0;
+            const percentage = totalPossibleMarks > 0 ? (totalEarnedMarks / totalPossibleMarks) * 100 : 0;
+            const averageScore = appState.questions.length > 0 ? (totalEarnedMarks / appState.questions.length) : 0;
 
-        appState.questions.forEach(question => {
-            totalPossibleMarks += question.marks || 10;
-            const result = appState.results.get(question.id);
-            if (result) {
-                totalEarnedMarks += result.score || 0;
-            }
-        });
+            elements.totalScore.textContent = `${totalEarnedMarks}/${totalPossibleMarks}`;
+            elements.totalQuestionsResult.textContent = appState.questions.length;
+            elements.scorePercentage.textContent = `${percentage.toFixed(1)}%`;
+            elements.averageScore.textContent = averageScore.toFixed(1);
 
-        const percentage = totalPossibleMarks > 0 ? (totalEarnedMarks / totalPossibleMarks) * 100 : 0;
-        const averageScore = appState.questions.length > 0 ? (totalEarnedMarks / appState.questions.length) : 0;
+            elements.questionResultsList.innerHTML = '';
 
-        // === POPULATE SUMMARY HEADER ===
-        elements.totalScore.textContent = `${totalEarnedMarks}/${totalPossibleMarks}`;
-        elements.totalQuestionsResult.textContent = appState.questions.length;
-        elements.scorePercentage.textContent = `${percentage.toFixed(1)}%`;
-        elements.averageScore.textContent = averageScore.toFixed(1);
+            appState.questions.forEach((question, index) => {
+                const result = appState.results.get(question.id);
+                if (!result) return;
 
-        // === POPULATE DETAILED RESULTS LIST ===
-        elements.questionResultsList.innerHTML = ''; // Clear previous list
+                const maxMarks = question.marks || 10;
+                const scorePercent = maxMarks > 0 ? (result.score / maxMarks) * 100 : 0;
+                let scoreClass = 'medium-score';
+                if (scorePercent >= 80) scoreClass = 'high-score';
+                if (scorePercent < 50) scoreClass = 'low-score';
 
-        appState.questions.forEach((question, index) => {
-            const result = appState.results.get(question.id);
-            if (!result) return;
+                const improvementsHTML = result.improvements && result.improvements.length > 0
+                    ? result.improvements.map(item => `<li>${item}</li>`).join('')
+                    : '<li>Well done! No major improvements needed for this answer.</li>';
 
-            const maxMarks = question.marks || 10;
-            const scorePercent = maxMarks > 0 ? (result.score / maxMarks) * 100 : 0;
-            let scoreClass = 'medium-score';
-            if (scorePercent >= 80) scoreClass = 'high-score';
-            if (scorePercent < 50) scoreClass = 'low-score';
-
-            const improvementsHTML = result.improvements && result.improvements.length > 0
-                ? result.improvements.map(item => `<li>${item}</li>`).join('')
-                : '<li>Well done! No major improvements needed for this answer.</li>';
-
-            const resultItemHTML = `
-                <div class="result-item ${scoreClass}">
-                    <div class="result-header">
-                        <div class="result-question">${index + 1}. ${question.text}</div>
-                        <div class="result-score">${result.score}/${maxMarks}</div>
+                const resultItemHTML = `
+                    <div class="result-item ${scoreClass}">
+                        <div class="result-header">
+                            <div class="result-question">${index + 1}. ${question.text}</div>
+                            <div class="result-score">${result.score}/${maxMarks}</div>
+                        </div>
+                        <div class="result-feedback">
+                            <strong>Feedback:</strong> ${result.feedback || 'No feedback available.'}
+                        </div>
+                        <div class="result-improvements">
+                            <h4>💡 Suggestions for Improvement</h4>
+                            <ul>
+                                ${improvementsHTML}
+                            </ul>
+                        </div>
                     </div>
-                    <div class="result-feedback">
-                        <strong>Feedback:</strong> ${result.feedback || 'No feedback available.'}
-                    </div>
-                    <div class="result-improvements">
-                        <h4>💡 Suggestions for Improvement</h4>
-                        <ul>
-                            ${improvementsHTML}
-                        </ul>
-                    </div>
-                </div>
-            `;
-            elements.questionResultsList.innerHTML += resultItemHTML;
-        });
+                `;
+                elements.questionResultsList.innerHTML += resultItemHTML;
+            });
 
-        // === SHOW THE RESULTS PAGE ===
-        elements.loadingState.style.display = 'none';
-        elements.resultsSummary.style.display = 'block';
-        
-        // Scroll to the top of the results for a better UX
-        elements.resultsSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // ==================== SAVE ALL RESULTS TO FIRESTORE ====================
-    async function saveAllResultsToFirestore() {
-        if (!appState.user) {
-            console.error('❌ Cannot save results: User not authenticated.');
-            return;
-        }
-        
-        console.log('💾 Saving all test attempts to Firestore...');
-        
-        for (const question of appState.questions) {
-            const studentAnswer = appState.answers.get(question.id);
-            const result = appState.results.get(question.id);
-
-            if (!studentAnswer || !result) continue; // Skip if no answer or result
-
-            const attemptData = {
-                userId: appState.user.uid,
-                questionId: question.id,
-                questionText: question.text,
-                category: question.category,
-                maxMarks: question.marks || 10,
-                studentAnswer: studentAnswer,
-                score: result.score,
-                feedback: result.feedback || '',
-                improvements: result.improvements || [],
-                submittedAt: serverTimestamp()
-            };
+            elements.loadingState.style.display = 'none';
+            elements.resultsSummary.style.display = 'block';
             
+            elements.resultsSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ==================== SAVE RESULTS TO FIRESTORE ====================
+        async function saveAllResultsToFirestore() {
             try {
-                await addDoc(collection(db, 'users', appState.user.uid, 'test_attempts'), attemptData);
-                console.log(`✅ Result for question ${question.id} saved to Firestore.`);
+                console.log("📝 Saving results to Firestore...");
+
+                const resultRef = collection(db, "testResults");
+
+                const payload = {
+                    studentName: appState.studentName,
+                    studentId: appState.user.uid,
+                    submittedAt: serverTimestamp(),
+                    totalQuestions: appState.questions.length,
+
+                    results: appState.questions.map(q => {
+                        const evaluation = appState.results.get(q.id);
+                        return {
+                            questionId: q.id,
+                            questionText: q.text,
+                            marks: q.marks || 10,
+                            earnedMarks: evaluation.score || 0,
+                            feedback: evaluation.feedback || "",
+                            improvements: evaluation.improvements || [],
+                            studentAnswer: appState.answers.get(q.id) || ""
+                        };
+                    }),
+
+                    totalScore: elements.totalScore.textContent,
+                    percentage: elements.scorePercentage.textContent,
+                    averageScore: elements.averageScore.textContent
+                };
+
+                await addDoc(resultRef, payload);
+
+                console.log("✅ Results saved successfully!");
             } catch (error) {
-                console.error(`❌ Error saving result for question ${question.id} to Firestore:`, error);
-                // Optional: Implement a localStorage fallback here for failed saves
+                console.error("❌ Failed to save results:", error);
             }
         }
-        
-        console.log('💾 All results have been sent to Firestore.');
-    }
 
-    // ==================== START APPLICATION ====================
-    init();
-    console.log('✅ Test Platform Ready');
+        // ==================== START THE APPLICATION ====================
+        init();
     </script>
 </body>
 </html>
