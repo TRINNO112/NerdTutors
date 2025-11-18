@@ -1,181 +1,121 @@
-// api/evaluate.js — ULTRA DEBUG VERSION (BRO MODE)
-
 export default async function handler(req, res) {
-  console.log("🚀 FUNCTION STARTED");
-  console.log("📌 Request method:", req.method);
-  console.log("📌 Raw req.body:", req.body);
+  console.log("🚀 NEW HANDLER STARTED");
 
-  // ================= CORS ==================
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+  // ===== CORS =====
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") {
-    console.log("🔧 CORS preflight hit");
-    return res.status(200).json({ status: "ok" });
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  if (req.method !== "POST") {
-    console.log("❌ Invalid method:", req.method);
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  // ================= Parse Body ==================
-  console.log("🔍 Parsing request body...");
-
+  // ===== Parse Body =====
   let body = req.body;
-  try {
-    if (typeof body === "string") {
-      console.log("🔄 Body is string, parsing JSON...");
-      body = JSON.parse(body);
-    }
-  } catch (err) {
-    console.log("❌ Failed to parse body:", err);
-    return res.status(400).json({ error: "Invalid JSON body" });
-  }
+  if (typeof body === "string") body = JSON.parse(body);
 
-  console.log("✅ Parsed body:", body);
+  let { question, modelAnswer, studentAnswer, maxMarks } = body;
 
-  const { question, modelAnswer, studentAnswer, maxMarks } = body;
-  console.log("📌 Extracted fields:", { question, modelAnswer, studentAnswer, maxMarks });
+  // Normalize undefined → ""
+  question = question || "";
+  modelAnswer = modelAnswer || "The official solution was not provided.";
+  studentAnswer = studentAnswer || "";
+  maxMarks = maxMarks || 5;
 
-  if (!question || !studentAnswer || !maxMarks) {
-    console.log("❌ Missing fields");
-    return res.status(400).json({ error: "Missing required fields" });
-  }
+  console.log("🧩 FINAL INPUT SENT TO GEMINI:", {
+    question,
+    modelAnswer,
+    studentAnswer,
+    maxMarks
+  });
 
-  // ================= ENV CHECK ==================
-  console.log("🔍 Checking Gemini API key presence...");
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  // ===== Validate API Key =====
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return res.status(500).json({ error: "Missing API Key" });
 
-  if (!GEMINI_API_KEY) {
-    console.log("❌ GEMINI_API_KEY is missing");
-    return res.status(500).json({ error: "API key missing" });
-  }
+  // ===== Model (Stable & Supported) =====
+  const MODEL_URL =
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent";
 
-  console.log("✅ GEMINI_API_KEY exists");
-
-  // ================= Build Prompt ==================
- const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent";
-
+  // ===== Prompt =====
   const prompt = `
-Evaluate as an economics expert. Strict JSON ONLY.
+Evaluate the student's answer strictly in JSON.
 
 Question: ${question}
-Model Answer: ${modelAnswer}
-Student Answer: ${studentAnswer}
-Maximum Marks: ${maxMarks}
 
-Return JSON:
+Model Answer: ${modelAnswer}
+
+Student Answer: ${studentAnswer}
+
+Max Marks: ${maxMarks}
+
+Return STRICT JSON only:
 {
-  "score": <0-${maxMarks}>,
+  "score": <number>,
   "improvements": ["...", "..."],
   "feedback": "..."
 }
 `;
 
-  console.log("🧠 Prompt being sent:", prompt);
+  console.log("📤 PROMPT SENT:", prompt);
 
-  // ================= Gemini Request ==================
   const requestBody = {
     contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: 0.4,
-      topK: 32,
-      topP: 1,
-      maxOutputTokens: 512,
-    },
-    safetySettings: [
-      { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-      { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-      { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-      { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-    ]
+    generationConfig: { temperature: 0.3, maxOutputTokens: 256 }
   };
 
-  console.log("📤 Sending Gemini request:", JSON.stringify(requestBody, null, 2));
-
-  let apiResponse;
-
-  try {
-    apiResponse = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+  async function callGemini() {
+    const response = await fetch(`${MODEL_URL}?key=${key}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(requestBody)
     });
-  } catch (err) {
-    console.log("❌ NETWORK ERROR sending to Gemini:", err);
-    return res.status(500).json({
-      error: "Network failure contacting Gemini",
-      details: err.message
-    });
+
+    const raw = await response.text();
+    console.log("📄 RAW GEMINI RESPONSE:", raw);
+
+    if (!response.ok) throw new Error(raw);
+
+    return JSON.parse(raw);
   }
 
-  console.log("📥 Gemini HTTP status:", apiResponse.status);
-
-  const rawResponseText = await apiResponse.text();
-  console.log("📄 RAW Gemini response:", rawResponseText);
-
-  if (!apiResponse.ok) {
-    console.log("❌ Gemini error response:", rawResponseText);
-    return res.status(500).json({
-      error: "Gemini API returned an error",
-      status: apiResponse.status,
-      body: rawResponseText
-    });
-  }
-
-  // ================= Parse Gemini JSON ==================
   let geminiJson;
 
+  // ===== Retry Logic (Fixes first question issue) =====
   try {
-    geminiJson = JSON.parse(rawResponseText);
-    console.log("📌 Parsed Gemini JSON:", geminiJson);
+    geminiJson = await callGemini();
   } catch (err) {
-    console.log("❌ Failed to parse Gemini JSON:", err);
-    return res.status(500).json({
-      error: "Gemini returned invalid JSON",
-      raw: rawResponseText
-    });
+    console.log("⚠️ FIRST CALL FAILED, RETRYING ONCE...");
+    try {
+      geminiJson = await callGemini();
+    } catch (err2) {
+      console.log("❌ RETRY FAILED:", err2);
+      return res.status(200).json({
+        score: 0,
+        improvements: ["Evaluation failed.", "AI could not process the response."],
+        feedback: "Try again later."
+      });
+    }
   }
 
-  const text = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
-  console.log("📌 Extracted model text:", text);
+  const text = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
-  if (!text) {
-    console.log("❌ Gemini returned no text");
-    return res.status(500).json({ error: "Empty model response" });
-  }
+  // ===== Clean JSON =====
+  const clean = text.replace(/```json|```/g, "").trim();
+  console.log("🧼 CLEAN JSON:", clean);
 
-  // ================= Clean JSON text ==================
-  const cleanText = text
-    .replace(/```json|```/g, "")
-    .replace(/\n+/g, " ")
-    .trim();
-
-  console.log("🧹 Clean JSON string:", cleanText);
-
-  let finalJson;
+  let result;
   try {
-    finalJson = JSON.parse(cleanText);
-    console.log("✅ FINAL parsed JSON:", finalJson);
+    result = JSON.parse(clean);
   } catch (err) {
-    console.log("❌ JSON parse error:", err);
+    console.log("⚠️ FALLBACK PARSE FAILED:", err);
     return res.status(200).json({
       score: 0,
-      improvements: ["Model returned non-JSON text", cleanText],
-      feedback: "AI evaluation could not be parsed."
+      improvements: ["AI returned bad JSON.", clean],
+      feedback: "Evaluation could not be parsed."
     });
   }
 
-  // ================= SUCCESS ==================
-  console.log("🎉 SUCCESS — sending result back:", finalJson);
+  console.log("🎉 FINAL RESULT:", result);
 
-  return res.status(200).json({
-    score: finalJson.score ?? 0,
-    improvements: finalJson.improvements ?? [],
-    feedback: finalJson.feedback ?? "No feedback"
-  });
+  return res.status(200).json(result);
 }
