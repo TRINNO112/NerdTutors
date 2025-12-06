@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Question Management</title>
     
+    <!-- SheetJS Library for Excel parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <style>
         /* Reset & Base */
         * {
@@ -229,7 +232,7 @@
             transform: none;
         }
         
-        /* Question Cards - IMPROVED */
+        /* Question Cards */
         .list-header {
             display: flex;
             justify-content: space-between;
@@ -380,7 +383,7 @@
             color: #666;
         }
 
-        /* Modal Styles for Edit */
+        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -445,7 +448,7 @@
             color: #333;
         }
 
-        /* Statistics Grid - ENHANCED */
+        /* Statistics Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -662,6 +665,327 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        /* ============================================
+           EXCEL UPLOAD STYLES - NEW
+           ============================================ */
+        
+        .upload-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .upload-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .upload-area {
+            background: rgba(255,255,255,0.1);
+            border: 3px dashed rgba(255,255,255,0.5);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.8);
+        }
+
+        .upload-area.dragover {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-download-template {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-download-template:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Preview Table */
+        .preview-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .preview-section.show {
+            display: block;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .preview-header h3 {
+            color: #1e3c72;
+            font-size: 1.2rem;
+        }
+
+        .preview-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .preview-count {
+            background: #1e3c72;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .preview-table-container {
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .preview-table th {
+            background: #1e3c72;
+            color: white;
+            padding: 1rem 0.75rem;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+        }
+
+        .preview-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: top;
+        }
+
+        .preview-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .preview-table .text-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .preview-table .text-cell:hover {
+            white-space: normal;
+            overflow: visible;
+        }
+
+        .row-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .row-status.valid {
+            background: #4caf50;
+        }
+
+        .row-status.invalid {
+            background: #f44336;
+        }
+
+        .row-error {
+            color: #f44336;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .upload-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-upload-confirm {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-upload-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-upload-confirm:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Upload Progress */
+        .upload-progress {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        .upload-progress.show {
+            display: block;
+        }
+
+        .progress-bar-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, #4caf50, #45a049);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Format Guide */
+        .format-guide {
+            background: #e3f2fd;
+            border: 2px solid #1565c0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .format-guide h4 {
+            color: #1565c0;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .format-guide table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .format-guide th, .format-guide td {
+            padding: 0.5rem;
+            border: 1px solid #90caf9;
+            text-align: left;
+        }
+
+        .format-guide th {
+            background: #1565c0;
+            color: white;
+        }
+
+        .format-guide .required {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .format-guide .optional {
+            color: #4caf50;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .form-row {
@@ -683,6 +1007,14 @@
 
             .search-box {
                 width: 100%;
+            }
+
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+
+            .upload-icon {
+                font-size: 3rem;
             }
         }
     </style>
@@ -735,6 +1067,7 @@
             <!-- Tabs -->
             <div class="tabs">
                 <button class="tab-btn active" data-tab="add">➕ Add Question</button>
+                <button class="tab-btn" data-tab="bulk">📤 Bulk Upload (Excel)</button>
                 <button class="tab-btn" data-tab="manage">📋 Manage Questions</button>
                 <button class="tab-btn" data-tab="stats">📊 Statistics</button>
             </div>
@@ -805,6 +1138,128 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- Bulk Upload Tab - NEW -->
+            <div class="tab-panel" id="bulkTab">
+                <!-- Upload Section -->
+                <div class="upload-section">
+                    <h3>📤 Upload Questions from Excel</h3>
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" class="file-input" id="excelFileInput" 
+                            accept=".xlsx,.xls,.csv">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">Drag & Drop your Excel file here</div>
+                        <div class="upload-subtext">or click to browse (Supports .xlsx, .xls, .csv)</div>
+                    </div>
+                    <div class="upload-buttons">
+                        <button class="btn-download-template" id="btnDownloadTemplate">
+                            📥 Download Template
+                        </button>
+                        <button class="btn-download-template" id="btnDownloadSample">
+                            📄 Download Sample Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Format Guide -->
+                <div class="format-guide">
+                    <h4>📋 Excel Format Guide</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Column Name</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>text</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>The question text</td>
+                                <td>Explain the law of demand</td>
+                            </tr>
+                            <tr>
+                                <td><strong>category</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>Question category</td>
+                                <td>Microeconomics</td>
+                            </tr>
+                            <tr>
+                                <td><strong>marks</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>Marks for the question (1-100)</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td><strong>modelAnswer</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>The ideal answer</td>
+                                <td>The law of demand states...</td>
+                            </tr>
+                            <tr>
+                                <td><strong>difficulty</strong></td>
+                                <td><span class="optional">Optional</span></td>
+                                <td>Easy, Medium, or Hard</td>
+                                <td>Medium</td>
+                            </tr>
+                            <tr>
+                                <td><strong>status</strong></td>
+                                <td><span class="optional">Optional</span></td>
+                                <td>active or inactive</td>
+                                <td>active</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 1rem; font-size: 0.9rem;">
+                        <strong>Valid Categories:</strong> Microeconomics, Macroeconomics, International Economics, 
+                        Development Economics, Public Economics, Monetary Economics, Labor Economics, 
+                        Environmental Economics, Econometrics, Economic Theory
+                    </p>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="preview-section" id="previewSection">
+                    <div class="preview-header">
+                        <h3>📋 Preview Data</h3>
+                        <div class="preview-info">
+                            <span class="preview-count" id="validCount">0 valid</span>
+                            <span class="preview-count" style="background: #f44336;" id="invalidCount">0 invalid</span>
+                        </div>
+                    </div>
+                    <div class="preview-table-container">
+                        <table class="preview-table" id="previewTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Status</th>
+                                    <th>Question Text</th>
+                                    <th>Category</th>
+                                    <th>Marks</th>
+                                    <th>Difficulty</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="upload-actions">
+                        <button class="btn-cancel" id="btnCancelUpload">Cancel</button>
+                        <button class="btn-upload-confirm" id="btnConfirmUpload">
+                            ✅ Upload <span id="uploadCountText">0</span> Questions
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Progress -->
+                <div class="upload-progress" id="uploadProgress">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Uploading... 0%</div>
                 </div>
             </div>
 
@@ -954,7 +1409,20 @@
     const ADMIN_EMAILS = [
         'kaushtubh457@gmail.com',
         'jatinthacker000@gmail.com'
-        // Add more admin emails as needed
+    ];
+
+    // Valid categories for validation
+    const VALID_CATEGORIES = [
+        'Microeconomics',
+        'Macroeconomics',
+        'International Economics',
+        'Development Economics',
+        'Public Economics',
+        'Monetary Economics',
+        'Labor Economics',
+        'Environmental Economics',
+        'Econometrics',
+        'Economic Theory'
     ];
 
     // DOM Elements
@@ -975,24 +1443,41 @@
         editModal: document.getElementById('editModal'),
         btnCloseModal: document.getElementById('btnCloseModal'),
         searchBox: document.getElementById('searchBox'),
-        filterCategory: document.getElementById('filterCategory')
+        filterCategory: document.getElementById('filterCategory'),
+        // Excel upload elements
+        excelFileInput: document.getElementById('excelFileInput'),
+        uploadArea: document.getElementById('uploadArea'),
+        previewSection: document.getElementById('previewSection'),
+        previewTableBody: document.getElementById('previewTableBody'),
+        validCount: document.getElementById('validCount'),
+        invalidCount: document.getElementById('invalidCount'),
+        uploadCountText: document.getElementById('uploadCountText'),
+        btnCancelUpload: document.getElementById('btnCancelUpload'),
+        btnConfirmUpload: document.getElementById('btnConfirmUpload'),
+        btnDownloadTemplate: document.getElementById('btnDownloadTemplate'),
+        btnDownloadSample: document.getElementById('btnDownloadSample'),
+        uploadProgress: document.getElementById('uploadProgress'),
+        progressBar: document.getElementById('progressBar'),
+        progressText: document.getElementById('progressText')
     };
 
     // Global variables
     let allQuestions = [];
     let currentEditId = null;
+    let parsedExcelData = [];
+    let validQuestionsToUpload = [];
 
     // Initialize
     function init() {
         setupAuth();
         setupEventListeners();
+        setupExcelUpload();
     }
 
     // Auth Setup
     function setupAuth() {
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Check if user is admin
                 if (ADMIN_EMAILS.includes(user.email) || user.email?.includes('admin')) {
                     showAdminPanel(user);
                 } else {
@@ -1106,6 +1591,360 @@
         elements.filterCategory?.addEventListener('change', filterQuestions);
     }
 
+    // ============================================
+    // EXCEL UPLOAD FUNCTIONALITY - NEW
+    // ============================================
+
+    function setupExcelUpload() {
+        // File input change
+        elements.excelFileInput?.addEventListener('change', handleFileSelect);
+
+        // Drag and drop
+        elements.uploadArea?.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.uploadArea.classList.add('dragover');
+        });
+
+        elements.uploadArea?.addEventListener('dragleave', () => {
+            elements.uploadArea.classList.remove('dragover');
+        });
+
+        elements.uploadArea?.addEventListener('drop', (e) => {
+            e.preventDefault();
+            elements.uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processExcelFile(files[0]);
+            }
+        });
+
+        // Download template
+        elements.btnDownloadTemplate?.addEventListener('click', downloadTemplate);
+        
+        // Download sample
+        elements.btnDownloadSample?.addEventListener('click', downloadSampleData);
+
+        // Cancel upload
+        elements.btnCancelUpload?.addEventListener('click', cancelUpload);
+
+        // Confirm upload
+        elements.btnConfirmUpload?.addEventListener('click', confirmUpload);
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            processExcelFile(file);
+        }
+    }
+
+    function processExcelFile(file) {
+        const validExtensions = ['.xlsx', '.xls', '.csv'];
+        const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+        
+        if (!validExtensions.includes(fileExt)) {
+            showToast('Please upload a valid Excel file (.xlsx, .xls, .csv)', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Get first sheet
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                
+                // Convert to JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+                
+                if (jsonData.length === 0) {
+                    showToast('The Excel file is empty', 'error');
+                    return;
+                }
+
+                // Process and validate data
+                parsedExcelData = validateExcelData(jsonData);
+                displayPreview(parsedExcelData);
+                
+            } catch (error) {
+                console.error('Error parsing Excel:', error);
+                showToast('Error parsing Excel file: ' + error.message, 'error');
+            }
+        };
+
+        reader.onerror = () => {
+            showToast('Error reading file', 'error');
+        };
+
+        reader.readAsArrayBuffer(file);
+    }
+
+    function validateExcelData(data) {
+        return data.map((row, index) => {
+            const errors = [];
+            
+            // Check required fields
+            if (!row.text || String(row.text).trim() === '') {
+                errors.push('Question text is required');
+            }
+            
+            if (!row.category || String(row.category).trim() === '') {
+                errors.push('Category is required');
+            } else if (!VALID_CATEGORIES.includes(row.category)) {
+                errors.push(`Invalid category: "${row.category}"`);
+            }
+            
+            if (!row.marks || isNaN(parseInt(row.marks))) {
+                errors.push('Marks must be a number');
+            } else if (parseInt(row.marks) < 1 || parseInt(row.marks) > 100) {
+                errors.push('Marks must be between 1-100');
+            }
+            
+            if (!row.modelAnswer || String(row.modelAnswer).trim() === '') {
+                errors.push('Model answer is required');
+            }
+
+            // Validate optional fields
+            let difficulty = row.difficulty || 'Medium';
+            if (!['Easy', 'Medium', 'Hard'].includes(difficulty)) {
+                difficulty = 'Medium';
+            }
+
+            let status = row.status || 'active';
+            if (!['active', 'inactive'].includes(status)) {
+                status = 'active';
+            }
+
+            return {
+                rowNumber: index + 2, // Excel rows start at 1, header is row 1
+                text: String(row.text || '').trim(),
+                category: String(row.category || '').trim(),
+                marks: parseInt(row.marks) || 0,
+                modelAnswer: String(row.modelAnswer || '').trim(),
+                difficulty: difficulty,
+                status: status,
+                isValid: errors.length === 0,
+                errors: errors
+            };
+        });
+    }
+
+    function displayPreview(data) {
+        validQuestionsToUpload = data.filter(row => row.isValid);
+        const invalidRows = data.filter(row => !row.isValid);
+
+        elements.validCount.textContent = `${validQuestionsToUpload.length} valid`;
+        elements.invalidCount.textContent = `${invalidRows.length} invalid`;
+        elements.uploadCountText.textContent = validQuestionsToUpload.length;
+
+        // Enable/disable upload button
+        elements.btnConfirmUpload.disabled = validQuestionsToUpload.length === 0;
+
+        // Build preview table
+        let html = '';
+        data.forEach((row, index) => {
+            html += `
+                <tr style="${row.isValid ? '' : 'background: #fff3f3;'}">
+                    <td>${row.rowNumber}</td>
+                    <td>
+                        <span class="row-status ${row.isValid ? 'valid' : 'invalid'}"></span>
+                        ${row.isValid ? '✓ Valid' : '✗ Error'}
+                    </td>
+                    <td class="text-cell" title="${escapeHtml(row.text)}">
+                        ${escapeHtml(row.text.substring(0, 100))}${row.text.length > 100 ? '...' : ''}
+                        ${row.errors.length > 0 ? `<div class="row-error">${row.errors.join(', ')}</div>` : ''}
+                    </td>
+                    <td>${escapeHtml(row.category)}</td>
+                    <td>${row.marks}</td>
+                    <td>${row.difficulty}</td>
+                </tr>
+            `;
+        });
+
+        elements.previewTableBody.innerHTML = html;
+        elements.previewSection.classList.add('show');
+
+        showToast(`Found ${validQuestionsToUpload.length} valid questions out of ${data.length} rows`, 'success');
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    async function confirmUpload() {
+        if (validQuestionsToUpload.length === 0) {
+            showToast('No valid questions to upload', 'error');
+            return;
+        }
+
+        const confirmMsg = `Are you sure you want to upload ${validQuestionsToUpload.length} questions?`;
+        if (!confirm(confirmMsg)) return;
+
+        elements.btnConfirmUpload.disabled = true;
+        elements.uploadProgress.classList.add('show');
+
+        let uploaded = 0;
+        let failed = 0;
+
+        for (let i = 0; i < validQuestionsToUpload.length; i++) {
+            const question = validQuestionsToUpload[i];
+            
+            try {
+                await addDoc(collection(db, 'questions'), {
+                    text: question.text,
+                    category: question.category,
+                    marks: question.marks,
+                    modelAnswer: question.modelAnswer,
+                    difficulty: question.difficulty,
+                    status: question.status,
+                    createdAt: serverTimestamp(),
+                    createdBy: auth.currentUser?.email,
+                    uploadedVia: 'excel'
+                });
+                uploaded++;
+            } catch (error) {
+                console.error('Error uploading question:', error);
+                failed++;
+            }
+
+            // Update progress
+            const progress = ((i + 1) / validQuestionsToUpload.length) * 100;
+            elements.progressBar.style.width = progress + '%';
+            elements.progressText.textContent = `Uploading... ${Math.round(progress)}% (${i + 1}/${validQuestionsToUpload.length})`;
+        }
+
+        // Complete
+        elements.progressText.textContent = `Complete! Uploaded: ${uploaded}, Failed: ${failed}`;
+        
+        if (uploaded > 0) {
+            showToast(`Successfully uploaded ${uploaded} questions!`, 'success');
+            loadQuestions();
+            loadStatistics();
+        }
+
+        if (failed > 0) {
+            showToast(`Failed to upload ${failed} questions`, 'error');
+        }
+
+        // Reset after 2 seconds
+        setTimeout(() => {
+            cancelUpload();
+        }, 2000);
+    }
+
+    function cancelUpload() {
+        parsedExcelData = [];
+        validQuestionsToUpload = [];
+        elements.previewSection.classList.remove('show');
+        elements.uploadProgress.classList.remove('show');
+        elements.progressBar.style.width = '0%';
+        elements.progressText.textContent = 'Uploading... 0%';
+        elements.excelFileInput.value = '';
+        elements.btnConfirmUpload.disabled = false;
+    }
+
+    function downloadTemplate() {
+        const templateData = [
+            {
+                text: '',
+                category: '',
+                marks: '',
+                modelAnswer: '',
+                difficulty: '',
+                status: ''
+            }
+        ];
+
+        const ws = XLSX.utils.json_to_sheet(templateData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+
+        // Set column widths
+        ws['!cols'] = [
+            { wch: 50 },  // text
+            { wch: 25 },  // category
+            { wch: 10 },  // marks
+            { wch: 50 },  // modelAnswer
+            { wch: 12 },  // difficulty
+            { wch: 10 }   // status
+        ];
+
+        XLSX.writeFile(wb, 'questions_template.xlsx');
+        showToast('Template downloaded!', 'success');
+    }
+
+    function downloadSampleData() {
+        const sampleData = [
+            {
+                text: 'Explain the law of demand and its exceptions.',
+                category: 'Microeconomics',
+                marks: 10,
+                modelAnswer: 'The law of demand states that, ceteris paribus, as the price of a good increases, the quantity demanded decreases, and vice versa. This creates a downward-sloping demand curve. Exceptions include Giffen goods, Veblen goods, expectations of future price changes, and necessary goods.',
+                difficulty: 'Medium',
+                status: 'active'
+            },
+            {
+                text: 'What are the main components of GDP? Explain each.',
+                category: 'Macroeconomics',
+                marks: 15,
+                modelAnswer: 'GDP = C + I + G + (X-M). Consumption (C): Household spending on goods and services. Investment (I): Business spending on capital goods. Government Spending (G): Government expenditure on goods and services. Net Exports (X-M): Exports minus imports.',
+                difficulty: 'Medium',
+                status: 'active'
+            },
+            {
+                text: 'Define elasticity of demand. What factors affect it?',
+                category: 'Microeconomics',
+                marks: 8,
+                modelAnswer: 'Elasticity of demand measures the responsiveness of quantity demanded to changes in price. Factors affecting it include: availability of substitutes, necessity vs luxury, proportion of income spent, time period, and brand loyalty.',
+                difficulty: 'Easy',
+                status: 'active'
+            },
+            {
+                text: 'Explain the concept of comparative advantage in international trade.',
+                category: 'International Economics',
+                marks: 12,
+                modelAnswer: 'Comparative advantage refers to the ability of a country to produce a good at a lower opportunity cost than another country. Even if a country has absolute advantage in all goods, trade can still be beneficial if countries specialize in goods where they have comparative advantage.',
+                difficulty: 'Hard',
+                status: 'active'
+            },
+            {
+                text: 'What is fiscal policy? Discuss its tools and objectives.',
+                category: 'Public Economics',
+                marks: 10,
+                modelAnswer: 'Fiscal policy refers to government decisions about taxation and spending to influence the economy. Tools include: changes in tax rates, government spending programs, and transfer payments. Objectives include economic growth, price stability, full employment, and redistribution of income.',
+                difficulty: 'Medium',
+                status: 'active'
+            }
+        ];
+
+        const ws = XLSX.utils.json_to_sheet(sampleData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+
+        // Set column widths
+        ws['!cols'] = [
+            { wch: 60 },  // text
+            { wch: 25 },  // category
+            { wch: 10 },  // marks
+            { wch: 80 },  // modelAnswer
+            { wch: 12 },  // difficulty
+            { wch: 10 }   // status
+        ];
+
+        XLSX.writeFile(wb, 'questions_sample.xlsx');
+        showToast('Sample data downloaded!', 'success');
+    }
+
+    // ============================================
+    // END EXCEL UPLOAD FUNCTIONALITY
+    // ============================================
+
     // Switch tabs
     function switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1123,7 +1962,7 @@
         }
     }
 
-    // Add Question (KEEPING YOUR ORIGINAL LOGIC)
+    // Add Question
     async function addQuestion() {
         const questionData = {
             text: document.getElementById('questionText').value,
@@ -1146,7 +1985,7 @@
         }
     }
 
-    // Load Questions with EDIT functionality
+    // Load Questions
     async function loadQuestions() {
         if (!elements.questionsList) return;
         
@@ -1291,7 +2130,7 @@
         displayQuestions(filtered);
     }
 
-    // Load Statistics - ENHANCED
+    // Load Statistics
     async function loadStatistics() {
         if (!elements.statsGrid) return;
         
@@ -1299,7 +2138,6 @@
             const querySnapshot = await getDocs(collection(db, 'questions'));
             const totalQuestions = querySnapshot.size;
             
-            // Category breakdown
             const categoryCount = {};
             const difficultyCount = { Easy: 0, Medium: 0, Hard: 0 };
             const statusCount = { active: 0, inactive: 0 };
@@ -1308,19 +2146,15 @@
             querySnapshot.forEach((docSnap) => {
                 const data = docSnap.data();
                 
-                // Count by category
                 const category = data.category || 'Uncategorized';
                 categoryCount[category] = (categoryCount[category] || 0) + 1;
                 
-                // Count by difficulty
                 const difficulty = data.difficulty || 'Medium';
                 difficultyCount[difficulty] = (difficultyCount[difficulty] || 0) + 1;
                 
-                // Count by status
                 const status = data.status || 'active';
                 statusCount[status] = (statusCount[status] || 0) + 1;
                 
-                // Total marks
                 totalMarks += data.marks || 0;
             });
 
@@ -1357,19 +2191,19 @@
                     <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
                         <h3>Easy Questions</h3>
                         <div class="stat-value">${difficultyCount.Easy}</div>
-                        <div class="stat-label">${((difficultyCount.Easy/totalQuestions)*100).toFixed(1)}% of Total</div>
+                        <div class="stat-label">${totalQuestions > 0 ? ((difficultyCount.Easy/totalQuestions)*100).toFixed(1) : 0}% of Total</div>
                     </div>
 
                     <div class="stat-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
                         <h3>Medium Questions</h3>
                         <div class="stat-value">${difficultyCount.Medium}</div>
-                        <div class="stat-label">${((difficultyCount.Medium/totalQuestions)*100).toFixed(1)}% of Total</div>
+                        <div class="stat-label">${totalQuestions > 0 ? ((difficultyCount.Medium/totalQuestions)*100).toFixed(1) : 0}% of Total</div>
                     </div>
 
                     <div class="stat-card" style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);">
                         <h3>Hard Questions</h3>
                         <div class="stat-value">${difficultyCount.Hard}</div>
-                        <div class="stat-label">${((difficultyCount.Hard/totalQuestions)*100).toFixed(1)}% of Total</div>
+                        <div class="stat-label">${totalQuestions > 0 ? ((difficultyCount.Hard/totalQuestions)*100).toFixed(1) : 0}% of Total</div>
                     </div>
                 </div>
 
@@ -1403,6 +2237,6 @@
 
     // Initialize app
     init();
-</script>
+    </script>
 </body>
 </html>
