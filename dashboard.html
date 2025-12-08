@@ -618,6 +618,22 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: var(--dark-color);
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+
+        .mobile-menu-overlay.active {
+            display: block;
         }
 
         /* ==================== RESPONSIVE ==================== */
@@ -721,12 +737,15 @@
         </nav>
     </aside>
 
+    <!-- ==================== MOBILE OVERLAY ==================== -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
     <!-- ==================== MAIN CONTENT ==================== -->
     <div class="main-content">
         <!-- ==================== HEADER ==================== -->
         <header class="header">
             <div class="header-content">
-                <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+                <button class="mobile-menu-btn" id="mobileMenuBtn"><span id="menuIcon">☰</span></button>
                 <h2 class="page-title">Economics Test Dashboard</h2>
                 <div class="header-actions">
                     <button class="btn btn-secondary" id="refreshBtn">
@@ -940,6 +959,8 @@
     const elements = {
         sidebar: document.getElementById('sidebar'),
         mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+        mobileMenuOverlay: document.getElementById('mobileMenuOverlay'),
+        menuIcon: document.getElementById('menuIcon'),
         refreshBtn: document.getElementById('refreshBtn'),
         exportBtn: document.getElementById('exportBtn'),
         loadingState: document.getElementById('loadingState'),
@@ -1442,6 +1463,20 @@
         // Mobile menu
         elements.mobileMenuBtn.addEventListener('click', () => {
             elements.sidebar.classList.toggle('active');
+            elements.mobileMenuOverlay.classList.toggle('active');
+            // Change icon between hamburger and close
+            if (elements.sidebar.classList.contains('active')) {
+                elements.menuIcon.textContent = '✕';
+            } else {
+                elements.menuIcon.textContent = '☰';
+            }
+        });
+        
+        // Close menu when clicking on overlay
+        elements.mobileMenuOverlay.addEventListener('click', () => {
+            elements.sidebar.classList.remove('active');
+            elements.mobileMenuOverlay.classList.remove('active');
+            elements.menuIcon.textContent = '☰';
         });
         
         // Refresh button
