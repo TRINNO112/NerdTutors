@@ -887,6 +887,482 @@
                 display: none;
             }
         }
+
+        /* ==================== ENHANCED MOBILE OPTIMIZATIONS ==================== */
+
+        /* 720p Screens (1280x720 and similar tablets/small laptops) */
+        @media (max-width: 1024px) {
+            header {
+                padding: 1.5rem 1.5rem 2rem;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            main {
+                padding: 1.5rem;
+            }
+            
+            .question-card {
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .answer-section {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .answer-textarea {
+                min-height: 320px; /* Increased for better writing space */
+                padding: 1rem;
+                font-size: 1rem;
+            }
+            
+            .status-banner {
+                padding: 1rem 1.25rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        /* 480p Screens (854x480 and mobile landscape) */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 15px;
+            }
+            
+            /* Reduce header padding significantly */
+            header {
+                padding: 1rem 1rem 1.5rem;
+            }
+            
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .auth-status {
+                font-size: 0.85rem;
+                padding: 0.4rem 0.8rem;
+                margin-top: 0.25rem;
+            }
+            
+            /* Minimize main content padding */
+            main {
+                padding: 1rem;
+            }
+            
+            /* Compact status banner */
+            .status-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.75rem 1rem;
+                margin-bottom: 1rem;
+                gap: 0.75rem;
+            }
+            
+            .status-info {
+                gap: 1rem;
+            }
+            
+            .status-item {
+                gap: 0.4rem;
+            }
+            
+            .status-item span {
+                font-size: 0.95rem;
+            }
+            
+            /* Compact shortcuts hint */
+            .shortcuts-hint {
+                padding: 0.75rem 1rem;
+                margin-bottom: 1rem;
+                font-size: 0.85rem;
+            }
+            
+            /* Compact question header */
+            .question-header {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 1rem;
+                gap: 0.75rem;
+            }
+            
+            .question-meta {
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+            
+            .badge {
+                padding: 0.4rem 0.9rem;
+                font-size: 0.8rem;
+            }
+            
+            .question-counter {
+                font-size: 0.95rem;
+                padding: 0.4rem 1rem;
+            }
+            
+            /* Compact question card */
+            .question-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .question-text {
+                font-size: 1rem;
+                line-height: 1.6;
+            }
+            
+            /* MAXIMIZE ANSWER SECTION - This is the key part! */
+            .answer-section {
+                padding: 0.75rem;
+                margin-bottom: 1rem;
+                background: #fafbfc;
+            }
+            
+            .answer-label {
+                margin-bottom: 0.75rem;
+                font-size: 1rem;
+                gap: 0.4rem;
+            }
+            
+            .answer-textarea {
+                min-height: 350px; /* Significantly increased for mobile */
+                padding: 0.9rem;
+                font-size: 0.95rem;
+                border: 2px solid #e2e8f0;
+                line-height: 1.6;
+            }
+            
+            .char-count {
+                font-size: 0.85rem;
+                margin-top: 0.5rem;
+            }
+            
+            /* Compact controls */
+            .controls {
+                flex-direction: column-reverse;
+                width: 100%;
+                gap: 0.75rem;
+                margin-bottom: 1rem;
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                justify-content: space-between;
+                gap: 0.75rem;
+            }
+            
+            button {
+                flex: 1;
+                justify-content: center;
+                padding: 0.75rem 1.5rem;
+                font-size: 0.95rem;
+            }
+            
+            .btn-primary {
+                font-size: 1rem;
+                padding: 0.85rem 1.75rem;
+            }
+            
+            .btn-success {
+                font-size: 1.05rem;
+                padding: 1rem 2rem;
+            }
+            
+            /* Compact results */
+            .total-score {
+                font-size: 2.5rem;
+            }
+            
+            .summary-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .performance-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1.25rem;
+            }
+            
+            /* Name modal adjustments */
+            .name-modal-content {
+                width: 95%;
+            }
+            
+            .name-modal-header {
+                padding: 1.5rem;
+            }
+            
+            .name-modal-header h2 {
+                font-size: 1.5rem;
+                margin-bottom: 0.4rem;
+            }
+            
+            .name-modal-header p {
+                font-size: 0.9rem;
+            }
+            
+            .name-modal-body {
+                padding: 1.25rem;
+            }
+            
+            .name-input {
+                padding: 0.9rem 1.2rem;
+                font-size: 1rem;
+            }
+            
+            .name-modal-footer {
+                padding: 1rem 1.25rem 1.5rem;
+            }
+            
+            .btn-start-test {
+                padding: 1rem 1.75rem;
+                font-size: 1.05rem;
+            }
+        }
+
+        /* Extra Small Screens - 480p Portrait and very small devices (≤480px) */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                border-radius: 12px;
+            }
+            
+            /* Ultra-compact header */
+            header {
+                padding: 0.75rem 0.75rem 1rem;
+            }
+            
+            header h1 {
+                font-size: 1.3rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .auth-status {
+                font-size: 0.8rem;
+                padding: 0.35rem 0.7rem;
+            }
+            
+            .back-button {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+            
+            /* Ultra-compact main */
+            main {
+                padding: 0.75rem;
+            }
+            
+            /* Minimal status banner */
+            .status-banner {
+                padding: 0.6rem 0.8rem;
+                margin-bottom: 0.75rem;
+                gap: 0.6rem;
+            }
+            
+            .status-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .status-item span {
+                font-size: 0.9rem;
+            }
+            
+            .answered-badge {
+                padding: 0.35rem 0.8rem;
+                font-size: 0.85rem;
+            }
+            
+            /* Minimal shortcuts */
+            .shortcuts-hint {
+                padding: 0.6rem 0.8rem;
+                margin-bottom: 0.75rem;
+                font-size: 0.8rem;
+            }
+            
+            /* Ultra-compact question header */
+            .question-header {
+                margin-bottom: 0.75rem;
+                gap: 0.6rem;
+            }
+            
+            .badge {
+                padding: 0.35rem 0.75rem;
+                font-size: 0.75rem;
+            }
+            
+            .question-counter {
+                font-size: 0.9rem;
+                padding: 0.35rem 0.9rem;
+            }
+            
+            /* Minimal question card */
+            .question-card {
+                padding: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .question-text {
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+            
+            /* MAXIMUM ANSWER SPACE FOR SMALL SCREENS */
+            .answer-section {
+                padding: 0.6rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .answer-label {
+                margin-bottom: 0.6rem;
+                font-size: 0.95rem;
+            }
+            
+            .answer-textarea {
+                min-height: 400px; /* Maximum space for writing on small screens! */
+                padding: 0.75rem;
+                font-size: 0.9rem;
+                border-width: 2px;
+            }
+            
+            .char-count {
+                font-size: 0.8rem;
+                margin-top: 0.4rem;
+            }
+            
+            /* Minimal controls */
+            .controls {
+                gap: 0.6rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .nav-buttons {
+                gap: 0.6rem;
+            }
+            
+            button {
+                padding: 0.65rem 1.25rem;
+                font-size: 0.9rem;
+            }
+            
+            .btn-primary {
+                font-size: 0.95rem;
+                padding: 0.75rem 1.5rem;
+            }
+            
+            .btn-success {
+                font-size: 1rem;
+                padding: 0.85rem 1.75rem;
+            }
+            
+            /* Compact results */
+            .results-summary {
+                padding: 1.5rem;
+                margin-top: 1rem;
+            }
+            
+            .summary-header {
+                margin-bottom: 2rem;
+            }
+            
+            .summary-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .total-score {
+                font-size: 2rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .stat-label {
+                font-size: 0.85rem;
+            }
+            
+            .question-results {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .result-item {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .result-score {
+                font-size: 1.3rem;
+            }
+            
+            /* Name modal ultra-compact */
+            .name-modal-content {
+                width: 98%;
+            }
+            
+            .name-modal-header {
+                padding: 1.25rem;
+            }
+            
+            .name-modal-header h2 {
+                font-size: 1.3rem;
+            }
+            
+            .name-modal-body {
+                padding: 1rem;
+            }
+            
+            .name-input {
+                padding: 0.8rem 1rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Landscape orientation specific optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .answer-textarea {
+                min-height: 280px; /* Slightly reduced for landscape to avoid too much scrolling */
+            }
+        }
+
+        @media (max-width: 480px) and (orientation: landscape) {
+            .answer-textarea {
+                min-height: 250px; /* Optimized for small landscape screens */
+            }
+            
+            header {
+                padding: 0.6rem;
+            }
+            
+            main {
+                padding: 0.6rem;
+            }
+        }
     </style>
 </head>
 <body>
