@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
   // ===== Model (Stable & Supported) =====
   const MODEL_URL =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent";
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
   // ===== Prompt =====
   const prompt = `
