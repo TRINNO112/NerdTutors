@@ -1813,11 +1813,16 @@ Tips for better answers:
                         category: data.category,
                         text: data.text?.substring(0, 50) + '...'
                     });
-                    
-                    appState.questions.push({
-                        id: doc.id,
-                        ...data
-                    });
+
+                    // Only include ACTIVE questions in the test
+                    if (data.status === 'active' || data.status === undefined) {
+                        appState.questions.push({
+                            id: doc.id,
+                            ...data
+                        });
+                    } else {
+                        console.log(`⏭️ Skipping inactive question: ${doc.id}`);
+                    }
                 });
                 
                 console.log(`✅ Total questions loaded: ${appState.questions.length}`);
