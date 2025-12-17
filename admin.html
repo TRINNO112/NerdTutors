@@ -3666,7 +3666,11 @@
             await addDoc(collection(db, 'questions'), questionData);
             showToast('Question added successfully!', 'success');
             elements.questionForm.reset();
+            // Clear draft after successful submit
+            localStorage.removeItem('questionDraft');
+            document.getElementById('draftIndicator')?.classList.remove('show');
             loadQuestions();
+            loadStatistics();
         } catch (error) {
             showToast('Failed to add question: ' + error.message, 'error');
         }
@@ -4557,32 +4561,6 @@
         }
     }
 
-    // Clear draft after successful submit
-    const originalAddQuestion = addQuestion;
-    async function addQuestion() {
-        const questionData = {
-            text: document.getElementById('questionText').value,
-            category: document.getElementById('category').value,
-            marks: parseInt(document.getElementById('marks').value),
-            modelAnswer: document.getElementById('modelAnswer').value,
-            difficulty: document.getElementById('difficulty').value,
-            status: document.getElementById('status').value,
-            createdAt: serverTimestamp(),
-            createdBy: auth.currentUser?.email
-        };
-
-        try {
-            await addDoc(collection(db, 'questions'), questionData);
-            showToast('Question added successfully!', 'success');
-            elements.questionForm.reset();
-            localStorage.removeItem('questionDraft');
-            document.getElementById('draftIndicator').classList.remove('show');
-            loadQuestions();
-            loadStatistics();
-        } catch (error) {
-            showToast('Failed to add question: ' + error.message, 'error');
-        }
-    }
 
     // Keyboard Shortcuts
     function setupKeyboardShortcuts() {
