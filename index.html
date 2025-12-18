@@ -487,6 +487,362 @@
             background: var(--gray-light);
         }
 
+        /* ==================== GLASSMORPHISM EFFECTS ==================== */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow:
+                0 8px 32px rgba(31, 38, 135, 0.15),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow:
+                0 12px 40px rgba(31, 38, 135, 0.2),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        /* ==================== SCROLL REVEAL ANIMATIONS ==================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal-left.revealed {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal-right.revealed {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal-scale.revealed {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Stagger delays for children */
+        .stagger-children > *:nth-child(1) { transition-delay: 0s; }
+        .stagger-children > *:nth-child(2) { transition-delay: 0.1s; }
+        .stagger-children > *:nth-child(3) { transition-delay: 0.2s; }
+        .stagger-children > *:nth-child(4) { transition-delay: 0.3s; }
+        .stagger-children > *:nth-child(5) { transition-delay: 0.4s; }
+        .stagger-children > *:nth-child(6) { transition-delay: 0.5s; }
+
+        /* ==================== ANIMATED GRADIENT BACKGROUND ==================== */
+        .animated-gradient-bg {
+            background: linear-gradient(
+                -45deg,
+                #667eea,
+                #764ba2,
+                #f093fb,
+                #4facfe,
+                #667eea
+            );
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero-gradient-animated {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 30% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 70% 60%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 30%);
+            animation: gradientPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes gradientPulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+        }
+
+        /* Mesh gradient overlay */
+        .mesh-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(at 40% 20%, hsla(252, 100%, 70%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(289, 100%, 70%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(200, 100%, 70%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(340, 100%, 70%, 0.08) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(252, 100%, 70%, 0.1) 0px, transparent 50%);
+            animation: meshMove 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes meshMove {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(-20px) translateY(-20px); }
+        }
+
+        /* ==================== PARALLAX EFFECTS ==================== */
+        .parallax-layer {
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+
+        .parallax-slow {
+            --parallax-speed: 0.3;
+        }
+
+        .parallax-medium {
+            --parallax-speed: 0.5;
+        }
+
+        .parallax-fast {
+            --parallax-speed: 0.7;
+        }
+
+        /* ==================== LOTTIE CONTAINER STYLES ==================== */
+        .lottie-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-icon .lottie-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .lottie-hero {
+            width: 100%;
+            height: 100%;
+            max-width: 120px;
+            max-height: 120px;
+        }
+
+        /* ==================== 3D TILT CARD EFFECT ==================== */
+        .tilt-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .tilt-card:hover {
+            transform: perspective(1000px) rotateX(var(--rotateX, 0deg)) rotateY(var(--rotateY, 0deg)) scale3d(1.02, 1.02, 1.02);
+        }
+
+        .tilt-card-inner {
+            transform-style: preserve-3d;
+        }
+
+        .tilt-card .feature-icon,
+        .tilt-card .feature-title {
+            transform: translateZ(40px);
+            transition: transform 0.5s ease;
+        }
+
+        .tilt-card:hover .feature-icon {
+            transform: translateZ(60px);
+        }
+
+        .tilt-card .feature-description,
+        .tilt-card .feature-list {
+            transform: translateZ(20px);
+        }
+
+        /* 3D Floating Shapes in Hero */
+        .hero-3d-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            perspective: 1500px;
+            transform-style: preserve-3d;
+        }
+
+        .shape-3d {
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: float3d 8s ease-in-out infinite;
+        }
+
+        .shape-cube {
+            width: 60px;
+            height: 60px;
+            transform-style: preserve-3d;
+            animation: rotateCube 15s linear infinite;
+        }
+
+        .shape-cube .face {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .shape-cube .front  { transform: rotateY(0deg) translateZ(30px); }
+        .shape-cube .back   { transform: rotateY(180deg) translateZ(30px); }
+        .shape-cube .right  { transform: rotateY(90deg) translateZ(30px); }
+        .shape-cube .left   { transform: rotateY(-90deg) translateZ(30px); }
+        .shape-cube .top    { transform: rotateX(90deg) translateZ(30px); }
+        .shape-cube .bottom { transform: rotateX(-90deg) translateZ(30px); }
+
+        @keyframes rotateCube {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .shape-pyramid {
+            width: 0;
+            height: 0;
+            transform-style: preserve-3d;
+            animation: rotatePyramid 12s linear infinite;
+        }
+
+        .shape-pyramid .side {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 52px solid rgba(236, 72, 153, 0.15);
+            transform-origin: 30px 52px;
+        }
+
+        .shape-pyramid .side:nth-child(1) { transform: rotateY(0deg) rotateX(30deg); }
+        .shape-pyramid .side:nth-child(2) { transform: rotateY(90deg) rotateX(30deg); }
+        .shape-pyramid .side:nth-child(3) { transform: rotateY(180deg) rotateX(30deg); }
+        .shape-pyramid .side:nth-child(4) { transform: rotateY(270deg) rotateX(30deg); }
+
+        @keyframes rotatePyramid {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        .shape-sphere {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(79, 172, 254, 0.3),
+                rgba(79, 172, 254, 0.1) 50%,
+                rgba(0, 242, 254, 0.05) 100%);
+            box-shadow:
+                inset -10px -10px 30px rgba(0, 0, 0, 0.1),
+                inset 10px 10px 30px rgba(255, 255, 255, 0.2),
+                0 0 40px rgba(79, 172, 254, 0.2);
+            animation: pulseSphere 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseSphere {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .shape-ring {
+            width: 100px;
+            height: 100px;
+            border: 4px solid transparent;
+            border-top-color: rgba(99, 102, 241, 0.3);
+            border-bottom-color: rgba(139, 92, 246, 0.3);
+            border-radius: 50%;
+            animation: rotateRing 8s linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        .shape-ring::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 3px solid transparent;
+            border-left-color: rgba(236, 72, 153, 0.2);
+            border-right-color: rgba(79, 172, 254, 0.2);
+            border-radius: 50%;
+            animation: rotateRing 6s linear infinite reverse;
+        }
+
+        @keyframes rotateRing {
+            0% { transform: rotateX(70deg) rotateZ(0deg); }
+            100% { transform: rotateX(70deg) rotateZ(360deg); }
+        }
+
+        @keyframes float3d {
+            0%, 100% { transform: translateY(0) translateZ(0); }
+            50% { transform: translateY(-30px) translateZ(20px); }
+        }
+
+        /* Position 3D shapes */
+        .shape-3d:nth-child(1) {
+            top: 15%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape-3d:nth-child(2) {
+            top: 60%;
+            left: 5%;
+            animation-delay: 2s;
+        }
+
+        .shape-3d:nth-child(3) {
+            top: 20%;
+            right: 15%;
+            animation-delay: 1s;
+        }
+
+        .shape-3d:nth-child(4) {
+            bottom: 25%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+
         /* ==================== PROFESSIONAL HERO VISUAL ==================== */
 
         .hero-visual {
@@ -1458,6 +1814,7 @@
             }
         }
 
+        /* ==================== FULL-SCALE LOGIN MODAL ==================== */
         .login-modal {
             position: fixed;
             top: 0;
@@ -1470,7 +1827,7 @@
             justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .login-modal.show {
@@ -1484,98 +1841,287 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
-        .modal-content {
+        /* Full-scale modal container */
+        .modal-container {
             position: relative;
+            display: flex;
+            width: 95%;
+            max-width: 1000px;
+            height: 90vh;
+            max-height: 650px;
             background: white;
-            border-radius: 20px;
-            padding: 2.5rem;
-            max-width: 450px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.3s ease;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow:
+                0 50px 100px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: modalSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        @keyframes slideUp {
+        @keyframes modalSlideIn {
             from {
-                transform: translateY(50px);
+                transform: scale(0.9) translateY(30px);
                 opacity: 0;
             }
             to {
-                transform: translateY(0);
+                transform: scale(1) translateY(0);
                 opacity: 1;
             }
         }
 
+        /* Left side - Visual/Branding */
+        .modal-visual {
+            flex: 1;
+            background: var(--gradient-primary);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            overflow: hidden;
+        }
+
+        .modal-visual::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        }
+
+        /* 3D Floating shapes in modal */
+        .modal-3d-scene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+
+        .modal-shape {
+            position: absolute;
+            opacity: 0.6;
+        }
+
+        .modal-cube {
+            width: 50px;
+            height: 50px;
+            transform-style: preserve-3d;
+            animation: modalCubeRotate 20s linear infinite;
+            top: 20%;
+            left: 15%;
+        }
+
+        .modal-cube .cube-face {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-cube .cube-face:nth-child(1) { transform: rotateY(0deg) translateZ(25px); }
+        .modal-cube .cube-face:nth-child(2) { transform: rotateY(180deg) translateZ(25px); }
+        .modal-cube .cube-face:nth-child(3) { transform: rotateY(90deg) translateZ(25px); }
+        .modal-cube .cube-face:nth-child(4) { transform: rotateY(-90deg) translateZ(25px); }
+        .modal-cube .cube-face:nth-child(5) { transform: rotateX(90deg) translateZ(25px); }
+        .modal-cube .cube-face:nth-child(6) { transform: rotateX(-90deg) translateZ(25px); }
+
+        @keyframes modalCubeRotate {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        .modal-sphere {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+            box-shadow: inset -10px -10px 20px rgba(0, 0, 0, 0.1);
+            bottom: 25%;
+            right: 20%;
+            animation: modalFloat 6s ease-in-out infinite;
+        }
+
+        .modal-ring {
+            width: 80px;
+            height: 80px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            top: 60%;
+            left: 25%;
+            animation: modalRingSpin 10s linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes modalRingSpin {
+            0% { transform: rotateX(60deg) rotateZ(0deg); }
+            100% { transform: rotateX(60deg) rotateZ(360deg); }
+        }
+
+        @keyframes modalFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .modal-visual-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+        }
+
+        .modal-visual-icon {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            animation: iconBounce 3s ease-in-out infinite;
+        }
+
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .modal-visual h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .modal-visual p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 280px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .modal-visual-features {
+            margin-top: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .modal-feature-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        /* Right side - Form */
+        .modal-content {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            background: white;
+            overflow-y: auto;
+        }
+
         .modal-close-btn {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 36px;
-            height: 36px;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 44px;
+            height: 44px;
             border: none;
-            background: var(--gray-light);
-            border-radius: 50%;
+            background: var(--background);
+            border-radius: 12px;
             font-size: 1.5rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--gray);
         }
 
         .modal-close-btn:hover {
-            background: var(--error);
-            color: white;
+            background: #fee2e2;
+            color: #ef4444;
             transform: rotate(90deg);
         }
 
         .modal-header {
-            text-align: center;
+            text-align: left;
             margin-bottom: 2rem;
         }
 
         .modal-header h2 {
             font-family: 'Poppins', sans-serif;
-            font-size: 1.75rem;
+            font-size: 2rem;
+            font-weight: 800;
             color: var(--dark);
             margin-bottom: 0.5rem;
         }
 
         .modal-header p {
             color: var(--gray);
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .modal-message {
-            padding: 1rem;
-            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
             margin-bottom: 1.5rem;
             font-size: 0.9rem;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .modal-message.success {
             background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            border: 1px solid var(--success);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
         .modal-message.error {
             background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid #ef4444;
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .modal-form {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1.5rem;
         }
 
         .input-group {
@@ -1586,57 +2132,101 @@
 
         .input-group label {
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             color: var(--dark);
         }
 
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            transition: color 0.3s ease;
+        }
+
         .input-group input {
-            padding: 0.875rem 1rem;
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
             border: 2px solid var(--gray-light);
-            border-radius: 10px;
+            border-radius: 14px;
             font-size: 1rem;
-            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--background);
         }
 
         .input-group input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .input-group input:focus + .input-icon,
+        .input-wrapper:focus-within .input-icon {
+            color: var(--primary);
         }
 
         .modal-btn-primary {
-            padding: 1rem;
+            padding: 1.125rem;
             background: var(--gradient-primary);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 14px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .modal-btn-primary:hover::before {
+            left: 100%;
         }
 
         .modal-btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.4);
         }
 
         .modal-btn-primary:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
         .btn-loader {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         .modal-divider {
@@ -1652,11 +2242,12 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: var(--gray-light);
+            background: linear-gradient(to right, transparent, var(--gray-light), transparent);
         }
 
         .modal-divider span {
-            padding: 0 1rem;
+            padding: 0 1.25rem;
+            font-weight: 500;
         }
 
         .modal-btn-google {
@@ -1664,7 +2255,7 @@
             padding: 1rem;
             background: white;
             border: 2px solid var(--gray-light);
-            border-radius: 10px;
+            border-radius: 14px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -1672,29 +2263,507 @@
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Inter', sans-serif;
         }
 
         .modal-btn-google:hover {
             border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .modal-footer-text {
             text-align: center;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .modal-footer-text a {
             color: var(--primary);
             text-decoration: none;
             font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         .modal-footer-text a:hover {
+            color: var(--primary-dark);
             text-decoration: underline;
+        }
+
+        /* Responsive modal */
+        @media (max-width: 768px) {
+            .modal-container {
+                flex-direction: column;
+                max-height: 95vh;
+                height: auto;
+            }
+
+            .modal-visual {
+                display: none;
+            }
+
+            .modal-content {
+                padding: 2rem;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ==================== ACCOUNT MODAL ==================== */
+        .account-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .account-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .account-modal-container {
+            position: relative;
+            width: 95%;
+            max-width: 480px;
+            max-height: 90vh;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            overflow-y: auto;
+            box-shadow:
+                0 50px 100px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            animation: accountModalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .account-modal-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .account-modal-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .account-modal-container::-webkit-scrollbar-thumb {
+            background: var(--gray-light);
+            border-radius: 3px;
+        }
+
+        .account-modal-container::-webkit-scrollbar-thumb:hover {
+            background: var(--gray);
+        }
+
+        @keyframes accountModalSlideIn {
+            from {
+                transform: scale(0.9) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Account Header with Gradient */
+        .account-header {
+            background: var(--gradient-primary);
+            padding: 2.5rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .account-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        }
+
+        /* 3D Decorative elements */
+        .account-header-decor {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .account-decor-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .account-decor-circle:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: -30px;
+            right: -20px;
+            animation: floatDecor 6s ease-in-out infinite;
+        }
+
+        .account-decor-circle:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            bottom: 20px;
+            left: -20px;
+            animation: floatDecor 8s ease-in-out infinite reverse;
+        }
+
+        .account-decor-circle:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            top: 50%;
+            right: 15%;
+            animation: floatDecor 5s ease-in-out infinite;
+        }
+
+        @keyframes floatDecor {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.1); }
+        }
+
+        .account-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: white;
+            z-index: 10;
+        }
+
+        .account-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .account-header-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .account-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .account-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .account-avatar-placeholder {
+            font-size: 2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .account-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .account-email {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Account Body */
+        .account-body {
+            padding: 1.5rem 2rem 2rem;
+            margin-top: -1.5rem;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            position: relative;
+        }
+
+        /* Stats Cards */
+        .account-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .account-stat-card {
+            background: var(--background);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .account-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .account-stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .account-stat-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+
+        /* Menu Items */
+        .account-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .account-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            background: var(--background);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .account-menu-item:hover {
+            background: white;
+            border-color: var(--primary);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.15);
+        }
+
+        .account-menu-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .account-menu-icon.purple {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .account-menu-icon.green {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .account-menu-icon.orange {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .account-menu-icon.pink {
+            background: rgba(236, 72, 153, 0.1);
+            color: var(--accent);
+        }
+
+        .account-menu-icon.red {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .account-menu-text {
+            flex: 1;
+        }
+
+        .account-menu-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.125rem;
+        }
+
+        .account-menu-desc {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .account-menu-arrow {
+            color: var(--gray-light);
+            transition: all 0.3s ease;
+        }
+
+        .account-menu-item:hover .account-menu-arrow {
+            color: var(--primary);
+            transform: translateX(3px);
+        }
+
+        /* Logout Button */
+        .account-logout-btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .account-logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Account Button in Navbar */
+        .account-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem 0.5rem 0.5rem;
+            background: var(--background);
+            border: 2px solid var(--gray-light);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .account-btn:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.15);
+        }
+
+        .account-btn-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            overflow: hidden;
+        }
+
+        .account-btn-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .account-btn-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--dark);
+            max-width: 100px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .account-btn-dropdown {
+            color: var(--gray);
+            transition: transform 0.3s ease;
+        }
+
+        .account-btn:hover .account-btn-dropdown {
+            transform: rotate(180deg);
+        }
+
+        @media (max-width: 768px) {
+            .account-modal-container {
+                max-width: 95%;
+                margin: 1rem;
+            }
+
+            .account-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+            }
+
+            .account-stat-card {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .account-stat-value {
+                font-size: 1.25rem;
+            }
+
+            .account-btn-name {
+                display: none;
+            }
+
+            .account-btn {
+                padding: 0.375rem;
+                border-radius: 50%;
+            }
         }
 
         .hidden {
@@ -1703,48 +2772,204 @@
     </style>
 </head>
 <body>
-    <!-- Login Modal Popup -->
+    <!-- Login Modal Popup - Full Scale -->
     <div id="loginModal" class="login-modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <button class="modal-close-btn" onclick="closeLoginModal()">×</button>
-            
-            <div class="modal-header">
-                <h2>Welcome Back!</h2>
-                <p>Sign in to continue your learning journey</p>
+        <div class="modal-overlay" onclick="closeLoginModal()"></div>
+        <div class="modal-container">
+            <!-- Left Visual Side -->
+            <div class="modal-visual">
+                <!-- 3D Scene -->
+                <div class="modal-3d-scene">
+                    <div class="modal-shape modal-cube">
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                    </div>
+                    <div class="modal-shape modal-sphere"></div>
+                    <div class="modal-shape modal-ring"></div>
+                </div>
+
+                <div class="modal-visual-content">
+                    <div class="modal-visual-icon">🎓</div>
+                    <h2>Welcome to NerdTutors</h2>
+                    <p>Your gateway to mastering Grade 12 Economics with confidence</p>
+
+                    <div class="modal-visual-features">
+                        <div class="modal-feature-item">
+                            <div class="modal-feature-icon">✓</div>
+                            <span>500+ Practice Questions</span>
+                        </div>
+                        <div class="modal-feature-item">
+                            <div class="modal-feature-icon">✓</div>
+                            <span>Comprehensive Notes</span>
+                        </div>
+                        <div class="modal-feature-item">
+                            <div class="modal-feature-icon">✓</div>
+                            <span>AI-Powered Feedback</span>
+                        </div>
+                        <div class="modal-feature-item">
+                            <div class="modal-feature-icon">✓</div>
+                            <span>Track Your Progress</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div id="modalMessage" class="modal-message hidden"></div>
+            <!-- Right Form Side -->
+            <div class="modal-content">
+                <button class="modal-close-btn" onclick="closeLoginModal()">×</button>
 
-            <!-- Login Form -->
-            <form id="modalLoginForm" class="modal-form">
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="modalEmail" placeholder="your.email@example.com" required>
+                <div class="modal-header">
+                    <h2>Sign In</h2>
+                    <p>Continue your learning journey</p>
                 </div>
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="modalPassword" placeholder="Enter password" required>
-                </div>
-                <button type="submit" class="modal-btn-primary">
-                    <span>Sign In</span>
-                    <div class="btn-loader hidden"></div>
+
+                <div id="modalMessage" class="modal-message hidden"></div>
+
+                <!-- Login Form -->
+                <form id="modalLoginForm" class="modal-form">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="modalEmail" placeholder="you@example.com" required>
+                            <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="modalPassword" placeholder="Enter your password" required>
+                            <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <button type="submit" class="modal-btn-primary">
+                        <span>Sign In</span>
+                        <div class="btn-loader hidden"></div>
+                    </button>
+                </form>
+
+                <div class="modal-divider"><span>or continue with</span></div>
+
+                <button class="modal-btn-google" onclick="googleLogin()">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
                 </button>
-            </form>
 
-            <div class="modal-divider"><span>OR</span></div>
+                <p class="modal-footer-text">Don't have an account? <a href="#" onclick="showSignupForm()">Create one</a></p>
+            </div>
+        </div>
+    </div>
 
-            <button class="modal-btn-google" onclick="googleLogin()">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Sign in with Google
-            </button>
+    <!-- Account Modal - Shows when logged in user clicks account -->
+    <div id="accountModal" class="account-modal hidden">
+        <div class="modal-overlay" onclick="closeAccountModal()"></div>
+        <div class="account-modal-container">
+            <!-- Header with user info -->
+            <div class="account-header">
+                <div class="account-header-decor">
+                    <div class="account-decor-circle"></div>
+                    <div class="account-decor-circle"></div>
+                    <div class="account-decor-circle"></div>
+                </div>
+                <button class="account-close-btn" onclick="closeAccountModal()">×</button>
+                <div class="account-header-content">
+                    <div class="account-avatar" id="accountAvatar">
+                        <span class="account-avatar-placeholder" id="accountAvatarPlaceholder">U</span>
+                    </div>
+                    <h3 class="account-name" id="accountName">User Name</h3>
+                    <p class="account-email" id="accountEmail">user@example.com</p>
+                </div>
+            </div>
 
-            <p class="modal-footer-text">Don't have an account? <a href="#" onclick="showSignupForm()">Sign Up</a></p>
+            <!-- Body with stats and menu -->
+            <div class="account-body">
+                <!-- Quick Stats -->
+                <div class="account-stats">
+                    <div class="account-stat-card">
+                        <div class="account-stat-value" id="accountTestsTaken">0</div>
+                        <div class="account-stat-label">Tests Taken</div>
+                    </div>
+                    <div class="account-stat-card">
+                        <div class="account-stat-value" id="accountAvgScore">0%</div>
+                        <div class="account-stat-label">Avg Score</div>
+                    </div>
+                    <div class="account-stat-card">
+                        <div class="account-stat-value" id="accountStreak">0</div>
+                        <div class="account-stat-label">Day Streak</div>
+                    </div>
+                </div>
+
+                <!-- Menu Options -->
+                <div class="account-menu">
+                    <a href="test.html" class="account-menu-item">
+                        <div class="account-menu-icon green">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                            </svg>
+                        </div>
+                        <div class="account-menu-text">
+                            <div class="account-menu-title">Take a Test</div>
+                            <div class="account-menu-desc">Start a practice test now</div>
+                        </div>
+                        <svg class="account-menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </a>
+
+                    <a href="results.html" class="account-menu-item">
+                        <div class="account-menu-icon orange">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="account-menu-text">
+                            <div class="account-menu-title">My Results</div>
+                            <div class="account-menu-desc">View past test results</div>
+                        </div>
+                        <svg class="account-menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </a>
+
+                    <a href="settings.html" class="account-menu-item">
+                        <div class="account-menu-icon pink">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div class="account-menu-text">
+                            <div class="account-menu-title">Settings</div>
+                            <div class="account-menu-desc">Manage your preferences</div>
+                        </div>
+                        <svg class="account-menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Logout Button -->
+                <button class="account-logout-btn" onclick="handleLogout()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Sign Out
+                </button>
+            </div>
         </div>
     </div>
 
@@ -1767,8 +2992,21 @@
             </ul>
 
             <div class="navbar-actions" id="navbarActions">
-                <button class="btn btn-ghost">Login</button>
-                <button class="btn btn-primary">Get Started</button>
+                <!-- Logged Out State -->
+                <div id="loggedOutButtons">
+                    <button class="btn btn-ghost" id="loginBtn">Login</button>
+                    <button class="btn btn-primary" id="getStartedBtn">Get Started</button>
+                </div>
+                <!-- Logged In State - Account Button -->
+                <button class="account-btn hidden" id="accountBtn" onclick="showAccountModal()">
+                    <div class="account-btn-avatar" id="navAvatarContainer">
+                        <span id="navAvatarPlaceholder">U</span>
+                    </div>
+                    <span class="account-btn-name" id="navUserName">User</span>
+                    <svg class="account-btn-dropdown" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                </button>
             </div>
 
             <button class="mobile-toggle" id="mobileToggle">
@@ -1785,11 +3023,39 @@
     <!-- ==================== HERO SECTION ==================== -->
     <section class="hero" id="home">
         <div class="hero-background">
-            <div class="hero-gradient"></div>
-            <div class="hero-grid"></div>
-            <div class="floating-orbs">
+            <div class="hero-gradient-animated"></div>
+            <div class="mesh-gradient parallax-layer parallax-slow"></div>
+            <div class="hero-grid parallax-layer parallax-medium"></div>
+            <div class="floating-orbs parallax-layer parallax-fast">
                 <div class="orb orb-1"></div>
                 <div class="orb orb-2"></div>
+            </div>
+            <!-- 3D Floating Shapes -->
+            <div class="hero-3d-shapes">
+                <div class="shape-3d">
+                    <div class="shape-cube">
+                        <div class="face front"></div>
+                        <div class="face back"></div>
+                        <div class="face right"></div>
+                        <div class="face left"></div>
+                        <div class="face top"></div>
+                        <div class="face bottom"></div>
+                    </div>
+                </div>
+                <div class="shape-3d">
+                    <div class="shape-sphere"></div>
+                </div>
+                <div class="shape-3d">
+                    <div class="shape-ring"></div>
+                </div>
+                <div class="shape-3d">
+                    <div class="shape-pyramid">
+                        <div class="side"></div>
+                        <div class="side"></div>
+                        <div class="side"></div>
+                        <div class="side"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1963,7 +3229,7 @@
     <!-- ==================== FEATURES SECTION ==================== -->
     <section class="features" id="features">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <div class="section-badge">
                     <span>✨</span>
                     <span>Why Choose Us</span>
@@ -1974,12 +3240,10 @@
                 </p>
             </div>
 
-            <div class="features-grid">
-                <div class="feature-card">
+            <div class="features-grid stagger-children">
+                <div class="feature-card glass-card reveal tilt-card">
                     <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <div class="lottie-icon" data-lottie="book"></div>
                     </div>
                     <h3 class="feature-title">Comprehensive Notes</h3>
                     <p class="feature-description">
@@ -1993,11 +3257,9 @@
                     </ul>
                 </div>
 
-                <div class="feature-card">
+                <div class="feature-card glass-card reveal tilt-card">
                     <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <div class="lottie-icon" data-lottie="document"></div>
                     </div>
                     <h3 class="feature-title">Previous Year Papers</h3>
                     <p class="feature-description">
@@ -2011,11 +3273,9 @@
                     </ul>
                 </div>
 
-                <div class="feature-card">
+                <div class="feature-card glass-card reveal tilt-card">
                     <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <div class="lottie-icon" data-lottie="checklist"></div>
                     </div>
                     <h3 class="feature-title">Practice Questions</h3>
                     <p class="feature-description">
@@ -2029,11 +3289,9 @@
                     </ul>
                 </div>
 
-                <div class="feature-card">
+                <div class="feature-card glass-card reveal tilt-card">
                     <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <div class="lottie-icon" data-lottie="chart"></div>
                     </div>
                     <h3 class="feature-title">Progress Tracking</h3>
                     <p class="feature-description">
@@ -2047,11 +3305,9 @@
                     </ul>
                 </div>
 
-                <div class="feature-card">
+                <div class="feature-card glass-card reveal tilt-card">
                     <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <div class="lottie-icon" data-lottie="timer"></div>
                     </div>
                     <h3 class="feature-title">Timed Tests</h3>
                     <p class="feature-description">
@@ -2065,11 +3321,9 @@
                     </ul>
                 </div>
 
-                <div class="feature-card">
+                <div class="feature-card glass-card reveal tilt-card">
                     <div class="feature-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                            <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <div class="lottie-icon" data-lottie="rocket"></div>
                     </div>
                     <h3 class="feature-title">Quick Revision</h3>
                     <p class="feature-description">
@@ -2089,7 +3343,7 @@
     <!-- ==================== RESOURCES SECTION ==================== -->
     <section class="resources" id="resources">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <div class="section-badge">
                     <span>📚</span>
                     <span>Learning Resources</span>
@@ -2398,31 +3652,101 @@
             }
         };
 
+        // ==================== ACCOUNT MODAL FUNCTIONS ====================
+        window.showAccountModal = () => {
+            document.getElementById('accountModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('accountModal').classList.add('show'), 10);
+        };
+
+        window.closeAccountModal = () => {
+            document.getElementById('accountModal').classList.remove('show');
+            setTimeout(() => document.getElementById('accountModal').classList.add('hidden'), 300);
+        };
+
+        window.showComingSoon = (feature) => {
+            alert(`🚀 ${feature} feature coming soon!`);
+        };
+
+        window.handleLogout = async () => {
+            closeAccountModal();
+            await signOut(auth);
+            alert('✓ Successfully logged out!');
+            location.reload();
+        };
+
+        // Helper function to get user initials
+        function getUserInitials(name) {
+            if (!name) return 'U';
+            const parts = name.split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        // Helper function to update user UI elements
+        function updateUserUI(user) {
+            const displayName = user.displayName || user.email.split('@')[0];
+            const initials = getUserInitials(displayName);
+            const photoURL = user.photoURL;
+
+            // Update navbar account button
+            document.getElementById('navUserName').textContent = displayName;
+            const navAvatarContainer = document.getElementById('navAvatarContainer');
+            const navAvatarPlaceholder = document.getElementById('navAvatarPlaceholder');
+
+            if (photoURL) {
+                navAvatarContainer.innerHTML = `<img src="${photoURL}" alt="${displayName}">`;
+            } else {
+                navAvatarPlaceholder.textContent = initials;
+            }
+
+            // Update account modal
+            document.getElementById('accountName').textContent = displayName;
+            document.getElementById('accountEmail').textContent = user.email;
+            const accountAvatar = document.getElementById('accountAvatar');
+            const accountAvatarPlaceholder = document.getElementById('accountAvatarPlaceholder');
+
+            if (photoURL) {
+                accountAvatar.innerHTML = `<img src="${photoURL}" alt="${displayName}">`;
+            } else {
+                accountAvatarPlaceholder.textContent = initials;
+            }
+
+            // You can fetch actual stats from Firestore here
+            // For now, using placeholder values
+            document.getElementById('accountTestsTaken').textContent = '0';
+            document.getElementById('accountAvgScore').textContent = '0%';
+            document.getElementById('accountStreak').textContent = '0';
+        }
+
         // ==================== AUTH STATE LISTENER ====================
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
-            const loginBtn = document.querySelector('.btn-ghost');
-            const getStartedBtn = document.querySelector('.navbar-actions .btn-primary');
+            const loggedOutButtons = document.getElementById('loggedOutButtons');
+            const accountBtn = document.getElementById('accountBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const getStartedBtn = document.getElementById('getStartedBtn');
 
             if (user) {
                 console.log('User logged in:', user.email);
-                loginBtn.textContent = user.displayName || user.email.split('@')[0];
-                loginBtn.onclick = null;
-                loginBtn.style.cursor = 'default';
-                
-                getStartedBtn.textContent = 'Logout';
-                getStartedBtn.onclick = async () => {
-                    await signOut(auth);
-                    alert('✓ Logged out!');
-                    location.reload();
-                };
+
+                // Hide login/signup buttons, show account button
+                loggedOutButtons.classList.add('hidden');
+                accountBtn.classList.remove('hidden');
+
+                // Update all user UI elements
+                updateUserUI(user);
+
             } else {
                 console.log('No user logged in');
-                loginBtn.textContent = 'Login';
+
+                // Show login/signup buttons, hide account button
+                loggedOutButtons.classList.remove('hidden');
+                accountBtn.classList.add('hidden');
+
+                // Setup click handlers for login buttons
                 loginBtn.onclick = showLoginModal;
-                loginBtn.style.cursor = 'pointer';
-                
-                getStartedBtn.textContent = 'Get Started';
                 getStartedBtn.onclick = showLoginModal;
             }
         });
@@ -2592,7 +3916,7 @@
         document.querySelectorAll('.resource-btn-primary').forEach(btn => {
             btn.addEventListener('click', function() {
                 const cardTitle = this.closest('.resource-card-horizontal').querySelector('.resource-title').textContent;
-                
+
                 // Check if it's Class Tests
                 if (cardTitle === 'Class Tests') {
                     if (currentUser) {
@@ -2608,6 +3932,167 @@
                 }
             });
         });
+
+        // ==================== SCROLL REVEAL ANIMATIONS ====================
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // ==================== PARALLAX EFFECT ====================
+        const parallaxLayers = document.querySelectorAll('.parallax-layer');
+
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrolled = window.pageYOffset;
+
+                    parallaxLayers.forEach(layer => {
+                        let speed = 0.3;
+                        if (layer.classList.contains('parallax-slow')) speed = 0.15;
+                        if (layer.classList.contains('parallax-medium')) speed = 0.3;
+                        if (layer.classList.contains('parallax-fast')) speed = 0.5;
+
+                        const yPos = -(scrolled * speed);
+                        layer.style.transform = `translate3d(0, ${yPos}px, 0)`;
+                    });
+
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        // ==================== LOTTIE ANIMATIONS ====================
+        // Load Lottie library dynamically
+        const lottieScript = document.createElement('script');
+        lottieScript.src = 'https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js';
+        document.head.appendChild(lottieScript);
+
+        // Lottie animation URLs (using free LottieFiles animations)
+        const lottieAnimations = {
+            book: 'https://lottie.host/4db68bbd-31f6-4cd8-84eb-189571aa4d32/dqNGdFooUL.json',
+            document: 'https://lottie.host/a5221997-aa49-4e90-acb7-aee9a9ad2a6d/WLVjUVmrkl.json',
+            checklist: 'https://lottie.host/e0f31a4a-0ea8-4d5a-8e17-c6d8a4c83fa0/f6FXvJkMzn.json',
+            chart: 'https://lottie.host/d24a3a0f-7d7e-4d9f-8e12-e44b4c8d6e8f/QNYMZxKmQW.json',
+            timer: 'https://lottie.host/0a42e2a0-9e6a-4b8c-8d6f-2e4a6b8c0d2e/TKxLmNoPqR.json',
+            rocket: 'https://lottie.host/1b53e3b1-0f7b-4c9d-9e23-f55c5d9e7f9g/ULyMnOpQrS.json'
+        };
+
+        // Fallback SVG icons (in case Lottie fails to load)
+        const fallbackIcons = {
+            book: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>`,
+            document: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`,
+            checklist: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>`,
+            chart: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`,
+            timer: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+            rocket: `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`
+        };
+
+        // Initialize Lottie icons with animated fallback
+        lottieScript.onload = () => {
+            document.querySelectorAll('.lottie-icon').forEach(container => {
+                const animationType = container.dataset.lottie;
+
+                // Create animated icon using CSS animations as a reliable fallback
+                const animatedIcon = document.createElement('div');
+                animatedIcon.className = 'animated-icon-wrapper';
+                animatedIcon.innerHTML = fallbackIcons[animationType] || fallbackIcons.book;
+                animatedIcon.style.cssText = `
+                    animation: iconPulse 2s ease-in-out infinite;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
+                container.appendChild(animatedIcon);
+            });
+        };
+
+        // Fallback if Lottie script fails
+        lottieScript.onerror = () => {
+            document.querySelectorAll('.lottie-icon').forEach(container => {
+                const animationType = container.dataset.lottie;
+                container.innerHTML = fallbackIcons[animationType] || fallbackIcons.book;
+            });
+        };
+
+        // Add icon pulse animation
+        const iconPulseStyle = document.createElement('style');
+        iconPulseStyle.textContent = `
+            @keyframes iconPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+            @keyframes iconFloat {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-5px); }
+            }
+            .animated-icon-wrapper {
+                animation: iconFloat 3s ease-in-out infinite, iconPulse 2s ease-in-out infinite;
+            }
+            .animated-icon-wrapper svg {
+                transition: all 0.3s ease;
+            }
+            .feature-card:hover .animated-icon-wrapper {
+                animation: none;
+                transform: scale(1.15) rotate(5deg);
+            }
+        `;
+        document.head.appendChild(iconPulseStyle);
+
+        // ==================== 3D TILT CARD EFFECT ====================
+        const tiltCards = document.querySelectorAll('.tilt-card');
+
+        tiltCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+
+                card.style.setProperty('--rotateX', `${-rotateX}deg`);
+                card.style.setProperty('--rotateY', `${rotateY}deg`);
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.setProperty('--rotateX', '0deg');
+                card.style.setProperty('--rotateY', '0deg');
+            });
+        });
+
+        // ==================== 3D SHAPES MOUSE INTERACTION ====================
+        const hero3dShapes = document.querySelector('.hero-3d-shapes');
+
+        if (hero3dShapes) {
+            document.addEventListener('mousemove', (e) => {
+                const mouseX = e.clientX / window.innerWidth - 0.5;
+                const mouseY = e.clientY / window.innerHeight - 0.5;
+
+                const shapes = hero3dShapes.querySelectorAll('.shape-3d');
+                shapes.forEach((shape, index) => {
+                    const depth = (index + 1) * 15;
+                    const moveX = mouseX * depth;
+                    const moveY = mouseY * depth;
+                    shape.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                });
+            });
+        }
     </script>
 </body>
 </html>
