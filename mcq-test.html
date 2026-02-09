@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Quiz - NerdTutors Test Platform</title>
+    <link rel="stylesheet" href="mcq-test.css">
+</head>
+
+<body>
+    <!-- ==================== HEADER ==================== -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="back-btn">← Back to Home</a>
+            <h1 class="page-title">📝 Economics MCQ Quiz</h1>
+            <div class="timer-container" id="timerContainer" style="display: none;">
+                ⏱️ <span id="timer">00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== LOADING STATE ==================== -->
+    <div class="loading-container" id="loadingState">
+        <div class="loading-spinner"></div>
+        <p>Loading questions...</p>
+    </div>
+
+    <!-- ==================== QUIZ SETUP SCREEN ==================== -->
+    <div class="container" id="setupContainer">
+        <div class="setup-card">
+            <div class="setup-header">
+                <h2>🎯 Start Your MCQ Quiz</h2>
+                <p>Test your economics knowledge with multiple choice questions</p>
+            </div>
+
+            <div class="setup-form">
+                <!-- Name Input with Remember Option -->
+                <div class="form-group" id="nameGroup">
+                    <label for="studentName">Your Name</label>
+                    <input type="text" id="studentName" placeholder="Enter your name" required>
+                    <label class="remember-checkbox">
+                        <input type="checkbox" id="rememberName">
+                        <span>Remember my name (skip this step next time)</span>
+                    </label>
+                </div>
+
+                <!-- Saved Name Display (shown when name is remembered) -->
+                <div class="saved-name-display" id="savedNameDisplay" style="display: none;">
+                    <div class="saved-name-info">
+                        <span class="saved-name-label">Welcome back,</span>
+                        <span class="saved-name-value" id="savedNameValue">Student</span>
+                    </div>
+                    <button type="button" class="change-name-btn" id="changeNameBtn">Change Name</button>
+                </div>
+
+                <button class="btn-primary" id="startQuizBtn">Start Quiz 🚀</button>
+            </div>
+
+            <div class="question-count-info" id="questionCountInfo">
+                Loading available questions...
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== QUIZ CONTAINER ==================== -->
+    <div class="container" id="quizContainer" style="display: none;">
+        <div class="quiz-header">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text">
+                Question <span id="currentQuestionNum">1</span> of <span id="totalQuestions">10</span>
+            </div>
+        </div>
+
+        <div class="question-card" id="questionCard">
+            <div class="question-badge">
+                <span class="category-badge" id="categoryBadge">Category</span>
+                <span class="difficulty-badge" id="difficultyBadge">Medium</span>
+            </div>
+
+            <div class="question-text" id="questionText">
+                Loading question...
+            </div>
+
+            <div class="options-container" id="optionsContainer">
+                <!-- Options will be populated here -->
+            </div>
+
+            <div class="navigation-buttons">
+                <button class="btn-secondary" id="prevBtn" disabled>← Previous</button>
+                <button class="btn-primary" id="nextBtn">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== RESULTS CONTAINER ==================== -->
+    <div class="container" id="resultsContainer" style="display: none;">
+        <div class="results-card">
+            <div class="results-header">
+                <div class="results-emoji" id="resultsEmoji">🎉</div>
+                <h2>Quiz Complete!</h2>
+                <p id="studentNameResult">Great job, Student!</p>
+            </div>
+
+            <div class="score-display">
+                <div class="score-circle" id="scoreCircle">
+                    <span class="score-percentage" id="scorePercentage">0%</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="correctCount">0</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="incorrectCount">0</div>
+                    <div class="stat-label">Incorrect</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="skippedCount">0</div>
+                    <div class="stat-label">Skipped</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="timeTaken">0:00</div>
+                    <div class="stat-label">Time Taken</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-primary" id="reviewBtn">📖 Review Answers</button>
+                <button class="btn-secondary" id="retryBtn">🔄 Try Again</button>
+                <a href="index.html" class="btn-secondary">🏠 Back to Home</a>
+            </div>
+        </div>
+
+        <!-- Review Section -->
+        <div class="review-section" id="reviewSection" style="display: none;">
+            <h3>📋 Answer Review</h3>
+            <div id="reviewList">
+                <!-- Review items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script type="module" src="mcq-test.js"></script>
+</body>
+
+</html>

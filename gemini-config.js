@@ -1,35 +1,90 @@
-// 🔹 Gemini API Configuration (Secure - Uses Vercel Backend)
+// 🔹 Gemini API Configuration (Robust - Supports Vercel Backend & Client-Side Fallback)
 
-// IMPORTANT: API key is now stored securely in Vercel environment variables
-// This file only contains the client-side function to call the backend
-
-// 🔹 Main Evaluation Function (Now calls Vercel backend)
+// 🔹 Main Evaluation Function
 export async function evaluateWithGemini({ question, modelAnswer, studentAnswer, maxMarks }) {
     try {
-        console.log('📤 Sending evaluation request to secure backend...');
-        
-        // Call Vercel serverless function instead of direct API call
+        console.log('📤 Attempting evaluation via backend...');
+
+        // 1. Try Vercel Backend First
         const response = await fetch('/api/evaluate', {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, modelAnswer, studentAnswer, maxMarks })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('✅ Backend evaluation successful:', result);
+            return {
+                score: result.score ?? 0,
+                improvements: result.improvements ?? [],
+                feedback: result.feedback ?? "No feedback available."
+            };
+        } else {
+            console.warn(`⚠️ Backend unavailable (Status: ${response.status}). Switching to client-side fallback.`);
+            throw new Error('Backend failed');
+        }
+
+    } catch (error) {
+        console.log('🔄 Falling back to client-side Gemini call...', error);
+        return await evaluateWithClientSide({ question, modelAnswer, studentAnswer, maxMarks });
+    }
+}
+
+// 🔹 Client-Side Fallback (For Local Testing / Static Hosting)
+async function evaluateWithClientSide({ question, modelAnswer, studentAnswer, maxMarks }) {
+    const STORAGE_KEY = 'nerdtutors_gemini_key';
+    let apiKey = localStorage.getItem(STORAGE_KEY);
+
+    if (!apiKey) {
+        apiKey = prompt("⚠️ Backend not found (Local Mode). Please enter your Google Gemini API Key to continue:");
+        if (!apiKey) {
+            return {
+                score: 0,
+                feedback: "Evaluation failed: No API Key provided for local testing.",
+                improvements: ["Please provide a valid Gemini API Key to test locally."]
+            };
+        }
+        localStorage.setItem(STORAGE_KEY, apiKey);
+    }
+
+    try {
+        const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+
+        const promptText = `
+        Evaluate the student's answer strictly in JSON.
+        
+        Question: ${question}
+        Model Answer: ${modelAnswer}
+        Student Answer: ${studentAnswer}
+        Max Marks: ${maxMarks}
+        
+        Return STRICT JSON only:
+        {
+            "score": <number>,
+            "improvements": ["...", "..."],
+            "feedback": "..."
+        }
+        `;
+
+        const response = await fetch(`${MODEL_URL}?key=${apiKey}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                question,
-                modelAnswer: modelAnswer || 'No model answer provided.',
-                studentAnswer,
-                maxMarks
+                contents: [{ parts: [{ text: promptText }] }],
+                generationConfig: { temperature: 0.3 }
             })
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Backend error:', errorData);
-            throw new Error(errorData.error || `Backend error: ${response.status}`);
+            const errorText = await response.text();
+            throw new Error(`Gemini API Error: ${errorText}`);
         }
 
-        const result = await response.json();
-        console.log('✅ Evaluation received from backend:', result);
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        const cleanJson = text.replace(/```json|```/g, "").trim();
+        const result = JSON.parse(cleanJson);
 
         return {
             score: result.score ?? 0,
@@ -38,17 +93,19 @@ export async function evaluateWithGemini({ question, modelAnswer, studentAnswer,
         };
 
     } catch (error) {
-        console.error('❌ Gemini evaluation error:', error);
+        console.error("❌ Client-side evaluation failed:", error);
+
+        // If INVALID_ARGUMENT (often bad key), clear it
+        if (error.message.includes('INVALID_ARGUMENT') || error.message.includes('400')) {
+            localStorage.removeItem(STORAGE_KEY);
+        }
+
         return {
             score: 0,
-            improvements: [
-                "Unable to evaluate due to processing error.",
-                "Possible issue: network, quota, or API filter.",
-                "Marked for manual review."
-            ],
-            feedback: "Evaluation failed due to an error."
+            improvements: ["Unable to evaluate due to processing error.", error.message],
+            feedback: "Evaluation failed. Please check your API Key / Network."
         };
     }
 }
 
-console.log("✅ Gemini API configured successfully (using secure backend)");
+console.log("✅ Gemini API configured (Backend + Client Fallback enabled)");
