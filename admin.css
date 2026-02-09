@@ -151,6 +151,15 @@
             margin-bottom: 2rem;
         }
         
+        /* Reusable content box for tab panels */
+        .content-box {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+        
         .form-grid {
             display: grid;
             gap: 1.5rem;
@@ -206,6 +215,7 @@
             font-size: 1rem;
             font-weight: 600;
             border-radius: 6px;
+            margin-top: 2rem;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
         }
@@ -446,51 +456,44 @@
         }
 
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 2rem;
+            background: white;
+            color: #333;
+            padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
             transition: transform 0.3s;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
-        .stat-card.green {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .stat-card.orange {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        .stat-card.blue {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-
-        .stat-card.purple {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+        .stat-card.green { border-left: 5px solid #38ef7d; }
+        .stat-card.orange { border-left: 5px solid #f5576c; }
+        .stat-card.blue { border-left: 5px solid #4facfe; }
+        .stat-card.purple { border-left: 5px solid #764ba2; }
 
         .stat-card h3 {
             font-size: 0.9rem;
-            font-weight: 500;
-            opacity: 0.9;
+            font-weight: 600;
+            opacity: 0.7;
             margin-bottom: 0.5rem;
+            color: #555;
+            text-transform: uppercase;
         }
 
         .stat-card .stat-value {
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
+            color: #1e3c72;
         }
 
         .stat-card .stat-label {
             font-size: 0.85rem;
-            opacity: 0.8;
+            color: #888;
         }
 
         /* Category Breakdown */
@@ -1311,6 +1314,7 @@
             border-radius: 12px;
             margin-bottom: 2rem;
             color: white;
+            margin-top: 2rem;
         }
 
         .upload-section h3 {
