@@ -60,7 +60,7 @@ Return STRICT JSON only:
 
   const requestBody = {
     contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.3, maxOutputTokens: 256 }
+    generationConfig: { temperature: 0.3, maxOutputTokens: 1024 }
   };
 
   async function callGemini() {

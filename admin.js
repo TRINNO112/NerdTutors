@@ -1,0 +1,1562 @@
+import { auth, db } from './firebase-config.js';
+import {
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup,
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+import {
+    collection,
+    addDoc,
+    getDocs,
+    doc,
+    deleteDoc,
+    updateDoc,
+    serverTimestamp,
+    query,
+    orderBy
+} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+// Admin emails (add your admin emails here)
+const ADMIN_EMAILS = [
+    'kaushtubh457@gmail.com',
+    'jatinthacker000@gmail.com'
+];
+
+// Valid categories for validation
+const VALID_CATEGORIES = [
+    'Microeconomics',
+    'Macroeconomics',
+    'International Economics',
+    'Development Economics',
+    'Public Economics',
+    'Monetary Economics',
+    'Labor Economics',
+    'Environmental Economics',
+    'Econometrics',
+    'Economic Theory'
+];
+
+// DOM Elements
+const elements = {
+    loginContainer: document.getElementById('loginContainer'),
+    adminContainer: document.getElementById('adminContainer'),
+    accessDeniedContainer: document.getElementById('accessDeniedContainer'),
+    userEmail: document.getElementById('userEmail'),
+    deniedEmail: document.getElementById('deniedEmail'),
+    questionForm: document.getElementById('questionForm'),
+    editQuestionForm: document.getElementById('editQuestionForm'),
+    loginForm: document.getElementById('loginForm'),
+    googleSignIn: document.getElementById('googleSignIn'),
+    btnLogout: document.getElementById('btnLogout'),
+    questionsList: document.getElementById('questionsList'),
+    statsGrid: document.getElementById('statsGrid'),
+    toast: document.getElementById('toast'),
+    editModal: document.getElementById('editModal'),
+    btnCloseModal: document.getElementById('btnCloseModal'),
+    searchBox: document.getElementById('searchBox'),
+    filterCategory: document.getElementById('filterCategory'),
+    // Excel upload elements
+    excelFileInput: document.getElementById('excelFileInput'),
+    uploadArea: document.getElementById('uploadArea'),
+    previewSection: document.getElementById('previewSection'),
+    previewTableBody: document.getElementById('previewTableBody'),
+    validCount: document.getElementById('validCount'),
+    invalidCount: document.getElementById('invalidCount'),
+    uploadCountText: document.getElementById('uploadCountText'),
+    btnCancelUpload: document.getElementById('btnCancelUpload'),
+    btnConfirmUpload: document.getElementById('btnConfirmUpload'),
+    btnDownloadTemplate: document.getElementById('btnDownloadTemplate'),
+    btnDownloadSample: document.getElementById('btnDownloadSample'),
+    uploadProgress: document.getElementById('uploadProgress'),
+    progressBar: document.getElementById('progressBar'),
+    progressText: document.getElementById('progressText')
+};
+
+// Global variables
+let allQuestions = [];
+let currentEditId = null;
+let parsedExcelData = [];
+let validQuestionsToUpload = [];
+let selectedQuestions = new Set();
+let deletedQuestionBackup = null;
+let undoTimeout = null;
+let draftSaveTimeout = null;
+let chartInstances = {};
+
+// Initialize
+function init() {
+    setupAuth();
+    setupEventListeners();
+    setupExcelUpload();
+    setupNewFeatures();
+    loadDraft();
+}
+
+// Auth Setup
+function setupAuth() {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            if (ADMIN_EMAILS.includes(user.email) || user.email?.includes('admin')) {
+                showAdminPanel(user);
+            } else {
+                showAccessDenied(user);
+            }
+        } else {
+            showLoginForm();
+        }
+    });
+}
+
+// Show Admin Panel
+function showAdminPanel(user) {
+    elements.loginContainer.style.display = 'none';
+    elements.accessDeniedContainer.style.display = 'none';
+    elements.adminContainer.style.display = 'block';
+
+    if (elements.userEmail) {
+        elements.userEmail.textContent = user.email;
+    }
+
+    loadQuestions();
+    loadStatistics();
+}
+
+// Show Access Denied
+function showAccessDenied(user) {
+    elements.loginContainer.style.display = 'none';
+    elements.adminContainer.style.display = 'none';
+    elements.accessDeniedContainer.style.display = 'block';
+
+    if (elements.deniedEmail) {
+        elements.deniedEmail.textContent = user.email;
+    }
+}
+
+// Show Login Form
+function showLoginForm() {
+    elements.loginContainer.style.display = 'block';
+    elements.adminContainer.style.display = 'none';
+    elements.accessDeniedContainer.style.display = 'none';
+}
+
+// Event Listeners
+function setupEventListeners() {
+    // Login form
+    elements.loginForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('adminEmail').value;
+        const password = document.getElementById('adminPassword').value;
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            showToast('Login successful!', 'success');
+        } catch (error) {
+            showToast('Login failed: ' + error.message, 'error');
+        }
+    });
+
+    // Google Sign In
+    elements.googleSignIn?.addEventListener('click', async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            await signInWithPopup(auth, provider);
+            showToast('Login successful!', 'success');
+        } catch (error) {
+            showToast('Login failed: ' + error.message, 'error');
+        }
+    });
+
+    // Logout
+    elements.btnLogout?.addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+            showToast('Logged out successfully', 'success');
+        } catch (error) {
+            showToast('Logout failed', 'error');
+        }
+    });
+
+    // Question form
+    elements.questionForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await addQuestion();
+    });
+
+    // Edit question form
+    elements.editQuestionForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await updateQuestion();
+    });
+
+    // Close modal
+    elements.btnCloseModal?.addEventListener('click', closeEditModal);
+    elements.editModal?.addEventListener('click', (e) => {
+        if (e.target === elements.editModal) {
+            closeEditModal();
+        }
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabName = btn.dataset.tab;
+            switchTab(tabName);
+        });
+    });
+
+    // Search and filter
+    elements.searchBox?.addEventListener('input', filterQuestions);
+    elements.filterCategory?.addEventListener('change', filterQuestions);
+}
+
+// ============================================
+// EXCEL UPLOAD FUNCTIONALITY - NEW
+// ============================================
+
+function setupExcelUpload() {
+    // File input change
+    elements.excelFileInput?.addEventListener('change', handleFileSelect);
+
+    // Drag and drop
+    elements.uploadArea?.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        elements.uploadArea.classList.add('dragover');
+    });
+
+    elements.uploadArea?.addEventListener('dragleave', () => {
+        elements.uploadArea.classList.remove('dragover');
+    });
+
+    elements.uploadArea?.addEventListener('drop', (e) => {
+        e.preventDefault();
+        elements.uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            processExcelFile(files[0]);
+        }
+    });
+
+    // Download template
+    elements.btnDownloadTemplate?.addEventListener('click', downloadTemplate);
+
+    // Download sample
+    elements.btnDownloadSample?.addEventListener('click', downloadSampleData);
+
+    // Cancel upload
+    elements.btnCancelUpload?.addEventListener('click', cancelUpload);
+
+    // Confirm upload
+    elements.btnConfirmUpload?.addEventListener('click', confirmUpload);
+}
+
+function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) {
+        processExcelFile(file);
+    }
+}
+
+function processExcelFile(file) {
+    const validExtensions = ['.xlsx', '.xls', '.csv'];
+    const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+
+    if (!validExtensions.includes(fileExt)) {
+        showToast('Please upload a valid Excel file (.xlsx, .xls, .csv)', 'error');
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            // Get first sheet
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+
+            // Convert to JSON
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+            if (jsonData.length === 0) {
+                showToast('The Excel file is empty', 'error');
+                return;
+            }
+
+            // Process and validate data
+            parsedExcelData = validateExcelData(jsonData);
+            displayPreview(parsedExcelData);
+
+        } catch (error) {
+            console.error('Error parsing Excel:', error);
+            showToast('Error parsing Excel file: ' + error.message, 'error');
+        }
+    };
+
+    reader.onerror = () => {
+        showToast('Error reading file', 'error');
+    };
+
+    reader.readAsArrayBuffer(file);
+}
+
+function validateExcelData(data) {
+    return data.map((row, index) => {
+        const errors = [];
+
+        // Check required fields
+        if (!row.text || String(row.text).trim() === '') {
+            errors.push('Question text is required');
+        }
+
+        if (!row.category || String(row.category).trim() === '') {
+            errors.push('Category is required');
+        } else if (!VALID_CATEGORIES.includes(row.category)) {
+            errors.push(`Invalid category: "${row.category}"`);
+        }
+
+        if (!row.marks || isNaN(parseInt(row.marks))) {
+            errors.push('Marks must be a number');
+        } else if (parseInt(row.marks) < 1 || parseInt(row.marks) > 100) {
+            errors.push('Marks must be between 1-100');
+        }
+
+        if (!row.modelAnswer || String(row.modelAnswer).trim() === '') {
+            errors.push('Model answer is required');
+        }
+
+        // Validate optional fields
+        let difficulty = row.difficulty || 'Medium';
+        if (!['Easy', 'Medium', 'Hard'].includes(difficulty)) {
+            difficulty = 'Medium';
+        }
+
+        let status = row.status || 'active';
+        if (!['active', 'inactive'].includes(status)) {
+            status = 'active';
+        }
+
+        return {
+            rowNumber: index + 2, // Excel rows start at 1, header is row 1
+            text: String(row.text || '').trim(),
+            category: String(row.category || '').trim(),
+            marks: parseInt(row.marks) || 0,
+            modelAnswer: String(row.modelAnswer || '').trim(),
+            difficulty: difficulty,
+            status: status,
+            isValid: errors.length === 0,
+            errors: errors
+        };
+    });
+}
+
+function displayPreview(data) {
+    validQuestionsToUpload = data.filter(row => row.isValid);
+    const invalidRows = data.filter(row => !row.isValid);
+
+    elements.validCount.textContent = `${validQuestionsToUpload.length} valid`;
+    elements.invalidCount.textContent = `${invalidRows.length} invalid`;
+    elements.uploadCountText.textContent = validQuestionsToUpload.length;
+
+    // Enable/disable upload button
+    elements.btnConfirmUpload.disabled = validQuestionsToUpload.length === 0;
+
+    // Build preview table
+    let html = '';
+    data.forEach((row, index) => {
+        html += `
+                <tr style="${row.isValid ? '' : 'background: #fff3f3;'}">
+                    <td>${row.rowNumber}</td>
+                    <td>
+                        <span class="row-status ${row.isValid ? 'valid' : 'invalid'}"></span>
+                        ${row.isValid ? '✓ Valid' : '✗ Error'}
+                    </td>
+                    <td class="text-cell" title="${escapeHtml(row.text)}">
+                        ${escapeHtml(row.text.substring(0, 100))}${row.text.length > 100 ? '...' : ''}
+                        ${row.errors.length > 0 ? `<div class="row-error">${row.errors.join(', ')}</div>` : ''}
+                    </td>
+                    <td>${escapeHtml(row.category)}</td>
+                    <td>${row.marks}</td>
+                    <td>${row.difficulty}</td>
+                </tr>
+            `;
+    });
+
+    elements.previewTableBody.innerHTML = html;
+    elements.previewSection.classList.add('show');
+
+    showToast(`Found ${validQuestionsToUpload.length} valid questions out of ${data.length} rows`, 'success');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+async function confirmUpload() {
+    if (validQuestionsToUpload.length === 0) {
+        showToast('No valid questions to upload', 'error');
+        return;
+    }
+
+    const confirmMsg = `Are you sure you want to upload ${validQuestionsToUpload.length} questions?`;
+    if (!confirm(confirmMsg)) return;
+
+    elements.btnConfirmUpload.disabled = true;
+    elements.uploadProgress.classList.add('show');
+
+    let uploaded = 0;
+    let failed = 0;
+
+    for (let i = 0; i < validQuestionsToUpload.length; i++) {
+        const question = validQuestionsToUpload[i];
+
+        try {
+            await addDoc(collection(db, 'questions'), {
+                text: question.text,
+                category: question.category,
+                marks: question.marks,
+                modelAnswer: question.modelAnswer,
+                difficulty: question.difficulty,
+                status: question.status,
+                createdAt: serverTimestamp(),
+                createdBy: auth.currentUser?.email,
+                uploadedVia: 'excel'
+            });
+            uploaded++;
+        } catch (error) {
+            console.error('Error uploading question:', error);
+            failed++;
+        }
+
+        // Update progress
+        const progress = ((i + 1) / validQuestionsToUpload.length) * 100;
+        elements.progressBar.style.width = progress + '%';
+        elements.progressText.textContent = `Uploading... ${Math.round(progress)}% (${i + 1}/${validQuestionsToUpload.length})`;
+    }
+
+    // Complete
+    elements.progressText.textContent = `Complete! Uploaded: ${uploaded}, Failed: ${failed}`;
+
+    if (uploaded > 0) {
+        showToast(`Successfully uploaded ${uploaded} questions!`, 'success');
+        loadQuestions();
+        loadStatistics();
+    }
+
+    if (failed > 0) {
+        showToast(`Failed to upload ${failed} questions`, 'error');
+    }
+
+    // Reset after 2 seconds
+    setTimeout(() => {
+        cancelUpload();
+    }, 2000);
+}
+
+function cancelUpload() {
+    parsedExcelData = [];
+    validQuestionsToUpload = [];
+    elements.previewSection.classList.remove('show');
+    elements.uploadProgress.classList.remove('show');
+    elements.progressBar.style.width = '0%';
+    elements.progressText.textContent = 'Uploading... 0%';
+    elements.excelFileInput.value = '';
+    elements.btnConfirmUpload.disabled = false;
+}
+
+function downloadTemplate() {
+    const templateData = [
+        {
+            text: '',
+            category: '',
+            marks: '',
+            modelAnswer: '',
+            difficulty: '',
+            status: ''
+        }
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 50 },  // text
+        { wch: 25 },  // category
+        { wch: 10 },  // marks
+        { wch: 50 },  // modelAnswer
+        { wch: 12 },  // difficulty
+        { wch: 10 }   // status
+    ];
+
+    XLSX.writeFile(wb, 'questions_template.xlsx');
+    showToast('Template downloaded!', 'success');
+}
+
+function downloadSampleData() {
+    const sampleData = [
+        {
+            text: 'Explain the law of demand and its exceptions.',
+            category: 'Microeconomics',
+            marks: 10,
+            modelAnswer: 'The law of demand states that, ceteris paribus, as the price of a good increases, the quantity demanded decreases, and vice versa. This creates a downward-sloping demand curve. Exceptions include Giffen goods, Veblen goods, expectations of future price changes, and necessary goods.',
+            difficulty: 'Medium',
+            status: 'active'
+        },
+        {
+            text: 'What are the main components of GDP? Explain each.',
+            category: 'Macroeconomics',
+            marks: 15,
+            modelAnswer: 'GDP = C + I + G + (X-M). Consumption (C): Household spending on goods and services. Investment (I): Business spending on capital goods. Government Spending (G): Government expenditure on goods and services. Net Exports (X-M): Exports minus imports.',
+            difficulty: 'Medium',
+            status: 'active'
+        },
+        {
+            text: 'Define elasticity of demand. What factors affect it?',
+            category: 'Microeconomics',
+            marks: 8,
+            modelAnswer: 'Elasticity of demand measures the responsiveness of quantity demanded to changes in price. Factors affecting it include: availability of substitutes, necessity vs luxury, proportion of income spent, time period, and brand loyalty.',
+            difficulty: 'Easy',
+            status: 'active'
+        },
+        {
+            text: 'Explain the concept of comparative advantage in international trade.',
+            category: 'International Economics',
+            marks: 12,
+            modelAnswer: 'Comparative advantage refers to the ability of a country to produce a good at a lower opportunity cost than another country. Even if a country has absolute advantage in all goods, trade can still be beneficial if countries specialize in goods where they have comparative advantage.',
+            difficulty: 'Hard',
+            status: 'active'
+        },
+        {
+            text: 'What is fiscal policy? Discuss its tools and objectives.',
+            category: 'Public Economics',
+            marks: 10,
+            modelAnswer: 'Fiscal policy refers to government decisions about taxation and spending to influence the economy. Tools include: changes in tax rates, government spending programs, and transfer payments. Objectives include economic growth, price stability, full employment, and redistribution of income.',
+            difficulty: 'Medium',
+            status: 'active'
+        }
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 60 },  // text
+        { wch: 25 },  // category
+        { wch: 10 },  // marks
+        { wch: 80 },  // modelAnswer
+        { wch: 12 },  // difficulty
+        { wch: 10 }   // status
+    ];
+
+    XLSX.writeFile(wb, 'questions_sample.xlsx');
+    showToast('Sample data downloaded!', 'success');
+}
+
+// ============================================
+// END EXCEL UPLOAD FUNCTIONALITY
+// ============================================
+
+// Switch tabs
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === tabName + 'Tab');
+    });
+
+    if (tabName === 'manage') {
+        loadQuestions();
+    } else if (tabName === 'stats') {
+        loadStatistics();
+    }
+}
+
+// Add Question
+async function addQuestion() {
+    const questionData = {
+        text: document.getElementById('questionText').value,
+        category: document.getElementById('category').value,
+        marks: parseInt(document.getElementById('marks').value),
+        modelAnswer: document.getElementById('modelAnswer').value,
+        difficulty: document.getElementById('difficulty').value,
+        status: document.getElementById('status').value,
+        createdAt: serverTimestamp(),
+        createdBy: auth.currentUser?.email
+    };
+
+    try {
+        await addDoc(collection(db, 'questions'), questionData);
+        showToast('Question added successfully!', 'success');
+        elements.questionForm.reset();
+        // Clear draft after successful submit
+        localStorage.removeItem('questionDraft');
+        document.getElementById('draftIndicator')?.classList.remove('show');
+        loadQuestions();
+        loadStatistics();
+    } catch (error) {
+        showToast('Failed to add question: ' + error.message, 'error');
+    }
+}
+
+// Load Questions
+async function loadQuestions() {
+    if (!elements.questionsList) return;
+
+    try {
+        const querySnapshot = await getDocs(collection(db, 'questions'));
+        allQuestions = [];
+
+        querySnapshot.forEach((docSnap) => {
+            allQuestions.push({
+                id: docSnap.id,
+                ...docSnap.data()
+            });
+        });
+
+        displayQuestions(allQuestions);
+    } catch (error) {
+        console.error('Error loading questions:', error);
+        elements.questionsList.innerHTML = '<p>Error loading questions</p>';
+    }
+}
+
+// Display questions
+function displayQuestions(questions) {
+    let html = '';
+
+    questions.forEach((data) => {
+        const difficultyClass = data.difficulty?.toLowerCase() || 'medium';
+        const status = data.status || 'active';
+        const isSelected = selectedQuestions.has(data.id);
+        html += `
+                <div class="question-card ${isSelected ? 'selected' : ''}" data-id="${data.id}">
+                    <div class="question-header">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <input type="checkbox" class="question-checkbox" data-id="${data.id}" ${isSelected ? 'checked' : ''}>
+                            <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
+                            <div class="question-meta">
+                                <span class="status-dot ${status}"></span>
+                                <span class="badge badge-category">${data.category || 'N/A'}</span>
+                                <span class="badge badge-marks">${data.marks || 0} marks</span>
+                                <span class="badge badge-difficulty ${difficultyClass}">${data.difficulty || 'Medium'}</span>
+                            </div>
+                        </div>
+                        <div class="question-actions">
+                            <button class="btn-icon preview" data-id="${data.id}" title="Preview">👁️</button>
+                            <button class="btn-icon duplicate" data-id="${data.id}" title="Duplicate">📋</button>
+                            <button class="btn-icon edit" data-id="${data.id}" title="Edit">✏️</button>
+                            <button class="btn-icon delete" data-id="${data.id}" title="Delete">🗑️</button>
+                        </div>
+                    </div>
+                    <p class="question-text">${data.text || 'No question text'}</p>
+                    <div class="question-footer">
+                        <span>Created by: ${data.createdBy || 'Unknown'}</span>
+                        <span style="display: flex; align-items: center; gap: 0.25rem;">
+                            <span class="status-dot ${status}" style="width: 8px; height: 8px;"></span>
+                            ${status === 'active' ? 'Active' : 'Inactive'}
+                        </span>
+                    </div>
+                </div>
+            `;
+    });
+
+    elements.questionsList.innerHTML = html || '<p style="text-align: center; color: #666; padding: 2rem;">No questions found</p>';
+
+    // Setup drag and drop
+    if (typeof Sortable !== 'undefined') {
+        new Sortable(elements.questionsList, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'dragging',
+            onEnd: function (evt) {
+                showToast('Question order updated', 'success');
+            }
+        });
+    }
+
+    // Attach checkbox handlers
+    document.querySelectorAll('.question-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const id = e.target.dataset.id;
+            const card = e.target.closest('.question-card');
+            if (e.target.checked) {
+                selectedQuestions.add(id);
+                card.classList.add('selected');
+            } else {
+                selectedQuestions.delete(id);
+                card.classList.remove('selected');
+            }
+            updateBulkActionsBar();
+        });
+    });
+
+    // Attach preview handlers
+    document.querySelectorAll('.btn-icon.preview').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            openPreviewModal(id);
+        });
+    });
+
+    // Attach duplicate handlers
+    document.querySelectorAll('.btn-icon.duplicate').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            duplicateQuestion(id);
+        });
+    });
+
+    // Attach edit handlers
+    document.querySelectorAll('.btn-icon.edit').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            openEditModal(id);
+        });
+    });
+
+    // Attach delete handlers
+    document.querySelectorAll('.btn-icon.delete').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            if (!id) return;
+            showConfirmModal(
+                '🗑️',
+                'Delete Question?',
+                'This action can be undone within 5 seconds.',
+                'danger',
+                async () => {
+                    await deleteQuestionWithUndo(id);
+                }
+            );
+        });
+    });
+}
+
+// Open Edit Modal
+function openEditModal(questionId) {
+    const question = allQuestions.find(q => q.id === questionId);
+    if (!question) return;
+
+    currentEditId = questionId;
+
+    document.getElementById('editQuestionId').value = questionId;
+    document.getElementById('editQuestionText').value = question.text || '';
+    document.getElementById('editCategory').value = question.category || '';
+    document.getElementById('editMarks').value = question.marks || '';
+    document.getElementById('editModelAnswer').value = question.modelAnswer || '';
+    document.getElementById('editDifficulty').value = question.difficulty || 'Medium';
+    document.getElementById('editStatus').value = question.status || 'active';
+
+    elements.editModal.classList.add('show');
+}
+
+// Close Edit Modal
+function closeEditModal() {
+    elements.editModal.classList.remove('show');
+    currentEditId = null;
+}
+
+// Update Question
+async function updateQuestion() {
+    if (!currentEditId) return;
+
+    const updatedData = {
+        text: document.getElementById('editQuestionText').value,
+        category: document.getElementById('editCategory').value,
+        marks: parseInt(document.getElementById('editMarks').value),
+        modelAnswer: document.getElementById('editModelAnswer').value,
+        difficulty: document.getElementById('editDifficulty').value,
+        status: document.getElementById('editStatus').value,
+        updatedAt: serverTimestamp(),
+        updatedBy: auth.currentUser?.email
+    };
+
+    try {
+        await updateDoc(doc(db, 'questions', currentEditId), updatedData);
+        showToast('Question updated successfully!', 'success');
+        closeEditModal();
+        loadQuestions();
+    } catch (error) {
+        showToast('Failed to update question: ' + error.message, 'error');
+    }
+}
+
+// Filter Questions
+function filterQuestions() {
+    const searchTerm = elements.searchBox?.value.toLowerCase() || '';
+    const categoryFilter = elements.filterCategory?.value || '';
+
+    const filtered = allQuestions.filter(q => {
+        const matchesSearch = q.text?.toLowerCase().includes(searchTerm) ||
+            q.category?.toLowerCase().includes(searchTerm);
+        const matchesCategory = !categoryFilter || q.category === categoryFilter;
+
+        return matchesSearch && matchesCategory;
+    });
+
+    displayQuestions(filtered);
+}
+
+// Load Statistics
+async function loadStatistics() {
+    if (!elements.statsGrid) return;
+
+    try {
+        const querySnapshot = await getDocs(collection(db, 'questions'));
+        const totalQuestions = querySnapshot.size;
+
+        const categoryCount = {};
+        const difficultyCount = { Easy: 0, Medium: 0, Hard: 0 };
+        const statusCount = { active: 0, inactive: 0 };
+        let totalMarks = 0;
+
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+
+            const category = data.category || 'Uncategorized';
+            categoryCount[category] = (categoryCount[category] || 0) + 1;
+
+            const difficulty = data.difficulty || 'Medium';
+            difficultyCount[difficulty] = (difficultyCount[difficulty] || 0) + 1;
+
+            const status = data.status || 'active';
+            statusCount[status] = (statusCount[status] || 0) + 1;
+
+            totalMarks += data.marks || 0;
+        });
+
+        const avgMarks = totalQuestions > 0 ? (totalMarks / totalQuestions).toFixed(1) : 0;
+
+        elements.statsGrid.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card purple">
+                        <h3>Total Questions</h3>
+                        <div class="stat-value">${totalQuestions}</div>
+                        <div class="stat-label">In Database</div>
+                    </div>
+
+                    <div class="stat-card green">
+                        <h3>Active Questions</h3>
+                        <div class="stat-value">${statusCount.active}</div>
+                        <div class="stat-label">${statusCount.inactive} Inactive</div>
+                    </div>
+
+                    <div class="stat-card orange">
+                        <h3>Average Marks</h3>
+                        <div class="stat-value">${avgMarks}</div>
+                        <div class="stat-label">Per Question</div>
+                    </div>
+
+                    <div class="stat-card blue">
+                        <h3>Total Marks</h3>
+                        <div class="stat-value">${totalMarks}</div>
+                        <div class="stat-label">Sum of All Questions</div>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="margin-top: 1.5rem;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <h3>Easy Questions</h3>
+                        <div class="stat-value">${difficultyCount.Easy}</div>
+                        <div class="stat-label">${totalQuestions > 0 ? ((difficultyCount.Easy / totalQuestions) * 100).toFixed(1) : 0}% of Total</div>
+                    </div>
+
+                    <div class="stat-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                        <h3>Medium Questions</h3>
+                        <div class="stat-value">${difficultyCount.Medium}</div>
+                        <div class="stat-label">${totalQuestions > 0 ? ((difficultyCount.Medium / totalQuestions) * 100).toFixed(1) : 0}% of Total</div>
+                    </div>
+
+                    <div class="stat-card" style="background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);">
+                        <h3>Hard Questions</h3>
+                        <div class="stat-value">${difficultyCount.Hard}</div>
+                        <div class="stat-label">${totalQuestions > 0 ? ((difficultyCount.Hard / totalQuestions) * 100).toFixed(1) : 0}% of Total</div>
+                    </div>
+                </div>
+
+                <div class="category-breakdown">
+                    <h3>📊 Questions by Category</h3>
+                    ${Object.entries(categoryCount)
+                .sort((a, b) => b[1] - a[1])
+                .map(([category, count]) => `
+                            <div class="category-item">
+                                <span class="category-name">${category}</span>
+                                <span class="category-count">${count}</span>
+                            </div>
+                        `).join('')}
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h4>📈 Questions by Category</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h4>📊 Difficulty Distribution</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="difficultyChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h4>🔄 Status Overview</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        // Render Charts
+        renderCharts(categoryCount, difficultyCount, statusCount);
+    } catch (error) {
+        console.error('Error loading statistics:', error);
+        elements.statsGrid.innerHTML = '<p>Error loading statistics</p>';
+    }
+}
+
+// Show Toast
+function showToast(message, type = 'success') {
+    elements.toast.textContent = message;
+    elements.toast.className = `toast ${type} show`;
+
+    setTimeout(() => {
+        elements.toast.classList.remove('show');
+    }, 3000);
+}
+
+// Render Charts
+function renderCharts(categoryCount, difficultyCount, statusCount) {
+    // Destroy existing charts
+    Object.values(chartInstances).forEach(chart => chart?.destroy());
+
+    // Category Chart (Bar)
+    const categoryCtx = document.getElementById('categoryChart')?.getContext('2d');
+    if (categoryCtx) {
+        const sortedCategories = Object.entries(categoryCount).sort((a, b) => b[1] - a[1]);
+        chartInstances.category = new Chart(categoryCtx, {
+            type: 'bar',
+            data: {
+                labels: sortedCategories.map(([cat]) => cat.length > 15 ? cat.substring(0, 15) + '...' : cat),
+                datasets: [{
+                    label: 'Questions',
+                    data: sortedCategories.map(([, count]) => count),
+                    backgroundColor: [
+                        '#667eea', '#764ba2', '#f093fb', '#f5576c',
+                        '#4facfe', '#00f2fe', '#43e97b', '#38f9d7',
+                        '#fa709a', '#fee140'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    }
+
+    // Difficulty Chart (Doughnut)
+    const difficultyCtx = document.getElementById('difficultyChart')?.getContext('2d');
+    if (difficultyCtx) {
+        chartInstances.difficulty = new Chart(difficultyCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Easy', 'Medium', 'Hard'],
+                datasets: [{
+                    data: [difficultyCount.Easy, difficultyCount.Medium, difficultyCount.Hard],
+                    backgroundColor: ['#43e97b', '#4facfe', '#f5576c'],
+                    borderWidth: 0,
+                    cutout: '60%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    }
+                }
+            }
+        });
+    }
+
+    // Status Chart (Pie)
+    const statusCtx = document.getElementById('statusChart')?.getContext('2d');
+    if (statusCtx) {
+        chartInstances.status = new Chart(statusCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Active', 'Inactive'],
+                datasets: [{
+                    data: [statusCount.active, statusCount.inactive],
+                    backgroundColor: ['#4caf50', '#f44336'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 20, usePointStyle: true }
+                    }
+                }
+            }
+        });
+    }
+}
+
+// ============================================
+// NEW FEATURES
+// ============================================
+
+// Setup all new features
+function setupNewFeatures() {
+    setupAdvancedFilters();
+    setupBulkActions();
+    setupExportButtons();
+    setupKeyboardShortcuts();
+    setupAutoSave();
+    setupPreviewModal();
+    setupConfirmModal();
+    setupShortcutsHelp();
+}
+
+// Advanced Filters
+function setupAdvancedFilters() {
+    const btnToggle = document.getElementById('btnToggleFilters');
+    const filtersPanel = document.getElementById('advancedFilters');
+    const btnApply = document.getElementById('btnApplyFilters');
+    const btnClear = document.getElementById('btnClearFilters');
+
+    btnToggle?.addEventListener('click', () => {
+        filtersPanel.classList.toggle('show');
+    });
+
+    btnApply?.addEventListener('click', applyAdvancedFilters);
+    btnClear?.addEventListener('click', clearFilters);
+}
+
+function applyAdvancedFilters() {
+    const searchTerm = elements.searchBox?.value.toLowerCase() || '';
+    const categoryFilter = elements.filterCategory?.value || '';
+    const statusFilter = document.getElementById('filterStatus')?.value || '';
+    const difficultyFilter = document.getElementById('filterDifficulty')?.value || '';
+    const minMarks = parseInt(document.getElementById('filterMinMarks')?.value) || 0;
+    const maxMarks = parseInt(document.getElementById('filterMaxMarks')?.value) || 100;
+
+    const filtered = allQuestions.filter(q => {
+        const matchesSearch = !searchTerm ||
+            q.text?.toLowerCase().includes(searchTerm) ||
+            q.category?.toLowerCase().includes(searchTerm);
+        const matchesCategory = !categoryFilter || q.category === categoryFilter;
+        const matchesStatus = !statusFilter || (q.status || 'active') === statusFilter;
+        const matchesDifficulty = !difficultyFilter || q.difficulty === difficultyFilter;
+        const matchesMarks = (q.marks || 0) >= minMarks && (q.marks || 0) <= maxMarks;
+
+        return matchesSearch && matchesCategory && matchesStatus && matchesDifficulty && matchesMarks;
+    });
+
+    displayQuestions(filtered);
+    showToast(`Found ${filtered.length} questions`, 'success');
+}
+
+function clearFilters() {
+    elements.searchBox.value = '';
+    elements.filterCategory.value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterDifficulty').value = '';
+    document.getElementById('filterMinMarks').value = '';
+    document.getElementById('filterMaxMarks').value = '';
+    displayQuestions(allQuestions);
+    showToast('Filters cleared', 'success');
+}
+
+// Bulk Actions
+function setupBulkActions() {
+    const selectAll = document.getElementById('selectAllCheckbox');
+    const bulkActivate = document.getElementById('bulkActivate');
+    const bulkDeactivate = document.getElementById('bulkDeactivate');
+    const bulkCategory = document.getElementById('bulkCategory');
+    const bulkDelete = document.getElementById('bulkDelete');
+    const bulkCancel = document.getElementById('bulkCancel');
+
+    selectAll?.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            allQuestions.forEach(q => selectedQuestions.add(q.id));
+        } else {
+            selectedQuestions.clear();
+        }
+        displayQuestions(allQuestions);
+        updateBulkActionsBar();
+    });
+
+    bulkActivate?.addEventListener('click', () => bulkUpdateStatus('active'));
+    bulkDeactivate?.addEventListener('click', () => bulkUpdateStatus('inactive'));
+    bulkCategory?.addEventListener('click', showCategoryChangeModal);
+    bulkDelete?.addEventListener('click', bulkDeleteQuestions);
+    bulkCancel?.addEventListener('click', () => {
+        selectedQuestions.clear();
+        document.getElementById('selectAllCheckbox').checked = false;
+        displayQuestions(allQuestions);
+        updateBulkActionsBar();
+    });
+}
+
+function updateBulkActionsBar() {
+    const bar = document.getElementById('bulkActionsBar');
+    const count = document.getElementById('selectedCount');
+    count.textContent = selectedQuestions.size;
+
+    if (selectedQuestions.size > 0) {
+        bar.classList.add('show');
+    } else {
+        bar.classList.remove('show');
+    }
+}
+
+async function bulkUpdateStatus(status) {
+    if (selectedQuestions.size === 0) return;
+
+    showConfirmModal(
+        status === 'active' ? '✅' : '⏸️',
+        `Set ${selectedQuestions.size} questions to ${status}?`,
+        'This will update the status of all selected questions.',
+        'success',
+        async () => {
+            for (const id of selectedQuestions) {
+                try {
+                    await updateDoc(doc(db, 'questions', id), { status });
+                } catch (error) {
+                    console.error('Error updating:', error);
+                }
+            }
+            selectedQuestions.clear();
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateBulkActionsBar();
+            loadQuestions();
+            showToast(`Updated ${selectedQuestions.size} questions to ${status}`, 'success');
+        }
+    );
+}
+
+function showCategoryChangeModal() {
+    const category = prompt('Enter new category:\n' + VALID_CATEGORIES.join('\n'));
+    if (!category || !VALID_CATEGORIES.includes(category)) {
+        if (category) showToast('Invalid category', 'error');
+        return;
+    }
+
+    bulkUpdateCategory(category);
+}
+
+async function bulkUpdateCategory(category) {
+    for (const id of selectedQuestions) {
+        try {
+            await updateDoc(doc(db, 'questions', id), { category });
+        } catch (error) {
+            console.error('Error updating:', error);
+        }
+    }
+    selectedQuestions.clear();
+    document.getElementById('selectAllCheckbox').checked = false;
+    updateBulkActionsBar();
+    loadQuestions();
+    showToast(`Updated category to ${category}`, 'success');
+}
+
+async function bulkDeleteQuestions() {
+    if (selectedQuestions.size === 0) return;
+
+    showConfirmModal(
+        '🗑️',
+        `Delete ${selectedQuestions.size} questions?`,
+        'This action cannot be undone for bulk deletes.',
+        'danger',
+        async () => {
+            for (const id of selectedQuestions) {
+                try {
+                    await deleteDoc(doc(db, 'questions', id));
+                } catch (error) {
+                    console.error('Error deleting:', error);
+                }
+            }
+            selectedQuestions.clear();
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateBulkActionsBar();
+            loadQuestions();
+            loadStatistics();
+            showToast('Questions deleted successfully', 'success');
+        }
+    );
+}
+
+// Export Functions
+function setupExportButtons() {
+    document.getElementById('btnExportExcel')?.addEventListener('click', exportToExcel);
+    document.getElementById('btnExportPDF')?.addEventListener('click', exportToPDF);
+}
+
+function exportToExcel() {
+    const data = allQuestions.map(q => ({
+        text: q.text,
+        category: q.category,
+        marks: q.marks,
+        modelAnswer: q.modelAnswer,
+        difficulty: q.difficulty,
+        status: q.status || 'active',
+        createdBy: q.createdBy || 'Unknown'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Questions');
+
+    ws['!cols'] = [
+        { wch: 60 }, { wch: 25 }, { wch: 10 },
+        { wch: 80 }, { wch: 12 }, { wch: 10 }, { wch: 25 }
+    ];
+
+    XLSX.writeFile(wb, `questions_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+    showToast('Excel exported successfully!', 'success');
+}
+
+function exportToPDF() {
+    if (typeof window.jspdf === 'undefined') {
+        showToast('PDF library loading...', 'error');
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(20);
+    doc.text('Questions Export', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 30);
+
+    const tableData = allQuestions.map((q, i) => [
+        i + 1,
+        q.text?.substring(0, 50) + (q.text?.length > 50 ? '...' : ''),
+        q.category || 'N/A',
+        q.marks || 0,
+        q.difficulty || 'Medium',
+        q.status || 'active'
+    ]);
+
+    doc.autoTable({
+        startY: 40,
+        head: [['#', 'Question', 'Category', 'Marks', 'Difficulty', 'Status']],
+        body: tableData,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [30, 60, 114] }
+    });
+
+    doc.save(`questions_export_${new Date().toISOString().split('T')[0]}.pdf`);
+    showToast('PDF exported successfully!', 'success');
+}
+
+// Preview Modal
+function setupPreviewModal() {
+    document.getElementById('btnClosePreview')?.addEventListener('click', closePreviewModal);
+    document.getElementById('previewModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'previewModal') closePreviewModal();
+    });
+}
+
+function openPreviewModal(questionId) {
+    const question = allQuestions.find(q => q.id === questionId);
+    if (!question) return;
+
+    const status = question.status || 'active';
+    document.getElementById('previewMeta').innerHTML = `
+            <span class="badge badge-category">${question.category || 'N/A'}</span>
+            <span class="badge badge-marks">${question.marks || 0} marks</span>
+            <span class="badge badge-difficulty ${(question.difficulty || 'medium').toLowerCase()}">${question.difficulty || 'Medium'}</span>
+            <span class="badge" style="background: ${status === 'active' ? '#e8f5e9' : '#ffebee'}; color: ${status === 'active' ? '#2e7d32' : '#c62828'}">
+                <span class="status-dot ${status}" style="width: 8px; height: 8px;"></span>
+                ${status}
+            </span>
+        `;
+    document.getElementById('previewQuestionText').textContent = question.text || 'No question text';
+    document.getElementById('previewModelAnswer').textContent = question.modelAnswer || 'No model answer';
+
+    document.getElementById('previewModal').classList.add('show');
+}
+
+function closePreviewModal() {
+    document.getElementById('previewModal').classList.remove('show');
+}
+
+// Duplicate Question
+async function duplicateQuestion(questionId) {
+    const question = allQuestions.find(q => q.id === questionId);
+    if (!question) return;
+
+    try {
+        await addDoc(collection(db, 'questions'), {
+            text: question.text + ' (Copy)',
+            category: question.category,
+            marks: question.marks,
+            modelAnswer: question.modelAnswer,
+            difficulty: question.difficulty,
+            status: 'inactive',
+            createdAt: serverTimestamp(),
+            createdBy: auth.currentUser?.email,
+            duplicatedFrom: questionId
+        });
+        showToast('Question duplicated successfully!', 'success');
+        loadQuestions();
+    } catch (error) {
+        showToast('Failed to duplicate: ' + error.message, 'error');
+    }
+}
+
+// Confirmation Modal
+let confirmCallback = null;
+
+function setupConfirmModal() {
+    document.getElementById('confirmCancel')?.addEventListener('click', closeConfirmModal);
+    document.getElementById('confirmOk')?.addEventListener('click', () => {
+        if (confirmCallback) confirmCallback();
+        closeConfirmModal();
+    });
+    document.getElementById('confirmModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'confirmModal') closeConfirmModal();
+    });
+}
+
+function showConfirmModal(icon, title, message, type, callback) {
+    document.getElementById('confirmIcon').textContent = icon;
+    document.getElementById('confirmTitle').textContent = title;
+    document.getElementById('confirmMessage').textContent = message;
+
+    const okBtn = document.getElementById('confirmOk');
+    okBtn.className = `btn-confirm ${type}`;
+    okBtn.textContent = type === 'danger' ? 'Delete' : 'Confirm';
+
+    confirmCallback = callback;
+    document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('show');
+    confirmCallback = null;
+}
+
+// Delete with Undo
+async function deleteQuestionWithUndo(questionId) {
+    const question = allQuestions.find(q => q.id === questionId);
+    if (!question) return;
+
+    deletedQuestionBackup = { ...question };
+
+    try {
+        await deleteDoc(doc(db, 'questions', questionId));
+        loadQuestions();
+        loadStatistics();
+        showUndoToast('Question deleted');
+    } catch (error) {
+        showToast('Failed to delete: ' + error.message, 'error');
+        deletedQuestionBackup = null;
+    }
+}
+
+function showUndoToast(message) {
+    const toast = document.getElementById('undoToast');
+    document.getElementById('undoMessage').textContent = message;
+
+    const timerBar = document.getElementById('undoTimerBar');
+    timerBar.style.animation = 'none';
+    timerBar.offsetHeight;
+    timerBar.style.animation = 'shrink 5s linear forwards';
+
+    toast.classList.add('show');
+
+    if (undoTimeout) clearTimeout(undoTimeout);
+    undoTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+        deletedQuestionBackup = null;
+    }, 5000);
+
+    document.getElementById('undoBtn').onclick = async () => {
+        if (deletedQuestionBackup) {
+            try {
+                const { id, ...data } = deletedQuestionBackup;
+                await addDoc(collection(db, 'questions'), {
+                    ...data,
+                    restoredAt: serverTimestamp()
+                });
+                showToast('Question restored!', 'success');
+                loadQuestions();
+                loadStatistics();
+            } catch (error) {
+                showToast('Failed to restore: ' + error.message, 'error');
+            }
+        }
+        toast.classList.remove('show');
+        clearTimeout(undoTimeout);
+        deletedQuestionBackup = null;
+    };
+}
+
+// Auto-save Draft
+function setupAutoSave() {
+    const fields = ['questionText', 'category', 'marks', 'modelAnswer', 'difficulty', 'status'];
+
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        field?.addEventListener('input', () => saveDraft());
+        field?.addEventListener('change', () => saveDraft());
+    });
+}
+
+function saveDraft() {
+    if (draftSaveTimeout) clearTimeout(draftSaveTimeout);
+
+    const indicator = document.getElementById('draftIndicator');
+    const text = document.getElementById('draftText');
+    indicator.classList.add('show', 'saving');
+    text.textContent = 'Saving...';
+
+    draftSaveTimeout = setTimeout(() => {
+        const draft = {
+            questionText: document.getElementById('questionText')?.value || '',
+            category: document.getElementById('category')?.value || '',
+            marks: document.getElementById('marks')?.value || '',
+            modelAnswer: document.getElementById('modelAnswer')?.value || '',
+            difficulty: document.getElementById('difficulty')?.value || '',
+            status: document.getElementById('status')?.value || '',
+            savedAt: Date.now()
+        };
+
+        localStorage.setItem('questionDraft', JSON.stringify(draft));
+
+        indicator.classList.remove('saving');
+        text.textContent = 'Draft saved';
+
+        setTimeout(() => {
+            if (!document.getElementById('questionText')?.value) {
+                indicator.classList.remove('show');
+            }
+        }, 2000);
+    }, 500);
+}
+
+function loadDraft() {
+    const draft = localStorage.getItem('questionDraft');
+    if (!draft) return;
+
+    try {
+        const data = JSON.parse(draft);
+        if (Date.now() - data.savedAt > 24 * 60 * 60 * 1000) {
+            localStorage.removeItem('questionDraft');
+            return;
+        }
+
+        if (data.questionText) {
+            document.getElementById('questionText').value = data.questionText;
+            document.getElementById('category').value = data.category;
+            document.getElementById('marks').value = data.marks;
+            document.getElementById('modelAnswer').value = data.modelAnswer;
+            document.getElementById('difficulty').value = data.difficulty || 'Medium';
+            document.getElementById('status').value = data.status || 'active';
+
+            document.getElementById('draftIndicator').classList.add('show');
+            document.getElementById('draftText').textContent = 'Draft restored';
+        }
+    } catch (e) {
+        localStorage.removeItem('questionDraft');
+    }
+}
+
+
+// Keyboard Shortcuts
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key.toLowerCase()) {
+                case 's':
+                    e.preventDefault();
+                    if (document.querySelector('.tab-panel.active#addTab')) {
+                        document.getElementById('submitBtn')?.click();
+                    }
+                    break;
+                case 'n':
+                    e.preventDefault();
+                    switchTab('add');
+                    document.getElementById('questionText')?.focus();
+                    break;
+                case 'f':
+                    e.preventDefault();
+                    switchTab('manage');
+                    elements.searchBox?.focus();
+                    break;
+                case 'e':
+                    e.preventDefault();
+                    exportToExcel();
+                    break;
+                case '/':
+                    e.preventDefault();
+                    document.getElementById('advancedFilters')?.classList.toggle('show');
+                    break;
+                case 'a':
+                    if (document.querySelector('.tab-panel.active#manageTab')) {
+                        e.preventDefault();
+                        document.getElementById('selectAllCheckbox')?.click();
+                    }
+                    break;
+            }
+        }
+
+        if (e.key === 'Escape') {
+            closeEditModal();
+            closePreviewModal();
+            closeConfirmModal();
+        }
+    });
+}
+
+// Shortcuts Help Panel
+function setupShortcutsHelp() {
+    const btn = document.getElementById('btnShortcuts');
+    const panel = document.getElementById('shortcutsHelp');
+
+    btn?.addEventListener('click', () => {
+        panel.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!panel?.contains(e.target) && e.target !== btn) {
+            panel?.classList.remove('show');
+        }
+    });
+}
+
+// Initialize app
+init();
