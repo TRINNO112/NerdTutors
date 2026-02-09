@@ -1662,7 +1662,7 @@ Tips for better answers:
     <script type="module">
         // ==================== FIREBASE IMPORTS ====================
         import { auth, db } from './firebase-config.js';
-        import { evaluateWithGemini } from './gemini-config.js';
+        import { evaluateWithGemini, evaluateBatchWithGemini } from './gemini-config.js';
 
         import {
             signInAnonymously,
@@ -2253,37 +2253,49 @@ Tips for better answers:
             elements.loadingState.querySelector('p').textContent = 'Evaluating your answers with AI... This may take a moment.';
             elements.loadingState.style.display = 'block';
 
-            for (const question of appState.questions) {
-                const studentAnswer = appState.answers.get(question.id);
+            try {
+                // Prepare questions for evaluation (only those with answers)
+                const questionsToEvaluate = [];
 
-                if (!studentAnswer) {
-                    console.warn(`⚠️ No answer found for question ${question.id}. Skipping.`);
-                    const emptyResult = { score: 0, feedback: 'No answer was provided.', improvements: [] };
-                    appState.results.set(question.id, emptyResult);
-                    continue;
+                for (const question of appState.questions) {
+                    const studentAnswer = appState.answers.get(question.id);
+                    if (!studentAnswer) {
+                        console.warn(`⚠️ No answer found for question ${question.id}. Skipping.`);
+                        const emptyResult = { score: 0, feedback: 'No answer was provided.', improvements: [] };
+                        appState.results.set(question.id, emptyResult);
+                    } else {
+                        questionsToEvaluate.push(question);
+                    }
                 }
 
-                try {
-                    console.log(`Evaluating question: "${question.text.substring(0, 30)}..."`);
-                    const result = await evaluateWithGemini({
-                        question: question.text,
-                        modelAnswer: question.modelAnswer || '',
-                        studentAnswer: studentAnswer,
-                        maxMarks: question.marks || 10
+                if (questionsToEvaluate.length > 0) {
+                    console.log(`🚀 Sending batch evaluation for ${questionsToEvaluate.length} questions...`);
+
+                    const batchResults = await evaluateBatchWithGemini(questionsToEvaluate, appState.answers);
+
+                    console.log('✅ Batch evaluation complete:', batchResults);
+
+                    // Map results back to questions
+                    batchResults.forEach(result => {
+                        if (result && result.questionId) {
+                            appState.results.set(result.questionId, result);
+                        }
                     });
-
-                    console.log('✅ Evaluation result:', result);
-                    appState.results.set(question.id, result);
-
-                } catch (error) {
-                    console.error(`❌ Evaluation failed for question ${question.id}:`, error);
-                    const errorResult = {
-                        score: 0,
-                        feedback: 'An error occurred while evaluating this answer. Please try again later.',
-                        improvements: []
-                    };
-                    appState.results.set(question.id, errorResult);
                 }
+
+            } catch (error) {
+                console.error('❌ Batch evaluation error:', error);
+
+                // Fallback error for all questions
+                appState.questions.forEach(q => {
+                    if (!appState.results.has(q.id)) {
+                        appState.results.set(q.id, {
+                            score: 0,
+                            feedback: 'Evaluation failed due to an error. Please try again.',
+                            improvements: []
+                        });
+                    }
+                });
             }
 
             appState.testCompleted = true;
