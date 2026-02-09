@@ -119,8 +119,12 @@ export default async function handler(req, res) {
     console.log("❌ ERROR:", err);
 
     if (isBatch) {
-      // Return error for batch
-      return res.status(500).json({ error: "Batch evaluation failed", details: err.message });
+      // Return error for batch with as much detail as possible
+      return res.status(500).json({
+        error: "Batch evaluation failed",
+        details: err.message || "Unknown error",
+        raw_error: err.toString()
+      });
     } else {
       // Return safe fallback for single
       return res.status(200).json({

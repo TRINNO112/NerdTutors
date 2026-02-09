@@ -74,16 +74,19 @@ export async function evaluateBatchWithGemini(questions, answers) {
         } else {
             // Try to get error details
             let errorMsg = 'Backend failed';
+            let details = '';
             try {
                 const errorData = await response.json();
                 if (errorData.error) errorMsg = errorData.error;
+                if (errorData.details) details = `: ${errorData.details}`;
             } catch (e) {
                 // If not JSON, use status text
                 errorMsg = `Backend Error ${response.status}: ${response.statusText}`;
             }
 
-            console.warn(`⚠️ Backend unavailable: ${errorMsg}`);
-            throw new Error(errorMsg);
+            const fullError = `${errorMsg}${details}`;
+            console.warn(`⚠️ Backend unavailable: ${fullError}`);
+            throw new Error(fullError);
         }
 
     } catch (error) {
