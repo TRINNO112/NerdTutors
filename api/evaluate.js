@@ -26,6 +26,9 @@ export default async function handler(req, res) {
   const isBatch = Array.isArray(body.questions);
 
   // ===== Model =====
+  // ===== Model =====
+  // Switch to `gemini-1.5-flash` stable endpoint or `gemini-pro` if flash is unavailable in this region/key.
+  // Using `gemini-1.5-flash` which is generally available.
   const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
   let prompt = "";
