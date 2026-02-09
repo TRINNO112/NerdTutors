@@ -19,8 +19,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-    <style>
-    </style>
+    <link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
@@ -82,9 +81,11 @@
                     <form id="questionForm">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="questionText">Question Text *</label>
-                                <textarea id="questionText" required
-                                    placeholder="Enter your economics question here..."></textarea>
+                                <label for="questionType">Question Type</label>
+                                <select id="questionType">
+                                    <option value="text">Text / Long Answer</option>
+                                    <option value="mcq">Multiple Choice (MCQ)</option>
+                                </select>
                             </div>
 
                             <div class="form-row">
@@ -112,69 +113,113 @@
                             </div>
 
                             <div class="form-group">
+                                <label for="questionText">Question Text *</label>
+                                <textarea id="questionText" required
+                                    placeholder="Enter your economics question here..."></textarea>
+                            </div>
+
+                            <div id="mcqFields"
+                                style="display: none; background: rgba(255,255,255,0.5); padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="optionA">Option A *</label>
+                                        <input type="text" id="optionA" placeholder="Option A text">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="optionB">Option B *</label>
+                                        <input type="text" id="optionB" placeholder="Option B text">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="optionC">Option C *</label>
+                                        <input type="text" id="optionC" placeholder="Option C text">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="optionD">Option D *</label>
+                                        <input type="text" id="optionD" placeholder="Option D text">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="correctAnswer">Correct Answer *</label>
+                                    <select id="correctAnswer">
+                                        <option value="">Select Correct Option</option>
+                                        <option value="A">Option A</option>
+                                        <option value="B">Option B</option>
+                                        <option value="C">Option C</option>
+                                        <option value="D">Option D</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="modelAnswerContainer">
+                            <div class="form-group">
                                 <label for="modelAnswer">Model Answer *</label>
                                 <textarea id="modelAnswer" required
                                     placeholder="Provide the ideal answer for this question..."></textarea>
                             </div>
+                        </div>
 
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="difficulty">Difficulty Level</label>
-                                    <select id="difficulty">
-                                        <option value="Easy">Easy</option>
-                                        <option value="Medium" selected>Medium</option>
-                                        <option value="Hard">Hard</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="status">Status</label>
-                                    <select id="status">
-                                        <option value="active" selected>Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
-                                </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="difficulty">Difficulty Level</label>
+                                <select id="difficulty">
+                                    <option value="Easy">Easy</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="Hard">Hard</option>
+                                </select>
                             </div>
 
-                            <div
-                                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                                <button type="submit" class="btn-submit" id="submitBtn">
-                                    Add Question
-                                </button>
-                                <div class="draft-indicator" id="draftIndicator">
-                                    <span>💾</span>
-                                    <span id="draftText">Draft saved</span>
-                                </div>
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <select id="status">
+                                    <option value="active" selected>Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
                             </div>
                         </div>
-                    </form>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <button type="submit" class="btn-submit" id="submitBtn">
+                                Add Question
+                            </button>
+                            <div class="draft-indicator" id="draftIndicator">
+                                <span>💾</span>
+                                <span id="draftText">Draft saved</span>
+                            </div>
+                        </div>
+                </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bulk Upload Tab - NEW -->
+        <div class="tab-panel" id="bulkTab">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h3>📤 Upload Questions from Excel</h3>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" class="file-input" id="excelFileInput" accept=".xlsx,.xls,.csv">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Drag & Drop your Excel file here</div>
+                    <div class="upload-subtext">or click to browse (Supports .xlsx, .xls, .csv)</div>
+                </div>
+                <div class="upload-buttons">
+                    <button class="btn-download-template" id="btnDownloadTemplate">
+                        📥 Download Template
+                    </button>
+                    <button class="btn-download-template" id="btnDownloadSample">
+                        📄 Download Sample Data
+                    </button>
                 </div>
             </div>
 
-            <!-- Bulk Upload Tab - NEW -->
-            <div class="tab-panel" id="bulkTab">
-                <!-- Upload Section -->
-                <div class="upload-section">
-                    <h3>📤 Upload Questions from Excel</h3>
-                    <div class="upload-area" id="uploadArea">
-                        <input type="file" class="file-input" id="excelFileInput" accept=".xlsx,.xls,.csv">
-                        <div class="upload-icon">📁</div>
-                        <div class="upload-text">Drag & Drop your Excel file here</div>
-                        <div class="upload-subtext">or click to browse (Supports .xlsx, .xls, .csv)</div>
-                    </div>
-                    <div class="upload-buttons">
-                        <button class="btn-download-template" id="btnDownloadTemplate">
-                            📥 Download Template
-                        </button>
-                        <button class="btn-download-template" id="btnDownloadSample">
-                            📄 Download Sample Data
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Format Guide -->
+            <!-- Format Guides -->
+            <div class="content-box">
                 <div class="format-guide">
-                    <h4>📋 Excel Format Guide</h4>
+                    <h4>📋 Excel Format Guide - Text Questions</h4>
                     <table>
                         <thead>
                             <tr>
@@ -185,6 +230,12 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td><strong>type</strong></td>
+                                <td><span class="optional">Optional</span></td>
+                                <td>Question type: "text" or "mcq"</td>
+                                <td>text</td>
+                            </tr>
                             <tr>
                                 <td><strong>text</strong></td>
                                 <td><span class="required">Yes *</span></td>
@@ -199,13 +250,13 @@
                             </tr>
                             <tr>
                                 <td><strong>marks</strong></td>
-                                <td><span class="required">Yes *</span></td>
+                                <td><span class="required">Yes (for text)</span></td>
                                 <td>Marks for the question (1-100)</td>
                                 <td>10</td>
                             </tr>
                             <tr>
                                 <td><strong>modelAnswer</strong></td>
-                                <td><span class="required">Yes *</span></td>
+                                <td><span class="required">Yes (for text)</span></td>
                                 <td>The ideal answer</td>
                                 <td>The law of demand states...</td>
                             </tr>
@@ -223,57 +274,140 @@
                             </tr>
                         </tbody>
                     </table>
-                    <p style="margin-top: 1rem; font-size: 0.9rem;">
-                        <strong>Valid Categories:</strong> Microeconomics, Macroeconomics, International Economics,
-                        Development Economics, Public Economics, Monetary Economics, Labor Economics,
-                        Environmental Economics, Econometrics, Economic Theory
+                </div>
+
+                <div class="format-guide" style="margin-top: 2rem;">
+                    <h4>📋 Excel Format Guide - MCQ Questions</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Column Name</th>
+                                <th>Required</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>type</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>Must be "mcq" for MCQ questions</td>
+                                <td>mcq</td>
+                            </tr>
+                            <tr>
+                                <td><strong>text</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>The question text</td>
+                                <td>Which is NOT a component of GDP?</td>
+                            </tr>
+                            <tr>
+                                <td><strong>category</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>Question category</td>
+                                <td>Macroeconomics</td>
+                            </tr>
+                            <tr>
+                                <td><strong>optionA</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>First answer option</td>
+                                <td>Consumption</td>
+                            </tr>
+                            <tr>
+                                <td><strong>optionB</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>Second answer option</td>
+                                <td>Investment</td>
+                            </tr>
+                            <tr>
+                                <td><strong>optionC</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>Third answer option</td>
+                                <td>Imports</td>
+                            </tr>
+                            <tr>
+                                <td><strong>optionD</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>Fourth answer option</td>
+                                <td>Government Spending</td>
+                            </tr>
+                            <tr>
+                                <td><strong>correctAnswer</strong></td>
+                                <td><span class="required">Yes *</span></td>
+                                <td>Correct option: A, B, C, or D</td>
+                                <td>C</td>
+                            </tr>
+                            <tr>
+                                <td><strong>difficulty</strong></td>
+                                <td><span class="optional">Optional</span></td>
+                                <td>Easy, Medium, or Hard</td>
+                                <td>Easy</td>
+                            </tr>
+                            <tr>
+                                <td><strong>status</strong></td>
+                                <td><span class="optional">Optional</span></td>
+                                <td>active or inactive</td>
+                                <td>active</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #666;">
+                        <strong>Note:</strong> MCQ marks are automatically set to 1. Leave marks and modelAnswer empty
+                        for MCQ questions.
                     </p>
                 </div>
 
-                <!-- Preview Section -->
-                <div class="preview-section" id="previewSection">
-                    <div class="preview-header">
-                        <h3>📋 Preview Data</h3>
-                        <div class="preview-info">
-                            <span class="preview-count" id="validCount">0 valid</span>
-                            <span class="preview-count" style="background: #f44336;" id="invalidCount">0 invalid</span>
-                        </div>
-                    </div>
-                    <div class="preview-table-container">
-                        <table class="preview-table" id="previewTable">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Status</th>
-                                    <th>Question Text</th>
-                                    <th>Category</th>
-                                    <th>Marks</th>
-                                    <th>Difficulty</th>
-                                </tr>
-                            </thead>
-                            <tbody id="previewTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="upload-actions">
-                        <button class="btn-cancel" id="btnCancelUpload">Cancel</button>
-                        <button class="btn-upload-confirm" id="btnConfirmUpload">
-                            ✅ Upload <span id="uploadCountText">0</span> Questions
-                        </button>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">
+                    <strong>Valid Categories:</strong> Microeconomics, Macroeconomics, International Economics,
+                    Development Economics, Public Economics, Monetary Economics, Labor Economics,
+                    Environmental Economics, Econometrics, Economic Theory
+                </p>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="preview-section" id="previewSection">
+                <div class="preview-header">
+                    <h3>📋 Preview Data</h3>
+                    <div class="preview-info">
+                        <span class="preview-count" id="validCount">0 valid</span>
+                        <span class="preview-count" style="background: #f44336;" id="invalidCount">0 invalid</span>
                     </div>
                 </div>
-
-                <!-- Upload Progress -->
-                <div class="upload-progress" id="uploadProgress">
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" id="progressBar"></div>
-                    </div>
-                    <div class="progress-text" id="progressText">Uploading... 0%</div>
+                <div class="preview-table-container">
+                    <table class="preview-table" id="previewTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Status</th>
+                                <th>Question Text</th>
+                                <th>Category</th>
+                                <th>Marks</th>
+                                <th>Difficulty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewTableBody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="upload-actions">
+                    <button class="btn-cancel" id="btnCancelUpload">Cancel</button>
+                    <button class="btn-upload-confirm" id="btnConfirmUpload">
+                        ✅ Upload <span id="uploadCountText">0</span> Questions
+                    </button>
                 </div>
             </div>
 
-            <!-- Manage Questions Tab -->
-            <div class="tab-panel" id="manageTab">
+            <!-- Upload Progress -->
+            <div class="upload-progress" id="uploadProgress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">Uploading... 0%</div>
+            </div>
+        </div>
+
+        <!-- Manage Questions Tab -->
+        <div class="tab-panel" id="manageTab">
+            <div class="content-box">
                 <div class="questions-list">
                     <div class="list-header">
                         <h2>All Questions</h2>
@@ -371,8 +505,10 @@
 
             <!-- Statistics Tab -->
             <div class="tab-panel" id="statsTab">
-                <div id="statsGrid">
-                    <div class="spinner"></div>
+                <div class="content-box">
+                    <div id="statsGrid">
+                        <div class="spinner"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -400,8 +536,11 @@
                     <input type="hidden" id="editQuestionId">
 
                     <div class="form-group">
-                        <label for="editQuestionText">Question Text *</label>
-                        <textarea id="editQuestionText" required></textarea>
+                        <label for="editQuestionType">Question Type</label>
+                        <select id="editQuestionType">
+                            <option value="text">Text / Long Answer</option>
+                            <option value="mcq">Multiple Choice (MCQ)</option>
+                        </select>
                     </div>
 
                     <div class="form-row">
@@ -429,8 +568,49 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="editModelAnswer">Model Answer *</label>
-                        <textarea id="editModelAnswer" required></textarea>
+                        <label for="editQuestionText">Question Text *</label>
+                        <textarea id="editQuestionText" required></textarea>
+                    </div>
+
+                    <div id="editMcqFields"
+                        style="display: none; background: rgba(0,0,0,0.05); padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="editOptionA">Option A *</label>
+                                <input type="text" id="editOptionA" placeholder="Option A text">
+                            </div>
+                            <div class="form-group">
+                                <label for="editOptionB">Option B *</label>
+                                <input type="text" id="editOptionB" placeholder="Option B text">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="editOptionC">Option C *</label>
+                                <input type="text" id="editOptionC" placeholder="Option C text">
+                            </div>
+                            <div class="form-group">
+                                <label for="editOptionD">Option D *</label>
+                                <input type="text" id="editOptionD" placeholder="Option D text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCorrectAnswer">Correct Answer *</label>
+                            <select id="editCorrectAnswer">
+                                <option value="">Select Correct Option</option>
+                                <option value="A">Option A</option>
+                                <option value="B">Option B</option>
+                                <option value="C">Option C</option>
+                                <option value="D">Option D</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="editModelAnswerContainer">
+                        <div class="form-group">
+                            <label for="editModelAnswer">Model Answer *</label>
+                            <textarea id="editModelAnswer" required></textarea>
+                        </div>
                     </div>
 
                     <div class="form-row">
@@ -536,7 +716,7 @@
     <button class="btn-shortcuts" id="btnShortcuts" title="Keyboard Shortcuts">⌨️</button>
 
     <!-- JavaScript Module -->
-    <script type="module"></script>
+    <script type="module" src="admin.js"></script>
 </body>
 
 </html>

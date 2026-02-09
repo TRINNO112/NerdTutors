@@ -92,7 +92,77 @@ function init() {
     setupEventListeners();
     setupExcelUpload();
     setupNewFeatures();
+    setupMcqFields(); // NEW: Setup MCQ toggle
     loadDraft();
+}
+
+// Toggle MCQ fields based on question type
+function toggleMcqFields(type, prefix = '') {
+    const fieldsId = prefix ? 'editMcqFields' : 'mcqFields';
+    const modelAnswerContainerId = prefix ? 'editModelAnswerContainer' : 'modelAnswerContainer';
+    const marksId = prefix ? 'editMarks' : 'marks';
+
+    const mcqFields = document.getElementById(fieldsId);
+    const modelAnswerContainer = document.getElementById(modelAnswerContainerId);
+    const marksInput = document.getElementById(marksId);
+
+    if (type === 'mcq') {
+        // Show MCQ fields, hide model answer
+        if (mcqFields) mcqFields.style.display = 'block';
+        if (modelAnswerContainer) modelAnswerContainer.style.display = 'none';
+
+        // Set required on MCQ fields
+        ['optionA', 'optionB', 'optionC', 'optionD', 'correctAnswer'].forEach(id => {
+            const el = document.getElementById(prefix ? 'edit' + id.charAt(0).toUpperCase() + id.slice(1) : id);
+            el?.setAttribute('required', '');
+        });
+
+        // Remove required from model answer
+        const modelAnswer = document.getElementById(prefix ? 'editModelAnswer' : 'modelAnswer');
+        modelAnswer?.removeAttribute('required');
+
+        // Set marks to 1 for MCQ
+        if (marksInput) {
+            marksInput.value = 1;
+            marksInput.setAttribute('disabled', 'true');
+        }
+    } else {
+        // Show model answer, hide MCQ fields
+        if (mcqFields) mcqFields.style.display = 'none';
+        if (modelAnswerContainer) modelAnswerContainer.style.display = 'block';
+
+        // Remove required from MCQ fields
+        ['optionA', 'optionB', 'optionC', 'optionD', 'correctAnswer'].forEach(id => {
+            const el = document.getElementById(prefix ? 'edit' + id.charAt(0).toUpperCase() + id.slice(1) : id);
+            el?.removeAttribute('required');
+        });
+
+        // Set required on model answer
+        const modelAnswer = document.getElementById(prefix ? 'editModelAnswer' : 'modelAnswer');
+        modelAnswer?.setAttribute('required', '');
+
+        // Re-enable marks
+        if (marksInput) {
+            marksInput.removeAttribute('disabled');
+        }
+    }
+}
+
+// Setup MCQ field toggles
+function setupMcqFields() {
+    const questionType = document.getElementById('questionType');
+    const editQuestionType = document.getElementById('editQuestionType');
+
+    questionType?.addEventListener('change', (e) => {
+        toggleMcqFields(e.target.value);
+    });
+
+    editQuestionType?.addEventListener('change', (e) => {
+        toggleMcqFields(e.target.value, 'edit');
+    });
+
+    // Initialize state
+    toggleMcqFields(questionType?.value || 'text');
 }
 
 // Auth Setup
@@ -307,6 +377,7 @@ function processExcelFile(file) {
 function validateExcelData(data) {
     return data.map((row, index) => {
         const errors = [];
+        const type = String(row.type || 'text').toLowerCase().trim();
 
         // Check required fields
         if (!row.text || String(row.text).trim() === '') {
@@ -319,14 +390,34 @@ function validateExcelData(data) {
             errors.push(`Invalid category: "${row.category}"`);
         }
 
-        if (!row.marks || isNaN(parseInt(row.marks))) {
-            errors.push('Marks must be a number');
-        } else if (parseInt(row.marks) < 1 || parseInt(row.marks) > 100) {
-            errors.push('Marks must be between 1-100');
-        }
+        // MCQ-specific validation
+        if (type === 'mcq') {
+            if (!row.optionA || String(row.optionA).trim() === '') {
+                errors.push('Option A is required for MCQ');
+            }
+            if (!row.optionB || String(row.optionB).trim() === '') {
+                errors.push('Option B is required for MCQ');
+            }
+            if (!row.optionC || String(row.optionC).trim() === '') {
+                errors.push('Option C is required for MCQ');
+            }
+            if (!row.optionD || String(row.optionD).trim() === '') {
+                errors.push('Option D is required for MCQ');
+            }
+            if (!row.correctAnswer || !['A', 'B', 'C', 'D'].includes(String(row.correctAnswer).toUpperCase().trim())) {
+                errors.push('Correct answer must be A, B, C, or D for MCQ');
+            }
+        } else {
+            // Text question validation
+            if (!row.marks || isNaN(parseInt(row.marks))) {
+                errors.push('Marks must be a number');
+            } else if (parseInt(row.marks) < 1 || parseInt(row.marks) > 100) {
+                errors.push('Marks must be between 1-100');
+            }
 
-        if (!row.modelAnswer || String(row.modelAnswer).trim() === '') {
-            errors.push('Model answer is required');
+            if (!row.modelAnswer || String(row.modelAnswer).trim() === '') {
+                errors.push('Model answer is required for text questions');
+            }
         }
 
         // Validate optional fields
@@ -340,17 +431,32 @@ function validateExcelData(data) {
             status = 'active';
         }
 
-        return {
+        const result = {
             rowNumber: index + 2, // Excel rows start at 1, header is row 1
+            type: type === 'mcq' ? 'mcq' : 'text',
             text: String(row.text || '').trim(),
             category: String(row.category || '').trim(),
-            marks: parseInt(row.marks) || 0,
-            modelAnswer: String(row.modelAnswer || '').trim(),
+            marks: type === 'mcq' ? 1 : (parseInt(row.marks) || 0),
             difficulty: difficulty,
             status: status,
             isValid: errors.length === 0,
             errors: errors
         };
+
+        // Add MCQ-specific or text-specific fields
+        if (type === 'mcq') {
+            result.options = {
+                A: String(row.optionA || '').trim(),
+                B: String(row.optionB || '').trim(),
+                C: String(row.optionC || '').trim(),
+                D: String(row.optionD || '').trim()
+            };
+            result.correctAnswer = String(row.correctAnswer || '').toUpperCase().trim();
+        } else {
+            result.modelAnswer = String(row.modelAnswer || '').trim();
+        }
+
+        return result;
     });
 }
 
@@ -417,17 +523,28 @@ async function confirmUpload() {
         const question = validQuestionsToUpload[i];
 
         try {
-            await addDoc(collection(db, 'questions'), {
+            // Build question data based on type
+            let questionData = {
+                type: question.type || 'text',
                 text: question.text,
                 category: question.category,
                 marks: question.marks,
-                modelAnswer: question.modelAnswer,
                 difficulty: question.difficulty,
                 status: question.status,
                 createdAt: serverTimestamp(),
                 createdBy: auth.currentUser?.email,
                 uploadedVia: 'excel'
-            });
+            };
+
+            // Add type-specific fields
+            if (question.type === 'mcq') {
+                questionData.options = question.options;
+                questionData.correctAnswer = question.correctAnswer;
+            } else {
+                questionData.modelAnswer = question.modelAnswer;
+            }
+
+            await addDoc(collection(db, 'questions'), questionData);
             uploaded++;
         } catch (error) {
             console.error('Error uploading question:', error);
@@ -473,10 +590,16 @@ function cancelUpload() {
 function downloadTemplate() {
     const templateData = [
         {
+            type: 'text/mcq',
             text: '',
             category: '',
-            marks: '',
-            modelAnswer: '',
+            marks: '(for text only)',
+            modelAnswer: '(for text only)',
+            optionA: '(for MCQ only)',
+            optionB: '(for MCQ only)',
+            optionC: '(for MCQ only)',
+            optionD: '(for MCQ only)',
+            correctAnswer: 'A/B/C/D (for MCQ)',
             difficulty: '',
             status: ''
         }
@@ -488,10 +611,16 @@ function downloadTemplate() {
 
     // Set column widths
     ws['!cols'] = [
+        { wch: 10 },  // type
         { wch: 50 },  // text
         { wch: 25 },  // category
-        { wch: 10 },  // marks
+        { wch: 15 },  // marks
         { wch: 50 },  // modelAnswer
+        { wch: 25 },  // optionA
+        { wch: 25 },  // optionB
+        { wch: 25 },  // optionC
+        { wch: 25 },  // optionD
+        { wch: 15 },  // correctAnswer
         { wch: 12 },  // difficulty
         { wch: 10 }   // status
     ];
@@ -503,43 +632,73 @@ function downloadTemplate() {
 function downloadSampleData() {
     const sampleData = [
         {
+            type: 'text',
             text: 'Explain the law of demand and its exceptions.',
             category: 'Microeconomics',
             marks: 10,
             modelAnswer: 'The law of demand states that, ceteris paribus, as the price of a good increases, the quantity demanded decreases, and vice versa. This creates a downward-sloping demand curve. Exceptions include Giffen goods, Veblen goods, expectations of future price changes, and necessary goods.',
+            optionA: '',
+            optionB: '',
+            optionC: '',
+            optionD: '',
+            correctAnswer: '',
             difficulty: 'Medium',
             status: 'active'
         },
         {
-            text: 'What are the main components of GDP? Explain each.',
+            type: 'mcq',
+            text: 'Which of the following is NOT a component of GDP?',
             category: 'Macroeconomics',
-            marks: 15,
-            modelAnswer: 'GDP = C + I + G + (X-M). Consumption (C): Household spending on goods and services. Investment (I): Business spending on capital goods. Government Spending (G): Government expenditure on goods and services. Net Exports (X-M): Exports minus imports.',
-            difficulty: 'Medium',
-            status: 'active'
-        },
-        {
-            text: 'Define elasticity of demand. What factors affect it?',
-            category: 'Microeconomics',
-            marks: 8,
-            modelAnswer: 'Elasticity of demand measures the responsiveness of quantity demanded to changes in price. Factors affecting it include: availability of substitutes, necessity vs luxury, proportion of income spent, time period, and brand loyalty.',
+            marks: 1,
+            modelAnswer: '',
+            optionA: 'Consumption',
+            optionB: 'Investment',
+            optionC: 'Imports',
+            optionD: 'Government Spending',
+            correctAnswer: 'C',
             difficulty: 'Easy',
             status: 'active'
         },
         {
+            type: 'mcq',
+            text: 'When demand is elastic, a decrease in price will:',
+            category: 'Microeconomics',
+            marks: 1,
+            modelAnswer: '',
+            optionA: 'Decrease total revenue',
+            optionB: 'Increase total revenue',
+            optionC: 'Keep total revenue unchanged',
+            optionD: 'Cannot be determined',
+            correctAnswer: 'B',
+            difficulty: 'Medium',
+            status: 'active'
+        },
+        {
+            type: 'text',
             text: 'Explain the concept of comparative advantage in international trade.',
             category: 'International Economics',
             marks: 12,
             modelAnswer: 'Comparative advantage refers to the ability of a country to produce a good at a lower opportunity cost than another country. Even if a country has absolute advantage in all goods, trade can still be beneficial if countries specialize in goods where they have comparative advantage.',
+            optionA: '',
+            optionB: '',
+            optionC: '',
+            optionD: '',
+            correctAnswer: '',
             difficulty: 'Hard',
             status: 'active'
         },
         {
-            text: 'What is fiscal policy? Discuss its tools and objectives.',
+            type: 'mcq',
+            text: 'Which ministry is responsible for fiscal policy in India?',
             category: 'Public Economics',
-            marks: 10,
-            modelAnswer: 'Fiscal policy refers to government decisions about taxation and spending to influence the economy. Tools include: changes in tax rates, government spending programs, and transfer payments. Objectives include economic growth, price stability, full employment, and redistribution of income.',
-            difficulty: 'Medium',
+            marks: 1,
+            modelAnswer: '',
+            optionA: 'Reserve Bank of India',
+            optionB: 'Ministry of Finance',
+            optionC: 'NITI Aayog',
+            optionD: 'Ministry of Commerce',
+            correctAnswer: 'B',
+            difficulty: 'Easy',
             status: 'active'
         }
     ];
@@ -550,10 +709,16 @@ function downloadSampleData() {
 
     // Set column widths
     ws['!cols'] = [
+        { wch: 10 },  // type
         { wch: 60 },  // text
         { wch: 25 },  // category
         { wch: 10 },  // marks
         { wch: 80 },  // modelAnswer
+        { wch: 25 },  // optionA
+        { wch: 25 },  // optionB
+        { wch: 25 },  // optionC
+        { wch: 25 },  // optionD
+        { wch: 15 },  // correctAnswer
         { wch: 12 },  // difficulty
         { wch: 10 }   // status
     ];
@@ -585,21 +750,38 @@ function switchTab(tabName) {
 
 // Add Question
 async function addQuestion() {
-    const questionData = {
+    const questionType = document.getElementById('questionType').value;
+
+    let questionData = {
+        type: questionType,
         text: document.getElementById('questionText').value,
         category: document.getElementById('category').value,
-        marks: parseInt(document.getElementById('marks').value),
-        modelAnswer: document.getElementById('modelAnswer').value,
+        marks: parseInt(document.getElementById('marks').value) || 1,
         difficulty: document.getElementById('difficulty').value,
         status: document.getElementById('status').value,
         createdAt: serverTimestamp(),
         createdBy: auth.currentUser?.email
     };
 
+    // Add MCQ-specific or Text-specific fields
+    if (questionType === 'mcq') {
+        questionData.options = {
+            A: document.getElementById('optionA').value,
+            B: document.getElementById('optionB').value,
+            C: document.getElementById('optionC').value,
+            D: document.getElementById('optionD').value
+        };
+        questionData.correctAnswer = document.getElementById('correctAnswer').value;
+        questionData.marks = 1; // MCQs are always 1 mark
+    } else {
+        questionData.modelAnswer = document.getElementById('modelAnswer').value;
+    }
+
     try {
         await addDoc(collection(db, 'questions'), questionData);
         showToast('Question added successfully!', 'success');
         elements.questionForm.reset();
+        toggleMcqFields('text'); // Reset MCQ fields
         // Clear draft after successful submit
         localStorage.removeItem('questionDraft');
         document.getElementById('draftIndicator')?.classList.remove('show');
@@ -640,6 +822,24 @@ function displayQuestions(questions) {
         const difficultyClass = data.difficulty?.toLowerCase() || 'medium';
         const status = data.status || 'active';
         const isSelected = selectedQuestions.has(data.id);
+        const questionType = data.type || 'text';
+        const typeBadge = questionType === 'mcq'
+            ? '<span class="badge" style="background: #e8f5e9; color: #2e7d32;">MCQ</span>'
+            : '<span class="badge" style="background: #e3f2fd; color: #1565c0;">Text</span>';
+
+        // Build MCQ options preview if applicable
+        let mcqPreview = '';
+        if (questionType === 'mcq' && data.options) {
+            mcqPreview = `
+                <div class="mcq-preview" style="margin-top: 1rem; padding: 0.75rem; background: #f8f9fa; border-radius: 8px; font-size: 0.9rem;">
+                    <div style="${data.correctAnswer === 'A' ? 'color: #2e7d32; font-weight: bold;' : 'color: #666;'}">A) ${data.options.A || ''}</div>
+                    <div style="${data.correctAnswer === 'B' ? 'color: #2e7d32; font-weight: bold;' : 'color: #666;'}">B) ${data.options.B || ''}</div>
+                    <div style="${data.correctAnswer === 'C' ? 'color: #2e7d32; font-weight: bold;' : 'color: #666;'}">C) ${data.options.C || ''}</div>
+                    <div style="${data.correctAnswer === 'D' ? 'color: #2e7d32; font-weight: bold;' : 'color: #666;'}">D) ${data.options.D || ''}</div>
+                </div>
+            `;
+        }
+
         html += `
                 <div class="question-card ${isSelected ? 'selected' : ''}" data-id="${data.id}">
                     <div class="question-header">
@@ -648,6 +848,7 @@ function displayQuestions(questions) {
                             <span class="drag-handle" title="Drag to reorder">⋮⋮</span>
                             <div class="question-meta">
                                 <span class="status-dot ${status}"></span>
+                                ${typeBadge}
                                 <span class="badge badge-category">${data.category || 'N/A'}</span>
                                 <span class="badge badge-marks">${data.marks || 0} marks</span>
                                 <span class="badge badge-difficulty ${difficultyClass}">${data.difficulty || 'Medium'}</span>
@@ -661,6 +862,7 @@ function displayQuestions(questions) {
                         </div>
                     </div>
                     <p class="question-text">${data.text || 'No question text'}</p>
+                    ${mcqPreview}
                     <div class="question-footer">
                         <span>Created by: ${data.createdBy || 'Unknown'}</span>
                         <span style="display: flex; align-items: center; gap: 0.25rem;">
@@ -750,14 +952,35 @@ function openEditModal(questionId) {
     if (!question) return;
 
     currentEditId = questionId;
+    const questionType = question.type || 'text';
 
     document.getElementById('editQuestionId').value = questionId;
+    document.getElementById('editQuestionType').value = questionType;
     document.getElementById('editQuestionText').value = question.text || '';
     document.getElementById('editCategory').value = question.category || '';
     document.getElementById('editMarks').value = question.marks || '';
     document.getElementById('editModelAnswer').value = question.modelAnswer || '';
     document.getElementById('editDifficulty').value = question.difficulty || 'Medium';
     document.getElementById('editStatus').value = question.status || 'active';
+
+    // Populate MCQ fields if applicable
+    if (questionType === 'mcq' && question.options) {
+        document.getElementById('editOptionA').value = question.options.A || '';
+        document.getElementById('editOptionB').value = question.options.B || '';
+        document.getElementById('editOptionC').value = question.options.C || '';
+        document.getElementById('editOptionD').value = question.options.D || '';
+        document.getElementById('editCorrectAnswer').value = question.correctAnswer || '';
+    } else {
+        // Clear MCQ fields for text questions
+        document.getElementById('editOptionA').value = '';
+        document.getElementById('editOptionB').value = '';
+        document.getElementById('editOptionC').value = '';
+        document.getElementById('editOptionD').value = '';
+        document.getElementById('editCorrectAnswer').value = '';
+    }
+
+    // Toggle field visibility
+    toggleMcqFields(questionType, 'edit');
 
     elements.editModal.classList.add('show');
 }
@@ -772,16 +995,37 @@ function closeEditModal() {
 async function updateQuestion() {
     if (!currentEditId) return;
 
-    const updatedData = {
+    const questionType = document.getElementById('editQuestionType').value;
+
+    let updatedData = {
+        type: questionType,
         text: document.getElementById('editQuestionText').value,
         category: document.getElementById('editCategory').value,
-        marks: parseInt(document.getElementById('editMarks').value),
-        modelAnswer: document.getElementById('editModelAnswer').value,
+        marks: parseInt(document.getElementById('editMarks').value) || 1,
         difficulty: document.getElementById('editDifficulty').value,
         status: document.getElementById('editStatus').value,
         updatedAt: serverTimestamp(),
         updatedBy: auth.currentUser?.email
     };
+
+    // Add MCQ-specific or Text-specific fields
+    if (questionType === 'mcq') {
+        updatedData.options = {
+            A: document.getElementById('editOptionA').value,
+            B: document.getElementById('editOptionB').value,
+            C: document.getElementById('editOptionC').value,
+            D: document.getElementById('editOptionD').value
+        };
+        updatedData.correctAnswer = document.getElementById('editCorrectAnswer').value;
+        updatedData.marks = 1; // MCQs are always 1 mark
+        // Clear modelAnswer for MCQ
+        updatedData.modelAnswer = null;
+    } else {
+        updatedData.modelAnswer = document.getElementById('editModelAnswer').value;
+        // Clear MCQ-specific fields for text questions
+        updatedData.options = null;
+        updatedData.correctAnswer = null;
+    }
 
     try {
         await updateDoc(doc(db, 'questions', currentEditId), updatedData);
@@ -820,6 +1064,7 @@ async function loadStatistics() {
         const categoryCount = {};
         const difficultyCount = { Easy: 0, Medium: 0, Hard: 0 };
         const statusCount = { active: 0, inactive: 0 };
+        const typeCount = { mcq: 0, text: 0 };
         let totalMarks = 0;
 
         querySnapshot.forEach((docSnap) => {
@@ -833,6 +1078,9 @@ async function loadStatistics() {
 
             const status = data.status || 'active';
             statusCount[status] = (statusCount[status] || 0) + 1;
+
+            const type = data.type || 'text';
+            typeCount[type] = (typeCount[type] || 0) + 1;
 
             totalMarks += data.marks || 0;
         });
@@ -853,16 +1101,16 @@ async function loadStatistics() {
                         <div class="stat-label">${statusCount.inactive} Inactive</div>
                     </div>
 
+                    <div class="stat-card" style="background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);">
+                        <h3>MCQ Questions</h3>
+                        <div class="stat-value">${typeCount.mcq}</div>
+                        <div class="stat-label">${typeCount.text} Text Questions</div>
+                    </div>
+
                     <div class="stat-card orange">
                         <h3>Average Marks</h3>
                         <div class="stat-value">${avgMarks}</div>
                         <div class="stat-label">Per Question</div>
-                    </div>
-
-                    <div class="stat-card blue">
-                        <h3>Total Marks</h3>
-                        <div class="stat-value">${totalMarks}</div>
-                        <div class="stat-label">Sum of All Questions</div>
                     </div>
                 </div>
 
