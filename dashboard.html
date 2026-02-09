@@ -1,708 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Economics Test Platform</title>
-    
+
+    <!-- Dashboard Styles -->
+    <link rel="stylesheet" href="dashboard.css">
+
     <!-- Chart.js for data visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <style>
-        /* ==================== RESET & BASE STYLES ==================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --dark-color: #1e293b;
-            --light-bg: #f8fafc;
-            --border-color: #e2e8f0;
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--dark-color);
-            background: var(--light-bg);
-            min-height: 100vh;
-        }
-
-        /* ==================== SIDEBAR ==================== */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100vh;
-            background: var(--primary-gradient);
-            color: white;
-            overflow-y: auto;
-            box-shadow: var(--shadow-lg);
-            z-index: 100;
-            transition: transform 0.3s;
-        }
-
-        .sidebar-header {
-            padding: 2rem 1.5rem;
-            background: rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .nav-menu {
-            padding: 1.5rem 0;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 1.5rem;
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s;
-            position: relative;
-            font-weight: 500;
-        }
-
-        .nav-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            padding-left: 2rem;
-        }
-
-        .nav-item.active {
-            background: rgba(255, 255, 255, 0.2);
-            border-left: 4px solid white;
-        }
-
-        .nav-icon {
-            font-size: 1.2rem;
-            width: 1.5rem;
-            text-align: center;
-        }
-
-        /* ==================== MAIN CONTENT ==================== */
-        .main-content {
-            margin-left: 260px;
-            min-height: 100vh;
-            background: var(--light-bg);
-        }
-
-        /* ==================== HEADER ==================== */
-        .header {
-            background: white;
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: var(--shadow-sm);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .page-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--dark-color);
-            border: 2px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--light-bg);
-        }
-
-        /* ==================== STATS CARDS ==================== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            padding: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.75rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s;
-            border-left: 4px solid transparent;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .stat-card.primary {
-            border-left-color: #667eea;
-        }
-
-        .stat-card.success {
-            border-left-color: var(--success-color);
-        }
-
-        .stat-card.warning {
-            border-left-color: var(--warning-color);
-        }
-
-        .stat-card.danger {
-            border-left-color: var(--danger-color);
-        }
-
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .stat-icon {
-            font-size: 2rem;
-            opacity: 0.8;
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: #64748b;
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .stat-trend {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            margin-top: 0.5rem;
-        }
-
-        .trend-up {
-            color: var(--success-color);
-            background: #d1fae5;
-        }
-
-        .trend-down {
-            color: var(--danger-color);
-            background: #fee2e2;
-        }
-
-        /* ==================== CONTENT SECTIONS ==================== */
-        .content-section {
-            padding: 2rem;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        /* ==================== FILTERS & SEARCH ==================== */
-        .filters-bar {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-        }
-
-        .filter-select {
-            padding: 0.75rem 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: white;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .filter-select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        /* ==================== DATA TABLE ==================== */
-        .data-table-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table thead {
-            background: var(--light-bg);
-        }
-
-        .data-table th {
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark-color);
-            border-bottom: 2px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        .data-table th.sortable {
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .data-table th.sortable:hover {
-            background: #e2e8f0;
-        }
-
-        .data-table tbody tr {
-            border-bottom: 1px solid var(--border-color);
-            transition: all 0.3s;
-        }
-
-        .data-table tbody tr:hover {
-            background: #f8fafc;
-        }
-
-        .data-table td {
-            padding: 1rem;
-            color: #475569;
-        }
-
-        .student-name {
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-
-        .score-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-
-        .score-high {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .score-medium {
-            background: #fed7aa;
-            color: #92400e;
-        }
-
-        .score-low {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .action-btn {
-            padding: 0.5rem 0.75rem;
-            background: var(--light-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-right: 0.5rem;
-        }
-
-        .action-btn:hover {
-            background: #e2e8f0;
-        }
-
-        /* ==================== CHARTS ==================== */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .chart-container {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .chart-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--dark-color);
-        }
-
-        /* ==================== MODAL ==================== */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow: auto;
-            box-shadow: var(--shadow-lg);
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #64748b;
-            padding: 0.5rem;
-            line-height: 1;
-        }
-
-        .modal-close:hover {
-            color: var(--dark-color);
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        /* ==================== LOADING ==================== */
-        .loading-spinner {
-            border: 4px solid var(--border-color);
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 2rem auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            text-align: center;
-            color: #64748b;
-            margin-top: 1rem;
-        }
-
-        /* ==================== EMPTY STATE ==================== */
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #64748b;
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        .empty-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
-        }
-
-        /* ==================== STUDENT DETAILS ==================== */
-        .detail-section {
-            margin-bottom: 2rem;
-        }
-
-        .detail-label {
-            font-weight: 600;
-            color: #64748b;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .detail-value {
-            font-size: 1.1rem;
-            color: var(--dark-color);
-        }
-
-        .answers-list {
-            background: var(--light-bg);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .answer-item {
-            background: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border-left: 4px solid var(--border-color);
-        }
-
-        .answer-question {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
-        }
-
-        .answer-text {
-            color: #475569;
-            margin-bottom: 0.5rem;
-            white-space: pre-wrap;
-        }
-
-        .answer-score {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: var(--light-bg);
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        /* ==================== MOBILE MENU ==================== */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--dark-color);
-            transition: transform 0.3s ease;
-        }
-
-        .mobile-menu-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 99;
-        }
-
-        .mobile-menu-overlay.active {
-            display: block;
-        }
-
-        /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 1024px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .filters-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-
-            .data-table-container {
-                overflow-x: auto;
-            }
-
-            .modal-content {
-                width: 95%;
-                margin: 1rem;
-            }
-        }
-
-        /* ==================== PRINT STYLES ==================== */
-        @media print {
-            .sidebar,
-            .header-actions,
-            .filters-bar,
-            .action-btn,
-            .modal {
-                display: none !important;
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            body {
-                background: white;
-            }
-        }
-    </style>
 </head>
+
 <body>
     <!-- ==================== SIDEBAR ==================== -->
     <aside class="sidebar" id="sidebar">
@@ -768,122 +78,259 @@
 
         <!-- ==================== DASHBOARD CONTENT ==================== -->
         <div id="dashboardContent">
-            <!-- ==================== STATS CARDS ==================== -->
-            <div class="stats-grid">
-                <div class="stat-card primary">
-                    <div class="stat-header">
-                        <span class="stat-icon">👥</span>
+
+            <!-- ==================== DASHBOARD PAGE ==================== -->
+            <div class="page-section active" id="dashboardPage">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-header">
+                            <span class="stat-icon">👥</span>
+                        </div>
+                        <div class="stat-value" id="totalStudents">0</div>
+                        <div class="stat-label">Total Students</div>
+                        <div class="stat-trend trend-up" id="studentsTrend">
+                            ↑ <span>0</span> this week
+                        </div>
                     </div>
-                    <div class="stat-value" id="totalStudents">0</div>
-                    <div class="stat-label">Total Students</div>
-                    <div class="stat-trend trend-up" id="studentsTrend">
-                        ↑ <span>0</span> this week
+
+                    <div class="stat-card success">
+                        <div class="stat-header">
+                            <span class="stat-icon">📝</span>
+                        </div>
+                        <div class="stat-value" id="totalTests">0</div>
+                        <div class="stat-label">Tests Submitted</div>
+                        <div class="stat-trend trend-up" id="testsTrend">
+                            ↑ <span>0</span> today
+                        </div>
+                    </div>
+
+                    <div class="stat-card warning">
+                        <div class="stat-header">
+                            <span class="stat-icon">📊</span>
+                        </div>
+                        <div class="stat-value" id="avgScore">0%</div>
+                        <div class="stat-label">Average Score</div>
+                        <div class="stat-trend trend-up" id="scoreTrend">
+                            ↑ <span>0%</span> improvement
+                        </div>
+                    </div>
+
+                    <div class="stat-card danger">
+                        <div class="stat-header">
+                            <span class="stat-icon">⏱️</span>
+                        </div>
+                        <div class="stat-value" id="recentActivity">0</div>
+                        <div class="stat-label">Active Today</div>
                     </div>
                 </div>
 
-                <div class="stat-card success">
-                    <div class="stat-header">
-                        <span class="stat-icon">📝</span>
+                <!-- Recent Results Preview -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">📋 Recent Test Results</h3>
+                        <button class="btn btn-secondary" id="viewAllBtn">View All →</button>
                     </div>
-                    <div class="stat-value" id="totalTests">0</div>
-                    <div class="stat-label">Tests Submitted</div>
-                    <div class="stat-trend trend-up" id="testsTrend">
-                        ↑ <span>0</span> today
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Date</th>
+                                    <th>Score</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentResultsBody">
+                                <!-- Recent results will be populated here -->
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-
-                <div class="stat-card warning">
-                    <div class="stat-header">
-                        <span class="stat-icon">📊</span>
-                    </div>
-                    <div class="stat-value" id="avgScore">0%</div>
-                    <div class="stat-label">Average Score</div>
-                    <div class="stat-trend trend-up" id="scoreTrend">
-                        ↑ <span>0%</span> improvement
-                    </div>
-                </div>
-
-                <div class="stat-card danger">
-                    <div class="stat-header">
-                        <span class="stat-icon">⏱️</span>
-                    </div>
-                    <div class="stat-value" id="recentActivity">0</div>
-                    <div class="stat-label">Active Today</div>
                 </div>
             </div>
 
-            <!-- ==================== CHARTS SECTION ==================== -->
-            <div class="content-section">
-                <div class="section-header">
-                    <h3 class="section-title">📈 Performance Analytics</h3>
-                </div>
-                </div>
-            </div>
-
-            <!-- ==================== RECENT RESULTS TABLE ==================== -->
-            <div class="content-section">
-                <div class="section-header">
-                    <h3 class="section-title">📋 Recent Test Results</h3>
-                    <button class="btn btn-secondary" id="viewAllBtn">
-                        View All →
-                    </button>
-                </div>
-
-                <!-- Filters Bar -->
-                <div class="filters-bar">
-                    <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input 
-                            type="text" 
-                            class="search-input" 
-                            id="searchInput"
-                            placeholder="Search by student name..."
-                        >
+            <!-- ==================== STUDENTS PAGE ==================== -->
+            <div class="page-section" id="studentsPage" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">👥 Student Management</h3>
                     </div>
-                    
-                    <select class="filter-select" id="scoreFilter">
-                        <option value="all">All Scores</option>
-                        <option value="high">High (80%+)</option>
-                        <option value="medium">Medium (50-79%)</option>
-                        <option value="low">Low (<50%)</option>
-                    </select>
-                    
-                    <select class="filter-select" id="dateFilter">
-                        <option value="all">All Time</option>
-                        <option value="today">Today</option>
-                        <option value="week">This Week</option>
-                        <option value="month">This Month</option>
-                    </select>
-                </div>
 
-                <!-- Data Table -->
-                <div class="data-table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th class="sortable" data-sort="name">Student Name ↕</th>
-                                <th>Student ID</th>
-                                <th class="sortable" data-sort="date">Date ↕</th>
-                                <th class="sortable" data-sort="score">Score ↕</th>
-                                <th>Percentage</th>
-                                <th>Questions</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsTableBody">
-                            <!-- Table rows will be populated here -->
-                        </tbody>
-                    </table>
-                    
-                    <!-- Empty State -->
-                    <div class="empty-state" id="emptyState" style="display: none;">
-                        <div class="empty-icon">📭</div>
-                        <div class="empty-title">No Results Found</div>
-                        <p>No test results match your filters.</p>
+                    <div class="filters-bar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="studentSearchInput"
+                                placeholder="Search students...">
+                        </div>
+                        <select class="filter-select" id="studentSortFilter">
+                            <option value="name">Sort by Name</option>
+                            <option value="tests">Sort by Tests Taken</option>
+                            <option value="score">Sort by Avg Score</option>
+                            <option value="recent">Sort by Recent Activity</option>
+                        </select>
+                    </div>
+
+                    <div class="students-grid" id="studentsGrid">
+                        <!-- Student cards will be populated here -->
                     </div>
                 </div>
             </div>
+
+            <!-- ==================== RESULTS PAGE ==================== -->
+            <div class="page-section" id="resultsPage" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">📝 All Test Results</h3>
+                    </div>
+
+                    <div class="filters-bar">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="searchInput"
+                                placeholder="Search by student name...">
+                        </div>
+
+                        <select class="filter-select" id="testTypeFilter">
+                            <option value="all">All Types</option>
+                            <option value="mcq">MCQ Only</option>
+                            <option value="text">Text Only</option>
+                        </select>
+
+                        <select class="filter-select" id="scoreFilter">
+                            <option value="all">All Scores</option>
+                            <option value="high">High (80%+)</option>
+                            <option value="medium">Medium (50-79%)</option>
+                            <option value="low">Low (&lt;50%)</option>
+                        </select>
+
+                        <select class="filter-select" id="dateFilter">
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="sortable" data-sort="name">Student Name ↕</th>
+                                    <th>Student ID</th>
+                                    <th class="sortable" data-sort="date">Date ↕</th>
+                                    <th>Type</th>
+                                    <th class="sortable" data-sort="score">Score ↕</th>
+                                    <th>Percentage</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <!-- Table rows will be populated here -->
+                            </tbody>
+                        </table>
+
+                        <div class="empty-state" id="emptyState" style="display: none;">
+                            <div class="empty-icon">📭</div>
+                            <div class="empty-title">No Results Found</div>
+                            <p>No test results match your filters.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== ANALYTICS PAGE ==================== -->
+            <div class="page-section" id="analyticsPage" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">📈 Analytics & Insights</h3>
+                    </div>
+
+                    <!-- Analytics Stats -->
+                    <div class="analytics-stats" id="analyticsStats">
+                        <div class="analytics-card">
+                            <h4>📊 Score Distribution</h4>
+                            <div class="chart-wrapper" style="height: 250px;">
+                                <canvas id="scoreDistributionChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="analytics-card">
+                            <h4>📅 Tests Per Day (Last 7 Days)</h4>
+                            <div class="chart-wrapper" style="height: 250px;">
+                                <canvas id="testsPerDayChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Breakdown -->
+                    <div class="analytics-table">
+                        <h4>📚 Performance by Test Type</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Test Type</th>
+                                    <th>Total Tests</th>
+                                    <th>Avg Score</th>
+                                    <th>Highest Score</th>
+                                    <th>Lowest Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="typeBreakdownBody">
+                                <!-- Type breakdown will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== EXPORT PAGE ==================== -->
+            <div class="page-section" id="exportPage" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h3 class="section-title">💾 Export Data</h3>
+                    </div>
+
+                    <div class="export-options">
+                        <div class="export-card" id="exportAllResults">
+                            <div class="export-icon">📊</div>
+                            <h4>Export All Test Results</h4>
+                            <p>Download all test results including student names, scores, and dates.</p>
+                            <button class="btn btn-primary">📥 Download CSV</button>
+                        </div>
+
+                        <div class="export-card" id="exportStudentList">
+                            <div class="export-icon">👥</div>
+                            <h4>Export Student List</h4>
+                            <p>Download a list of all students with their average scores and test counts.</p>
+                            <button class="btn btn-primary">📥 Download CSV</button>
+                        </div>
+
+                        <div class="export-card" id="exportMCQResults">
+                            <div class="export-icon">✅</div>
+                            <h4>Export MCQ Results Only</h4>
+                            <p>Download only MCQ test results with answer details.</p>
+                            <button class="btn btn-primary">📥 Download CSV</button>
+                        </div>
+
+                        <div class="export-card" id="exportTextResults">
+                            <div class="export-icon">📝</div>
+                            <h4>Export Text Results Only</h4>
+                            <p>Download only text-based test results with feedback.</p>
+                            <button class="btn btn-primary">📥 Download CSV</button>
+                        </div>
+
+                        <div class="export-card" id="exportAnalytics">
+                            <div class="export-icon">📈</div>
+                            <h4>Export Analytics Report</h4>
+                            <p>Download a summary report with statistics and insights.</p>
+                            <button class="btn btn-primary">📥 Download CSV</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
+    </div>
     </div>
 
     <!-- ==================== STUDENT DETAIL MODAL ==================== -->
@@ -899,7 +346,7 @@
                     <div class="detail-value" id="modalStudentName">-</div>
                     <div class="detail-value" style="font-size: 0.9rem; color: #64748b;" id="modalStudentId">-</div>
                 </div>
-                
+
                 <div class="detail-section">
                     <div class="detail-label">Test Results</div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
@@ -917,7 +364,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="detail-section">
                     <div class="detail-label">Question-wise Performance</div>
                     <div class="answers-list" id="modalAnswersList">
@@ -929,689 +376,7 @@
     </div>
 
     <!-- ==================== FIREBASE & APP SCRIPTS ==================== -->
-    <script type="module">
-    // Firebase imports
-    import { auth, db } from './firebase-config.js';
-    import { 
-        signInAnonymously, 
-        onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import {
-        collection, 
-        query, 
-        where,
-        orderBy,
-        limit,
-        getDocs,
-        onSnapshot
-    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-    // ==================== APP STATE ==================== 
-    const appState = {
-        testResults: [],
-        filteredResults: [],
-        charts: {},
-        sortField: 'date',
-        sortOrder: 'desc'
-    };
-
-    // ==================== DOM ELEMENTS ====================
-    const elements = {
-        sidebar: document.getElementById('sidebar'),
-        mobileMenuBtn: document.getElementById('mobileMenuBtn'),
-        mobileMenuOverlay: document.getElementById('mobileMenuOverlay'),
-        menuIcon: document.getElementById('menuIcon'),
-        refreshBtn: document.getElementById('refreshBtn'),
-        exportBtn: document.getElementById('exportBtn'),
-        loadingState: document.getElementById('loadingState'),
-        dashboardContent: document.getElementById('dashboardContent'),
-        
-        // Stats
-        totalStudents: document.getElementById('totalStudents'),
-        totalTests: document.getElementById('totalTests'),
-        avgScore: document.getElementById('avgScore'),
-        recentActivity: document.getElementById('recentActivity'),
-        
-        // Filters
-        searchInput: document.getElementById('searchInput'),
-        scoreFilter: document.getElementById('scoreFilter'),
-        dateFilter: document.getElementById('dateFilter'),
-        
-        // Table
-        resultsTableBody: document.getElementById('resultsTableBody'),
-        emptyState: document.getElementById('emptyState'),
-        
-        // Modal
-        detailModal: document.getElementById('detailModal'),
-        closeModal: document.getElementById('closeModal'),
-        
-        // View All
-        viewAllBtn: document.getElementById('viewAllBtn')
-    };
-
-    // ==================== AUTHENTICATION ====================
-    async function setupAuth() {
-        return new Promise((resolve, reject) => {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    console.log('✅ Admin authenticated');
-                    resolve(user);
-                } else {
-                    try {
-                        const credential = await signInAnonymously(auth);
-                        console.log('✅ Admin signed in');
-                        resolve(credential.user);
-                    } catch (error) {
-                        console.error('❌ Auth error:', error);
-                        reject(error);
-                    }
-                }
-            });
-        });
-    }
-
-    // ==================== LOAD TEST RESULTS ====================
-    async function loadTestResults() {
-        try {
-            console.log('📊 Loading test results...');
-            
-            const resultsRef = collection(db, 'testResults');
-            const q = query(resultsRef, orderBy('submittedAt', 'desc'));
-            const snapshot = await getDocs(q);
-            
-            appState.testResults = [];
-            
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                appState.testResults.push({
-                    id: doc.id,
-                    ...data,
-                    submittedAt: data.submittedAt?.toDate() || new Date()
-                });
-            });
-            
-            console.log(`✅ Loaded ${appState.testResults.length} test results`);
-            
-            appState.filteredResults = [...appState.testResults];
-            
-            updateStats();
-            renderTable();
-            
-            // Only update charts if they exist
-            if (appState.charts.scoreDistribution && appState.charts.dailyActivity) {
-                updateCharts();
-            }
-            
-        } catch (error) {
-            console.error('❌ Error loading results:', error);
-            throw error;
-        }
-    }
-
-    // ==================== UPDATE STATISTICS ====================
-    function updateStats() {
-        // Total unique students
-        const uniqueStudents = new Set(appState.testResults.map(r => r.studentId));
-        elements.totalStudents.textContent = uniqueStudents.size;
-        
-        // Total tests
-        elements.totalTests.textContent = appState.testResults.length;
-        
-        // Average score
-        if (appState.testResults.length > 0) {
-            const avgPercentage = appState.testResults.reduce((sum, r) => {
-                const percent = parseFloat(r.percentage) || 0;
-                return sum + percent;
-            }, 0) / appState.testResults.length;
-            
-            elements.avgScore.textContent = `${avgPercentage.toFixed(1)}%`;
-        } else {
-            elements.avgScore.textContent = '0%';
-        }
-        
-        // Today's activity
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const todaysTests = appState.testResults.filter(r => {
-            const testDate = new Date(r.submittedAt);
-            testDate.setHours(0, 0, 0, 0);
-            return testDate.getTime() === today.getTime();
-        });
-        
-        elements.recentActivity.textContent = todaysTests.length;
-    }
-
-    // ==================== RENDER TABLE ====================
-    function renderTable() {
-        const tbody = elements.resultsTableBody;
-        tbody.innerHTML = '';
-        
-        if (appState.filteredResults.length === 0) {
-            elements.emptyState.style.display = 'block';
-            return;
-        }
-        
-        elements.emptyState.style.display = 'none';
-        
-        // Show only first 10 results in dashboard view
-        const resultsToShow = appState.filteredResults.slice(0, 10);
-        
-        resultsToShow.forEach(result => {
-            const row = document.createElement('tr');
-            
-            // Parse percentage
-            const percentage = parseFloat(result.percentage) || 0;
-            let scoreClass = 'score-medium';
-            if (percentage >= 80) scoreClass = 'score-high';
-            if (percentage < 50) scoreClass = 'score-low';
-            
-            // Format date
-            const date = new Date(result.submittedAt);
-            const dateStr = date.toLocaleDateString();
-            const timeStr = date.toLocaleTimeString();
-            
-            row.innerHTML = `
-                <td class="student-name">${result.studentName || 'Anonymous'}</td>
-                <td>${result.studentId?.substring(0, 8) || '-'}</td>
-                <td>${dateStr}<br><small style="color: #94a3b8;">${timeStr}</small></td>
-                <td>${result.totalScore || '0/0'}</td>
-                <td><span class="score-badge ${scoreClass}">${result.percentage || '0%'}</span></td>
-                <td>${result.totalQuestions || 0}</td>
-                <td>
-                    <button class="action-btn" onclick="window.viewDetails('${result.id}')">👁️ View</button>
-                    <button class="action-btn" onclick="window.exportResult('${result.id}')">📥 Export</button>
-                </td>
-            `;
-            
-            tbody.appendChild(row);
-        });
-    }
-
-    // ==================== INITIALIZE CHARTS ====================
-    function initCharts() {
-        // Check if Chart.js is loaded and canvas elements exist
-        if (typeof Chart === 'undefined') {
-            console.warn('Chart.js not loaded, skipping charts');
-            return;
-        }
-
-        const scoreCanvas = document.getElementById('scoreDistributionChart');
-
-        if (!scoreCanvas) {
-            console.warn('Chart canvas not found');
-            return;
-        }
-
-        // Score Distribution Chart
-        const scoreCtx = scoreCanvas.getContext('2d');
-        appState.charts.scoreDistribution = new Chart(scoreCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['High (80%+)', 'Medium (50-79%)', 'Low (<50%)'],
-                datasets: [{
-                    data: [0, 0, 0],
-                    backgroundColor: [
-                        '#10b981',
-                        '#f59e0b', 
-                        '#ef4444'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-
-        // DELETE ALL THE DAILY ACTIVITY CHART CODE THAT WAS HERE
-    }
-
-    // ==================== UPDATE CHARTS ====================
-    function updateCharts() {
-        if (!appState.charts.scoreDistribution) {
-            console.log('Chart not initialized yet');
-            return;
-        }
-
-        // Update Score Distribution
-        const high = appState.testResults.filter(r => parseFloat(r.percentage) >= 80).length;
-        const medium = appState.testResults.filter(r => {
-            const p = parseFloat(r.percentage);
-            return p >= 50 && p < 80;
-        }).length;
-        const low = appState.testResults.filter(r => parseFloat(r.percentage) < 50).length;
-        
-        appState.charts.scoreDistribution.data.datasets[0].data = [high, medium, low];
-        appState.charts.scoreDistribution.update();
-        
-        // DELETE ALL THE DAILY ACTIVITY UPDATE CODE THAT WAS HERE
-        function updateCharts() {
-        if (!appState.charts.scoreDistribution) {
-            console.log('Chart not initialized yet');
-            return;
-        }
-
-        // Update Score Distribution
-        const high = appState.testResults.filter(r => parseFloat(r.percentage) >= 80).length;
-        const medium = appState.testResults.filter(r => {
-            const p = parseFloat(r.percentage);
-            return p >= 50 && p < 80;
-        }).length;
-        const low = appState.testResults.filter(r => parseFloat(r.percentage) < 50).length;
-        
-        appState.charts.scoreDistribution.data.datasets[0].data = [high, medium, low];
-        appState.charts.scoreDistribution.update();
-        
-        // DELETE ALL THE DAILY ACTIVITY UPDATE CODE THAT WAS HERE
-    }
-}
-
-    // ==================== FILTERS ====================
-    function applyFilters() {
-        const searchTerm = elements.searchInput.value.toLowerCase();
-        const scoreFilter = elements.scoreFilter.value;
-        const dateFilter = elements.dateFilter.value;
-        
-        appState.filteredResults = appState.testResults.filter(result => {
-            // Search filter
-            if (searchTerm && !result.studentName?.toLowerCase().includes(searchTerm)) {
-                return false;
-            }
-            
-            // Score filter
-            const percentage = parseFloat(result.percentage) || 0;
-            if (scoreFilter === 'high' && percentage < 80) return false;
-            if (scoreFilter === 'medium' && (percentage < 50 || percentage >= 80)) return false;
-            if (scoreFilter === 'low' && percentage >= 50) return false;
-            
-            // Date filter
-            const testDate = new Date(result.submittedAt);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            if (dateFilter === 'today') {
-                testDate.setHours(0, 0, 0, 0);
-                if (testDate.getTime() !== today.getTime()) return false;
-            }
-            
-            if (dateFilter === 'week') {
-                const weekAgo = new Date(today);
-                weekAgo.setDate(weekAgo.getDate() - 7);
-                if (testDate < weekAgo) return false;
-            }
-            
-            if (dateFilter === 'month') {
-                const monthAgo = new Date(today);
-                monthAgo.setMonth(monthAgo.getMonth() - 1);
-                if (testDate < monthAgo) return false;
-            }
-            
-            return true;
-        });
-        
-        renderTable();
-    }
-
-    // ==================== VIEW DETAILS ====================
-    function viewDetails(resultId) {
-        const result = appState.testResults.find(r => r.id === resultId);
-        if (!result) return;
-        
-        // Populate modal
-        document.getElementById('modalStudentName').textContent = result.studentName || 'Anonymous';
-        document.getElementById('modalStudentId').textContent = `ID: ${result.studentId || '-'}`;
-        document.getElementById('modalScore').textContent = result.totalScore || '0/0';
-        document.getElementById('modalPercentage').textContent = result.percentage || '0%';
-        
-        const date = new Date(result.submittedAt);
-        document.getElementById('modalDate').textContent = 
-            `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-        
-        // Show answers
-        const answersContainer = document.getElementById('modalAnswersList');
-        answersContainer.innerHTML = '';
-        
-        if (result.results && result.results.length > 0) {
-            result.results.forEach((item, index) => {
-                const answerDiv = document.createElement('div');
-                answerDiv.className = 'answer-item';
-                answerDiv.innerHTML = `
-                    <div class="answer-question">Q${index + 1}: ${item.questionText || 'Question text not available'}</div>
-                    <div class="answer-text">${item.studentAnswer || 'No answer provided'}</div>
-                    <div class="answer-score">Score: ${item.earnedMarks}/${item.marks}</div>
-                    ${item.feedback ? `<div style="margin-top: 0.5rem; color: #64748b;">${item.feedback}</div>` : ''}
-                `;
-                answersContainer.appendChild(answerDiv);
-            });
-        } else {
-            answersContainer.innerHTML = '<p>No detailed results available</p>';
-        }
-        
-        // Show modal
-        elements.detailModal.classList.add('active');
-    }
-
-    // ==================== EXPORT FUNCTIONS ====================
-    function exportResult(resultId) {
-        const result = appState.testResults.find(r => r.id === resultId);
-        if (!result) return;
-        
-        // Create CSV content
-        let csv = 'Student Test Result\n\n';
-        csv += `Student Name,${result.studentName || 'Anonymous'}\n`;
-        csv += `Student ID,${result.studentId || '-'}\n`;
-        csv += `Date,${new Date(result.submittedAt).toLocaleString()}\n`;
-        csv += `Total Score,${result.totalScore || '0/0'}\n`;
-        csv += `Percentage,${result.percentage || '0%'}\n`;
-        csv += `Total Questions,${result.totalQuestions || 0}\n\n`;
-        
-        csv += 'Question,Student Answer,Score,Feedback\n';
-        
-        if (result.results) {
-            result.results.forEach((item, index) => {
-                const question = `"${(item.questionText || '').replace(/"/g, '""')}"`;
-                const answer = `"${(item.studentAnswer || '').replace(/"/g, '""')}"`;
-                const feedback = `"${(item.feedback || '').replace(/"/g, '""')}"`;
-                csv += `${question},${answer},${item.earnedMarks}/${item.marks},${feedback}\n`;
-            });
-        }
-        
-        // Download CSV
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${result.studentName || 'student'}_${result.id}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    }
-
-    // Export all results
-    function exportAllResults() {
-        let csv = 'Student Name,Student ID,Date,Score,Percentage,Questions\n';
-        
-        appState.filteredResults.forEach(result => {
-            const name = `"${(result.studentName || 'Anonymous').replace(/"/g, '""')}"`;
-            const id = result.studentId || '-';
-            const date = new Date(result.submittedAt).toLocaleString();
-            const score = result.totalScore || '0/0';
-            const percentage = result.percentage || '0%';
-            const questions = result.totalQuestions || 0;
-            
-            csv += `${name},${id},${date},${score},${percentage},${questions}\n`;
-        });
-        
-        // Download CSV
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `test_results_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    }
-
-    // ==================== RENDER FULL TABLE ====================
-    function renderFullTable() {
-        const tbody = elements.resultsTableBody;
-        tbody.innerHTML = '';
-        
-        if (appState.filteredResults.length === 0) {
-            elements.emptyState.style.display = 'block';
-            return;
-        }
-        
-        elements.emptyState.style.display = 'none';
-        
-        appState.filteredResults.forEach(result => {
-            const row = document.createElement('tr');
-            
-            const percentage = parseFloat(result.percentage) || 0;
-            let scoreClass = 'score-medium';
-            if (percentage >= 80) scoreClass = 'score-high';
-            if (percentage < 50) scoreClass = 'score-low';
-            
-            const date = new Date(result.submittedAt);
-            const dateStr = date.toLocaleDateString();
-            const timeStr = date.toLocaleTimeString();
-            
-            row.innerHTML = `
-                <td class="student-name">${result.studentName || 'Anonymous'}</td>
-                <td>${result.studentId?.substring(0, 8) || '-'}</td>
-                <td>${dateStr}<br><small style="color: #94a3b8;">${timeStr}</small></td>
-                <td>${result.totalScore || '0/0'}</td>
-                <td><span class="score-badge ${scoreClass}">${result.percentage || '0%'}</span></td>
-                <td>${result.totalQuestions || 0}</td>
-                <td>
-                    <button class="action-btn" onclick="window.viewDetails('${result.id}')">👁️ View</button>
-                    <button class="action-btn" onclick="window.exportResult('${result.id}')">📥 Export</button>
-                </td>
-            `;
-            
-            tbody.appendChild(row);
-        });
-    }
-
-    // ==================== SORT TABLE ====================
-    function sortTable(field) {
-        if (appState.sortField === field) {
-            appState.sortOrder = appState.sortOrder === 'asc' ? 'desc' : 'asc';
-        } else {
-            appState.sortField = field;
-            appState.sortOrder = 'asc';
-        }
-        
-        appState.filteredResults.sort((a, b) => {
-            let aVal, bVal;
-            
-            if (field === 'name') {
-                aVal = a.studentName || '';
-                bVal = b.studentName || '';
-            } else if (field === 'date') {
-                aVal = new Date(a.submittedAt).getTime();
-                bVal = new Date(b.submittedAt).getTime();
-            } else if (field === 'score') {
-                aVal = parseFloat(a.percentage) || 0;
-                bVal = parseFloat(b.percentage) || 0;
-            }
-            
-            if (appState.sortOrder === 'asc') {
-                return aVal > bVal ? 1 : -1;
-            } else {
-                return aVal < bVal ? 1 : -1;
-            }
-        });
-        
-        renderTable();
-    }
-
-    // ==================== LOADING STATE ====================
-    function showLoading(show) {
-        if (show) {
-            elements.loadingState.style.display = 'block';
-            elements.dashboardContent.style.display = 'none';
-        } else {
-            elements.loadingState.style.display = 'none';
-            elements.dashboardContent.style.display = 'block';
-        }
-    }
-
-    // ==================== REALTIME UPDATES ====================
-    function setupRealtimeUpdates() {
-        const resultsRef = collection(db, 'testResults');
-        const q = query(resultsRef, orderBy('submittedAt', 'desc'), limit(50));
-        
-        onSnapshot(q, (snapshot) => {
-            console.log('📊 Real-time update received');
-            loadTestResults();
-        });
-    }
-
-    // ==================== EVENT LISTENERS ====================
-    function setupEventListeners() {
-        // Mobile menu
-        elements.mobileMenuBtn.addEventListener('click', () => {
-            elements.sidebar.classList.toggle('active');
-            elements.mobileMenuOverlay.classList.toggle('active');
-            // Change icon between hamburger and close
-            if (elements.sidebar.classList.contains('active')) {
-                elements.menuIcon.textContent = '✕';
-            } else {
-                elements.menuIcon.textContent = '☰';
-            }
-        });
-        
-        // Close menu when clicking on overlay
-        elements.mobileMenuOverlay.addEventListener('click', () => {
-            elements.sidebar.classList.remove('active');
-            elements.mobileMenuOverlay.classList.remove('active');
-            elements.menuIcon.textContent = '☰';
-        });
-        
-        // Refresh button
-        elements.refreshBtn.addEventListener('click', () => {
-            loadTestResults();
-        });
-        
-        // Export button
-        elements.exportBtn.addEventListener('click', exportAllResults);
-        
-        // Filters
-        elements.searchInput.addEventListener('input', applyFilters);
-        elements.scoreFilter.addEventListener('change', applyFilters);
-        elements.dateFilter.addEventListener('change', applyFilters);
-        
-        // Modal close button
-        elements.closeModal.addEventListener('click', () => {
-            elements.detailModal.classList.remove('active');
-        });
-        
-        // Click outside modal to close
-        elements.detailModal.addEventListener('click', (e) => {
-            if (e.target === elements.detailModal) {
-                elements.detailModal.classList.remove('active');
-            }
-        });
-        
-        // ESC key to close modal
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && elements.detailModal.classList.contains('active')) {
-                elements.detailModal.classList.remove('active');
-            }
-        });
-        
-        // View all button
-        elements.viewAllBtn.addEventListener('click', () => {
-            appState.filteredResults = [...appState.testResults];
-            renderFullTable();
-        });
-        
-        // Sort table headers
-        document.querySelectorAll('.sortable').forEach(header => {
-            header.addEventListener('click', () => {
-                const field = header.dataset.sort;
-                sortTable(field);
-            });
-        });
-        
-        // Navigation items
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                const href = item.getAttribute('href');
-                
-                if (href === 'index.html') {
-                    // Allow normal navigation for home
-                    return;
-                }
-                
-                e.preventDefault();
-                
-                // Handle navigation
-                switch(href) {
-                    case '#dashboard':
-                        loadTestResults();
-                        window.scrollTo(0, 0);
-                        break;
-                    case '#students':
-                        // For now just show all results
-                        renderFullTable();
-                        break;
-                    case '#results':
-                        renderFullTable();
-                        break;
-                    case '#analytics':
-                        // Scroll to charts
-                        const chartsSection = document.querySelector('.charts-grid');
-                        if (chartsSection) {
-                            chartsSection.scrollIntoView({ behavior: 'smooth' });
-                        }
-                        break;
-                    case '#export':
-                        exportAllResults();
-                        break;
-                }
-                
-                // Update active state
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-            });
-        });
-    }
-
-    // ==================== MAKE FUNCTIONS GLOBAL ====================
-    window.viewDetails = viewDetails;
-    window.exportResult = exportResult;
-
-    // ==================== INITIALIZATION (SINGLE DECLARATION) ====================
-    async function init() {
-        console.log('🚀 Initializing Dashboard...');
-        
-        showLoading(true);
-        
-        try {
-            // Setup authentication
-            await setupAuth();
-            
-            // Initialize charts FIRST
-            initCharts();
-            
-            // Load data
-            await loadTestResults();
-            
-            // Setup event listeners
-            setupEventListeners();
-            
-            // Setup real-time updates
-            setupRealtimeUpdates();
-            
-            // Update charts after data is loaded
-            if (appState.testResults.length > 0) {
-                updateCharts();
-            }
-            
-            showLoading(false);
-            console.log('✅ Dashboard initialized successfully');
-            
-        } catch (error) {
-            console.error('❌ Initialization error:', error);
-            showLoading(false);
-            alert('Failed to load dashboard. Please refresh.');
-        }
-    }
-
-    // ==================== START APP ====================
-    init();
-</script>
+    <script type="module" src="dashboard.js"></script>
 </body>
+
 </html>

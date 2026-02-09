@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Economics Test Platform</title>
-    
+
     <style>
         /* ==================== RESET & BASE STYLES ==================== */
         * {
@@ -38,6 +39,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -64,6 +66,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -85,6 +88,7 @@
                 opacity: 0;
                 transform: translateY(50px) scale(0.95);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -143,6 +147,74 @@
             font-size: 0.9rem;
             color: #64748b;
             text-align: center;
+        }
+
+        /* Remember Name Styles */
+        .remember-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .remember-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .saved-name-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .saved-name-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .saved-name-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .saved-name-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .change-name-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid rgba(102, 126, 234, 0.5);
+            border-radius: 8px;
+            color: #667eea;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .change-name-btn:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+        }
+
+        .name-input-group {
+            display: block;
         }
 
         .name-modal-footer {
@@ -254,18 +326,21 @@
             left: 0;
             bottom: 0;
             right: 0;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.3),
-                transparent
-            );
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.3),
+                    transparent);
             animation: shimmer 2s infinite;
         }
 
         @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         /* ==================== MAIN CONTENT ==================== */
@@ -538,8 +613,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* ==================== ERROR STATE ==================== */
@@ -569,6 +649,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -771,70 +852,70 @@
             body {
                 padding: 10px;
             }
-            
+
             .container {
                 border-radius: 15px;
             }
-            
+
             header {
                 padding: 1.5rem;
             }
-            
+
             .header-top {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
             }
-            
+
             header h1 {
                 font-size: 1.6rem;
             }
-            
+
             main {
                 padding: 1.5rem;
             }
-            
+
             .status-banner {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .question-header {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .controls {
                 flex-direction: column-reverse;
                 width: 100%;
             }
-            
+
             .nav-buttons {
                 width: 100%;
                 justify-content: space-between;
             }
-            
+
             button {
                 flex: 1;
                 justify-content: center;
             }
-            
+
             .total-score {
                 font-size: 2.5rem;
             }
-            
+
             .summary-header h2 {
                 font-size: 1.8rem;
             }
-            
+
             .performance-stats {
                 grid-template-columns: 1fr;
             }
-            
+
             .question-text {
                 font-size: 1.1rem;
             }
-            
+
             .answer-textarea {
                 font-size: 1rem;
                 min-height: 200px;
@@ -875,11 +956,11 @@
                 background: white;
                 padding: 0;
             }
-            
+
             .container {
                 box-shadow: none;
             }
-            
+
             .back-button,
             .controls,
             .shortcuts-hint,
@@ -895,31 +976,32 @@
             header {
                 padding: 1.5rem 1.5rem 2rem;
             }
-            
+
             header h1 {
                 font-size: 1.8rem;
             }
-            
+
             main {
                 padding: 1.5rem;
             }
-            
+
             .question-card {
                 padding: 1.5rem;
                 margin-bottom: 1.5rem;
             }
-            
+
             .answer-section {
                 padding: 1rem;
                 margin-bottom: 1.5rem;
             }
-            
+
             .answer-textarea {
-                min-height: 320px; /* Increased for better writing space */
+                min-height: 320px;
+                /* Increased for better writing space */
                 padding: 1rem;
                 font-size: 1rem;
             }
-            
+
             .status-banner {
                 padding: 1rem 1.25rem;
                 margin-bottom: 1.5rem;
@@ -931,39 +1013,39 @@
             body {
                 padding: 10px;
             }
-            
+
             .container {
                 border-radius: 15px;
             }
-            
+
             /* Reduce header padding significantly */
             header {
                 padding: 1rem 1rem 1.5rem;
             }
-            
+
             .header-top {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.75rem;
                 margin-bottom: 0.75rem;
             }
-            
+
             header h1 {
                 font-size: 1.5rem;
                 margin-bottom: 0.25rem;
             }
-            
+
             .auth-status {
                 font-size: 0.85rem;
                 padding: 0.4rem 0.8rem;
                 margin-top: 0.25rem;
             }
-            
+
             /* Minimize main content padding */
             main {
                 padding: 1rem;
             }
-            
+
             /* Compact status banner */
             .status-banner {
                 flex-direction: column;
@@ -972,26 +1054,26 @@
                 margin-bottom: 1rem;
                 gap: 0.75rem;
             }
-            
+
             .status-info {
                 gap: 1rem;
             }
-            
+
             .status-item {
                 gap: 0.4rem;
             }
-            
+
             .status-item span {
                 font-size: 0.95rem;
             }
-            
+
             /* Compact shortcuts hint */
             .shortcuts-hint {
                 padding: 0.75rem 1rem;
                 margin-bottom: 1rem;
                 font-size: 0.85rem;
             }
-            
+
             /* Compact question header */
             .question-header {
                 flex-direction: column;
@@ -999,59 +1081,60 @@
                 margin-bottom: 1rem;
                 gap: 0.75rem;
             }
-            
+
             .question-meta {
                 gap: 0.5rem;
                 flex-wrap: wrap;
             }
-            
+
             .badge {
                 padding: 0.4rem 0.9rem;
                 font-size: 0.8rem;
             }
-            
+
             .question-counter {
                 font-size: 0.95rem;
                 padding: 0.4rem 1rem;
             }
-            
+
             /* Compact question card */
             .question-card {
                 padding: 1rem;
                 margin-bottom: 1rem;
             }
-            
+
             .question-text {
                 font-size: 1rem;
                 line-height: 1.6;
             }
-            
+
             /* MAXIMIZE ANSWER SECTION - This is the key part! */
             .answer-section {
                 padding: 0.75rem;
                 margin-bottom: 1rem;
                 background: #fafbfc;
             }
-            
+
             .answer-label {
                 margin-bottom: 0.75rem;
                 font-size: 1rem;
                 gap: 0.4rem;
             }
-            
+
             .answer-textarea {
-                min-height: 350px; /* Significantly increased for mobile */
+                min-height: 350px;
+                /* Significantly increased for mobile */
                 padding: 0.9rem;
                 font-size: 0.95rem;
                 border: 2px solid #e2e8f0;
                 line-height: 1.6;
             }
-            
+
             .char-count {
                 font-size: 0.85rem;
                 margin-top: 0.5rem;
             }
-            
+
             /* Compact controls */
             .controls {
                 flex-direction: column-reverse;
@@ -1059,79 +1142,79 @@
                 gap: 0.75rem;
                 margin-bottom: 1rem;
             }
-            
+
             .nav-buttons {
                 width: 100%;
                 justify-content: space-between;
                 gap: 0.75rem;
             }
-            
+
             button {
                 flex: 1;
                 justify-content: center;
                 padding: 0.75rem 1.5rem;
                 font-size: 0.95rem;
             }
-            
+
             .btn-primary {
                 font-size: 1rem;
                 padding: 0.85rem 1.75rem;
             }
-            
+
             .btn-success {
                 font-size: 1.05rem;
                 padding: 1rem 2rem;
             }
-            
+
             /* Compact results */
             .total-score {
                 font-size: 2.5rem;
             }
-            
+
             .summary-header h2 {
                 font-size: 1.8rem;
             }
-            
+
             .performance-stats {
                 grid-template-columns: 1fr;
                 gap: 1rem;
             }
-            
+
             .stat-card {
                 padding: 1.25rem;
             }
-            
+
             /* Name modal adjustments */
             .name-modal-content {
                 width: 95%;
             }
-            
+
             .name-modal-header {
                 padding: 1.5rem;
             }
-            
+
             .name-modal-header h2 {
                 font-size: 1.5rem;
                 margin-bottom: 0.4rem;
             }
-            
+
             .name-modal-header p {
                 font-size: 0.9rem;
             }
-            
+
             .name-modal-body {
                 padding: 1.25rem;
             }
-            
+
             .name-input {
                 padding: 0.9rem 1.2rem;
                 font-size: 1rem;
             }
-            
+
             .name-modal-footer {
                 padding: 1rem 1.25rem 1.5rem;
             }
-            
+
             .btn-start-test {
                 padding: 1rem 1.75rem;
                 font-size: 1.05rem;
@@ -1143,200 +1226,201 @@
             body {
                 padding: 5px;
             }
-            
+
             .container {
                 border-radius: 12px;
             }
-            
+
             /* Ultra-compact header */
             header {
                 padding: 0.75rem 0.75rem 1rem;
             }
-            
+
             header h1 {
                 font-size: 1.3rem;
                 margin-bottom: 0.25rem;
             }
-            
+
             .auth-status {
                 font-size: 0.8rem;
                 padding: 0.35rem 0.7rem;
             }
-            
+
             .back-button {
                 padding: 0.5rem 1rem;
                 font-size: 0.85rem;
             }
-            
+
             /* Ultra-compact main */
             main {
                 padding: 0.75rem;
             }
-            
+
             /* Minimal status banner */
             .status-banner {
                 padding: 0.6rem 0.8rem;
                 margin-bottom: 0.75rem;
                 gap: 0.6rem;
             }
-            
+
             .status-info {
                 flex-direction: column;
                 gap: 0.5rem;
             }
-            
+
             .status-item span {
                 font-size: 0.9rem;
             }
-            
+
             .answered-badge {
                 padding: 0.35rem 0.8rem;
                 font-size: 0.85rem;
             }
-            
+
             /* Minimal shortcuts */
             .shortcuts-hint {
                 padding: 0.6rem 0.8rem;
                 margin-bottom: 0.75rem;
                 font-size: 0.8rem;
             }
-            
+
             /* Ultra-compact question header */
             .question-header {
                 margin-bottom: 0.75rem;
                 gap: 0.6rem;
             }
-            
+
             .badge {
                 padding: 0.35rem 0.75rem;
                 font-size: 0.75rem;
             }
-            
+
             .question-counter {
                 font-size: 0.9rem;
                 padding: 0.35rem 0.9rem;
             }
-            
+
             /* Minimal question card */
             .question-card {
                 padding: 0.75rem;
                 margin-bottom: 0.75rem;
             }
-            
+
             .question-text {
                 font-size: 0.95rem;
                 line-height: 1.5;
             }
-            
+
             /* MAXIMUM ANSWER SPACE FOR SMALL SCREENS */
             .answer-section {
                 padding: 0.6rem;
                 margin-bottom: 0.75rem;
             }
-            
+
             .answer-label {
                 margin-bottom: 0.6rem;
                 font-size: 0.95rem;
             }
-            
+
             .answer-textarea {
-                min-height: 400px; /* Maximum space for writing on small screens! */
+                min-height: 400px;
+                /* Maximum space for writing on small screens! */
                 padding: 0.75rem;
                 font-size: 0.9rem;
                 border-width: 2px;
             }
-            
+
             .char-count {
                 font-size: 0.8rem;
                 margin-top: 0.4rem;
             }
-            
+
             /* Minimal controls */
             .controls {
                 gap: 0.6rem;
                 margin-bottom: 0.75rem;
             }
-            
+
             .nav-buttons {
                 gap: 0.6rem;
             }
-            
+
             button {
                 padding: 0.65rem 1.25rem;
                 font-size: 0.9rem;
             }
-            
+
             .btn-primary {
                 font-size: 0.95rem;
                 padding: 0.75rem 1.5rem;
             }
-            
+
             .btn-success {
                 font-size: 1rem;
                 padding: 0.85rem 1.75rem;
             }
-            
+
             /* Compact results */
             .results-summary {
                 padding: 1.5rem;
                 margin-top: 1rem;
             }
-            
+
             .summary-header {
                 margin-bottom: 2rem;
             }
-            
+
             .summary-header h2 {
                 font-size: 1.5rem;
             }
-            
+
             .total-score {
                 font-size: 2rem;
             }
-            
+
             .stat-card {
                 padding: 1rem;
             }
-            
+
             .stat-value {
                 font-size: 2rem;
             }
-            
+
             .stat-label {
                 font-size: 0.85rem;
             }
-            
+
             .question-results {
                 padding: 1rem;
                 margin-bottom: 1rem;
             }
-            
+
             .result-item {
                 padding: 1rem;
                 margin-bottom: 1rem;
             }
-            
+
             .result-score {
                 font-size: 1.3rem;
             }
-            
+
             /* Name modal ultra-compact */
             .name-modal-content {
                 width: 98%;
             }
-            
+
             .name-modal-header {
                 padding: 1.25rem;
             }
-            
+
             .name-modal-header h2 {
                 font-size: 1.3rem;
             }
-            
+
             .name-modal-body {
                 padding: 1rem;
             }
-            
+
             .name-input {
                 padding: 0.8rem 1rem;
                 font-size: 0.95rem;
@@ -1346,25 +1430,28 @@
         /* Landscape orientation specific optimization */
         @media (max-width: 768px) and (orientation: landscape) {
             .answer-textarea {
-                min-height: 280px; /* Slightly reduced for landscape to avoid too much scrolling */
+                min-height: 280px;
+                /* Slightly reduced for landscape to avoid too much scrolling */
             }
         }
 
         @media (max-width: 480px) and (orientation: landscape) {
             .answer-textarea {
-                min-height: 250px; /* Optimized for small landscape screens */
+                min-height: 250px;
+                /* Optimized for small landscape screens */
             }
-            
+
             header {
                 padding: 0.6rem;
             }
-            
+
             main {
                 padding: 0.6rem;
             }
         }
     </style>
 </head>
+
 <body>
     <!-- ==================== NAME COLLECTION MODAL ==================== -->
     <div id="nameModal" class="name-modal">
@@ -1373,24 +1460,34 @@
                 <h2>👋 Welcome to Economics Test</h2>
                 <p>Please enter your name before starting the test</p>
             </div>
-            
+
             <div class="name-modal-body">
-                <label for="studentNameInput" class="name-label">
-                    📝 Your Full Name
-                </label>
-                <input 
-                    type="text" 
-                    id="studentNameInput" 
-                    class="name-input"
-                    placeholder="Enter your full name..."
-                    maxlength="100"
-                    autocomplete="name"
-                />
-                <div class="name-hint">
-                    This name will be saved with your test results
+                <!-- Saved Name Display (shown when name is remembered) -->
+                <div class="saved-name-display" id="savedNameDisplay" style="display: none;">
+                    <div class="saved-name-info">
+                        <span class="saved-name-label">Welcome back,</span>
+                        <span class="saved-name-value" id="savedNameValue">Student</span>
+                    </div>
+                    <button type="button" class="change-name-btn" id="changeNameBtn">Change Name</button>
+                </div>
+
+                <!-- Name Input Group (hidden when name is remembered) -->
+                <div class="name-input-group" id="nameInputGroup">
+                    <label for="studentNameInput" class="name-label">
+                        📝 Your Full Name
+                    </label>
+                    <input type="text" id="studentNameInput" class="name-input" placeholder="Enter your full name..."
+                        maxlength="100" autocomplete="name" />
+                    <label class="remember-checkbox">
+                        <input type="checkbox" id="rememberName">
+                        <span>Remember my name (skip this step next time)</span>
+                    </label>
+                    <div class="name-hint">
+                        This name will be saved with your test results
+                    </div>
                 </div>
             </div>
-            
+
             <div class="name-modal-footer">
                 <button class="btn-primary btn-start-test" id="startTestBtn" disabled>
                     🚀 Start Test
@@ -1412,12 +1509,12 @@
                 <div class="auth-status" id="authStatus">Initializing...</div>
             </div>
         </header>
-        
+
         <!-- ==================== PROGRESS BAR ==================== -->
         <div class="progress-container">
             <div class="progress-bar" id="progressBar"></div>
         </div>
-        
+
         <!-- ==================== MAIN CONTENT ==================== -->
         <main>
             <!-- ==================== LOADING STATE ==================== -->
@@ -1425,15 +1522,15 @@
                 <div class="spinner"></div>
                 <p>Loading questions from database...</p>
             </div>
-            
+
             <!-- ==================== ERROR STATE ==================== -->
             <div class="error" id="errorState" style="display: none;">
                 <strong>⚠️ Error:</strong> <span id="errorMessage">Something went wrong</span>
             </div>
-            
+
             <!-- ==================== QUESTION CONTAINER ==================== -->
             <div id="questionContainer" style="display: none;">
-                
+
                 <!-- Status Banner (shows answered count) -->
                 <div class="status-banner">
                     <div class="status-info">
@@ -1450,12 +1547,12 @@
                         0/0 Completed
                     </div>
                 </div>
-                
+
                 <!-- Keyboard Shortcuts Hint -->
                 <div class="shortcuts-hint">
                     ⌨️ <strong>Shortcuts:</strong> Alt+← Previous • Alt+→ Next • Answer all questions to submit test
                 </div>
-                
+
                 <!-- Question Header -->
                 <div class="question-header">
                     <div class="question-meta">
@@ -1470,35 +1567,31 @@
                         Question 1 of 1
                     </div>
                 </div>
-                
+
                 <!-- Question Card -->
                 <div class="question-card">
                     <div class="question-text" id="questionText">
                         Question will appear here...
                     </div>
                 </div>
-                
+
                 <!-- Answer Section -->
                 <div class="answer-section">
                     <label class="answer-label" for="answerTextarea">
                         <span>✏️</span> Your Answer
                     </label>
-                    <textarea 
-                        class="answer-textarea" 
-                        id="answerTextarea"
-                        placeholder="Type your detailed answer here...
+                    <textarea class="answer-textarea" id="answerTextarea" placeholder="Type your detailed answer here...
 
 Tips for better answers:
 - Define key economic terms
 - Use relevant examples
 - Show your reasoning step-by-step
-- Include diagrams or graphs if applicable"
-                    ></textarea>
+- Include diagrams or graphs if applicable"></textarea>
                     <div class="char-count">
                         <span id="charCount">0</span> characters
                     </div>
                 </div>
-                
+
                 <!-- Navigation Controls -->
                 <div class="controls">
                     <div class="nav-buttons">
@@ -1509,26 +1602,26 @@ Tips for better answers:
                             Next →
                         </button>
                     </div>
-                    
+
                     <!-- Submit Test Button (only shows when all answered) -->
                     <button class="btn-success" id="submitTestBtn" style="display: none;">
                         🚀 Submit Test & Get Results
                     </button>
                 </div>
-                
+
             </div>
-            
+
             <!-- ==================== RESULTS SUMMARY ==================== -->
             <div id="resultsSummary" style="display: none;">
                 <div class="results-summary">
-                    
+
                     <!-- Summary Header -->
                     <div class="summary-header">
                         <h2>🎉 Test Completed!</h2>
                         <span class="total-score" id="totalScore">0/0</span>
                         <div class="score-label">Total Score</div>
                     </div>
-                    
+
                     <!-- Performance Statistics -->
                     <div class="performance-stats">
                         <div class="stat-card">
@@ -1544,7 +1637,7 @@ Tips for better answers:
                             <span class="stat-label">Average per Question</span>
                         </div>
                     </div>
-                    
+
                     <!-- Individual Question Results -->
                     <div class="question-results">
                         <h3>📋 Detailed Results</h3>
@@ -1552,17 +1645,17 @@ Tips for better answers:
                             <!-- Results will be inserted here by JavaScript -->
                         </div>
                     </div>
-                    
+
                     <!-- Action Buttons -->
                     <div style="text-align: center; margin-top: 2rem;">
                         <a href="index.html" class="btn-primary" style="text-decoration: none; display: inline-flex;">
                             🏠 Back to Home
                         </a>
                     </div>
-                    
+
                 </div>
             </div>
-            
+
         </main>
     </div>
 
@@ -1571,15 +1664,15 @@ Tips for better answers:
         import { auth, db } from './firebase-config.js';
         import { evaluateWithGemini } from './gemini-config.js';
 
-        import { 
-            signInAnonymously, 
-            onAuthStateChanged 
+        import {
+            signInAnonymously,
+            onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
         import {
-            collection, 
-            query, 
-            where, 
+            collection,
+            query,
+            where,
             getDocs,
             addDoc,
             serverTimestamp,
@@ -1601,28 +1694,41 @@ Tips for better answers:
             testCompleted: false
         };
 
+        // ==================== LOCAL STORAGE KEYS ====================
+        const STORAGE_KEYS = {
+            SAVED_NAME: 'nerdtutors_text_name',
+            REMEMBER_NAME: 'nerdtutors_text_remember'
+        };
+
         // ==================== DOM ELEMENTS ====================
         const elements = {
             // Name Modal (NEW)
             nameModal: document.getElementById('nameModal'),
+            // Name Modal (NEW)
+            nameModal: document.getElementById('nameModal'),
             studentNameInput: document.getElementById('studentNameInput'),
             startTestBtn: document.getElementById('startTestBtn'),
-            
+            rememberName: document.getElementById('rememberName'),
+            savedNameDisplay: document.getElementById('savedNameDisplay'),
+            savedNameValue: document.getElementById('savedNameValue'),
+            changeNameBtn: document.getElementById('changeNameBtn'),
+            nameInputGroup: document.getElementById('nameInputGroup'),
+
             // Auth & Status
             authStatus: document.getElementById('authStatus'),
             loadingState: document.getElementById('loadingState'),
             errorState: document.getElementById('errorState'),
             errorMessage: document.getElementById('errorMessage'),
             progressBar: document.getElementById('progressBar'),
-            
+
             // Question Container
             questionContainer: document.getElementById('questionContainer'),
-            
+
             // Status Banner
             totalQuestions: document.getElementById('totalQuestions'),
             answeredCount: document.getElementById('answeredCount'),
             answeredBadge: document.getElementById('answeredBadge'),
-            
+
             // Question Info
             categoryBadge: document.getElementById('categoryBadge'),
             marksBadge: document.getElementById('marksBadge'),
@@ -1630,16 +1736,16 @@ Tips for better answers:
             answeredStatusBadge: document.getElementById('answeredStatusBadge'),
             questionCounter: document.getElementById('questionCounter'),
             questionText: document.getElementById('questionText'),
-            
+
             // Answer Section
             answerTextarea: document.getElementById('answerTextarea'),
             charCount: document.getElementById('charCount'),
-            
+
             // Navigation
             prevBtn: document.getElementById('prevBtn'),
             nextBtn: document.getElementById('nextBtn'),
             submitTestBtn: document.getElementById('submitTestBtn'),
-            
+
             // Results
             resultsSummary: document.getElementById('resultsSummary'),
             totalScore: document.getElementById('totalScore'),
@@ -1653,18 +1759,18 @@ Tips for better answers:
         async function init() {
             try {
                 console.log('🚀 Initializing app...');
-                
+
                 // Setup authentication first
                 await setupAuth();
-                
+
                 // Setup name modal listeners
                 setupNameModalListeners();
-                
+
                 // Show name modal and wait for user to enter name
                 // The rest of initialization will happen after name is entered
-                
+
                 console.log('✅ App initialized - waiting for student name');
-                
+
             } catch (error) {
                 console.error('❌ Initialization error:', error);
                 showError('Failed to initialize. Please refresh the page.');
@@ -1699,7 +1805,50 @@ Tips for better answers:
         }
 
         // ==================== NAME MODAL LISTENERS ====================
+        // ==================== SAVED NAME MANAGEMENT ====================
+        function loadSavedName() {
+            const savedName = localStorage.getItem(STORAGE_KEYS.SAVED_NAME);
+            const rememberEnabled = localStorage.getItem(STORAGE_KEYS.REMEMBER_NAME) === 'true';
+
+            if (savedName && rememberEnabled) {
+                appState.studentName = savedName;
+                showSavedNameUI(savedName);
+                return true;
+            }
+            return false;
+        }
+
+        function showSavedNameUI(name) {
+            elements.nameInputGroup.style.display = 'none';
+            elements.savedNameDisplay.style.display = 'flex';
+            elements.savedNameValue.textContent = name;
+            elements.startTestBtn.disabled = false;
+        }
+
+        function showNameInputUI() {
+            elements.nameInputGroup.style.display = 'block';
+            elements.savedNameDisplay.style.display = 'none';
+            elements.studentNameInput.value = '';
+            appState.studentName = '';
+            elements.startTestBtn.disabled = true;
+            elements.studentNameInput.focus();
+        }
+
+        function saveNameToStorage(name) {
+            localStorage.setItem(STORAGE_KEYS.SAVED_NAME, name);
+            localStorage.setItem(STORAGE_KEYS.REMEMBER_NAME, 'true');
+        }
+
+        function clearSavedName() {
+            localStorage.removeItem(STORAGE_KEYS.SAVED_NAME);
+            localStorage.removeItem(STORAGE_KEYS.REMEMBER_NAME);
+        }
+
+        // ==================== NAME MODAL LISTENERS ====================
         function setupNameModalListeners() {
+            // Check for saved name
+            loadSavedName();
+
             // Enable/disable start button based on name input
             elements.studentNameInput.addEventListener('input', (e) => {
                 const name = e.target.value.trim();
@@ -1720,24 +1869,40 @@ Tips for better answers:
             // Start test button click
             elements.startTestBtn.addEventListener('click', startTest);
 
-            // Auto-focus on name input
-            setTimeout(() => {
-                elements.studentNameInput.focus();
-            }, 500);
+            // Change name button
+            elements.changeNameBtn.addEventListener('click', () => {
+                clearSavedName();
+                showNameInputUI();
+            });
+
+            // Auto-focus on name input if shown
+            if (elements.nameInputGroup.style.display !== 'none') {
+                setTimeout(() => {
+                    elements.studentNameInput.focus();
+                }, 500);
+            }
         }
 
         // ==================== START TEST (After Name Entry) ====================
         async function startTest() {
-            const name = elements.studentNameInput.value.trim();
-            
-            if (name.length < 3) {
-                alert('⚠️ Please enter your full name (at least 3 characters)');
-                elements.studentNameInput.focus();
-                return;
+            // Get student name if not already set (from saved name)
+            if (!appState.studentName) {
+                const name = elements.studentNameInput.value.trim();
+
+                if (name.length < 3) {
+                    alert('⚠️ Please enter your full name (at least 3 characters)');
+                    elements.studentNameInput.focus();
+                    return;
+                }
+
+                appState.studentName = name;
+
+                // Check if should save name
+                if (elements.rememberName.checked) {
+                    saveNameToStorage(name);
+                }
             }
 
-            // Save student name
-            appState.studentName = name;
             console.log('✅ Student name saved:', appState.studentName);
 
             // Hide name modal with animation
@@ -1752,27 +1917,27 @@ Tips for better answers:
             try {
                 // Load questions from Firestore
                 await loadQuestions();
-                
+
                 // Setup all event listeners
                 setupEventListeners();
-                
+
                 // Check if we have questions
                 if (appState.questions.length > 0) {
                     // Update status banner
                     updateStatusBanner();
-                    
+
                     // Render first question
                     renderQuestion();
-                    
+
                     // Hide loading, show question container
                     elements.loadingState.style.display = 'none';
                     elements.questionContainer.style.display = 'block';
-                    
+
                     console.log('✅ Test started successfully');
                 } else {
                     showError('No active questions found. Please contact admin.');
                 }
-                
+
             } catch (error) {
                 console.error('❌ Error starting test:', error);
                 showError('Failed to load questions. Please refresh the page.');
@@ -1797,14 +1962,14 @@ Tips for better answers:
         async function loadQuestions() {
             try {
                 console.log('🔥 Loading questions from Firestore...');
-                
+
                 const questionsRef = collection(db, 'questions');
                 const querySnapshot = await getDocs(questionsRef);
-                
+
                 console.log('📊 Total documents in questions collection:', querySnapshot.size);
-                
+
                 appState.questions = [];
-                
+
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     console.log('📄 Question found:', {
@@ -1813,6 +1978,12 @@ Tips for better answers:
                         category: data.category,
                         text: data.text?.substring(0, 50) + '...'
                     });
+
+                    // SKIP MCQ questions - this page is for text-based questions only
+                    if (data.type === 'mcq') {
+                        console.log(`⏭️ Skipping MCQ question: ${doc.id}`);
+                        return;
+                    }
 
                     // Only include ACTIVE questions in the test
                     if (data.status === 'active' || data.status === undefined) {
@@ -1824,23 +1995,23 @@ Tips for better answers:
                         console.log(`⏭️ Skipping inactive question: ${doc.id}`);
                     }
                 });
-                
+
                 console.log(`✅ Total questions loaded: ${appState.questions.length}`);
-                
+
                 const activeCount = appState.questions.filter(q => q.status === 'active').length;
                 const inactiveCount = appState.questions.filter(q => q.status === 'inactive').length;
                 console.log(`📊 Active: ${activeCount}, Inactive: ${inactiveCount}`);
-                
+
                 appState.questions.sort((a, b) => {
                     const timeA = a.createdAt?.seconds || 0;
                     const timeB = b.createdAt?.seconds || 0;
                     return timeB - timeA;
                 });
-                
+
                 if (appState.questions.length === 0) {
                     throw new Error('No questions found in database. Please add questions from admin panel.');
                 }
-                
+
             } catch (error) {
                 console.error('❌ Error loading questions:', error);
                 throw error;
@@ -1851,14 +2022,14 @@ Tips for better answers:
         function updateStatusBanner() {
             const totalCount = appState.questions.length;
             const answeredCountValue = appState.answers.size;
-            
+
             elements.totalQuestions.textContent = totalCount;
             elements.answeredCount.textContent = answeredCountValue;
             elements.answeredBadge.textContent = `${answeredCountValue}/${totalCount} Completed`;
-            
+
             const progress = totalCount > 0 ? (answeredCountValue / totalCount) * 100 : 0;
             elements.progressBar.style.width = `${progress}%`;
-            
+
             if (answeredCountValue === totalCount && totalCount > 0) {
                 elements.submitTestBtn.style.display = 'inline-flex';
                 console.log('✅ All questions answered! Submit button shown.');
@@ -1879,33 +2050,33 @@ Tips for better answers:
         function renderQuestion() {
             const question = appState.questions[appState.currentIndex];
             if (!question) return;
-            
+
             console.log('📄 Rendering question:', appState.currentIndex + 1);
-            
+
             elements.categoryBadge.textContent = question.category || 'General';
             elements.marksBadge.textContent = `${question.marks || 10} marks`;
             elements.difficultyBadge.textContent = question.difficulty || 'Medium';
-            
-            elements.questionCounter.textContent = 
+
+            elements.questionCounter.textContent =
                 `Question ${appState.currentIndex + 1} of ${appState.questions.length}`;
-            
+
             elements.questionText.textContent = question.text || 'Question text not available';
-            
+
             const savedAnswer = appState.answers.get(question.id);
             elements.answerTextarea.value = savedAnswer || '';
             updateCharCount();
-            
+
             if (savedAnswer && savedAnswer.trim().length > 0) {
                 elements.answeredStatusBadge.style.display = 'inline-block';
             } else {
                 elements.answeredStatusBadge.style.display = 'none';
             }
-            
+
             elements.prevBtn.disabled = appState.currentIndex === 0;
             elements.nextBtn.disabled = appState.currentIndex === appState.questions.length - 1;
-            
+
             updateStatusBanner();
-            
+
             elements.answerTextarea.focus();
         }
 
@@ -1935,7 +2106,7 @@ Tips for better answers:
         function saveCurrentAnswer() {
             const question = appState.questions[appState.currentIndex];
             const answerText = elements.answerTextarea.value.trim();
-            
+
             if (question) {
                 if (answerText.length > 0) {
                     appState.answers.set(question.id, answerText);
@@ -1944,7 +2115,7 @@ Tips for better answers:
                     appState.answers.delete(question.id);
                     console.log(`🗑️ Answer removed for question ${appState.currentIndex + 1}`);
                 }
-                
+
                 updateStatusBanner();
             }
         }
@@ -1953,7 +2124,7 @@ Tips for better answers:
         function updateCharCount() {
             const count = elements.answerTextarea.value.length;
             elements.charCount.textContent = count;
-            
+
             if (count === 0) {
                 elements.charCount.style.color = '#64748b';
             } else if (count < 50) {
@@ -1966,12 +2137,12 @@ Tips for better answers:
         // ==================== EVENT LISTENERS ====================
         function setupEventListeners() {
             console.log('🎧 Setting up event listeners...');
-            
+
             elements.prevBtn.addEventListener('click', navigatePrevious);
             elements.nextBtn.addEventListener('click', navigateNext);
-            
+
             elements.submitTestBtn.addEventListener('click', submitTest);
-            
+
             elements.answerTextarea.addEventListener('input', (e) => {
                 const question = appState.questions[appState.currentIndex];
                 if (question) {
@@ -1985,7 +2156,7 @@ Tips for better answers:
                     updateStatusBanner();
                 }
             });
-            
+
             document.addEventListener('keydown', (e) => {
                 if (e.altKey && e.key === 'ArrowLeft') {
                     e.preventDefault();
@@ -1993,14 +2164,14 @@ Tips for better answers:
                         navigatePrevious();
                     }
                 }
-                
+
                 if (e.altKey && e.key === 'ArrowRight') {
                     e.preventDefault();
                     if (!elements.nextBtn.disabled) {
                         navigateNext();
                     }
                 }
-                
+
                 if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     e.preventDefault();
                     if (elements.submitTestBtn.style.display !== 'none') {
@@ -2008,7 +2179,7 @@ Tips for better answers:
                     }
                 }
             });
-            
+
             window.addEventListener('beforeunload', (e) => {
                 if (appState.answers.size > 0 && !appState.testCompleted) {
                     e.preventDefault();
@@ -2016,27 +2187,27 @@ Tips for better answers:
                     return e.returnValue;
                 }
             });
-            
+
             console.log('✅ Event listeners set up successfully');
         }
 
         // ==================== SUBMIT TEST VALIDATION ====================
         function submitTest() {
             console.log('🚀 Submit Test clicked');
-            
+
             saveCurrentAnswer();
-            
+
             const totalQuestions = appState.questions.length;
             const answeredQuestions = appState.answers.size;
-            
+
             if (answeredQuestions < totalQuestions) {
                 alert(`⚠️ Please answer all questions before submitting!\n\nAnswered: ${answeredQuestions}/${totalQuestions}`);
                 return;
             }
-            
+
             let hasShortAnswers = false;
             let shortAnswerQuestions = [];
-            
+
             appState.questions.forEach((question, index) => {
                 const answer = appState.answers.get(question.id);
                 if (answer && answer.length < 50) {
@@ -2044,19 +2215,19 @@ Tips for better answers:
                     shortAnswerQuestions.push(index + 1);
                 }
             });
-            
+
             if (hasShortAnswers) {
                 const confirm = window.confirm(
                     `⚠️ Some answers are quite short (Questions: ${shortAnswerQuestions.join(', ')})\n\n` +
                     `Short answers may receive lower scores.\n\n` +
                     `Do you want to submit anyway?`
                 );
-                
+
                 if (!confirm) {
                     return;
                 }
             }
-            
+
             const finalConfirm = window.confirm(
                 `📝 Ready to submit your test?\n\n` +
                 `Student Name: ${appState.studentName}\n` +
@@ -2065,7 +2236,7 @@ Tips for better answers:
                 `Once submitted, you cannot change your answers.\n\n` +
                 `Click OK to submit and get your results.`
             );
-            
+
             if (finalConfirm) {
                 evaluateAllAnswers();
             }
@@ -2100,16 +2271,16 @@ Tips for better answers:
                         studentAnswer: studentAnswer,
                         maxMarks: question.marks || 10
                     });
-                    
+
                     console.log('✅ Evaluation result:', result);
                     appState.results.set(question.id, result);
 
                 } catch (error) {
                     console.error(`❌ Evaluation failed for question ${question.id}:`, error);
-                    const errorResult = { 
-                        score: 0, 
-                        feedback: 'An error occurred while evaluating this answer. Please try again later.', 
-                        improvements: [] 
+                    const errorResult = {
+                        score: 0,
+                        feedback: 'An error occurred while evaluating this answer. Please try again later.',
+                        improvements: []
                     };
                     appState.results.set(question.id, errorResult);
                 }
@@ -2181,7 +2352,7 @@ Tips for better answers:
 
             elements.loadingState.style.display = 'none';
             elements.resultsSummary.style.display = 'block';
-            
+
             elements.resultsSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -2228,4 +2399,5 @@ Tips for better answers:
         init();
     </script>
 </body>
+
 </html>
