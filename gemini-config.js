@@ -111,11 +111,41 @@ async function evaluateWithClientSide({ question, modelAnswer, studentAnswer, ma
 
 // 🔹 Batch Evaluation Function (Optimized for Capacity)
 export async function evaluateBatchWithGemini(questions, answers) {
-    // Check if we need to use client-side or backend
-    // For now, we'll use client-side logic directly for batching since backend /api/evaluate might not support it yet
+    try {
+        console.log('📦 Attempting batch evaluation via backend...');
 
-    // We'll reuse the client-side key logic
-    return await evaluateBatchClientSide(questions, answers);
+        // Convert answers Map to Object for JSON serialization if needed, 
+        // but wait, appState.answers is a Map? Yes.
+        // JSON.stringify handles Map? No, it returns {}.
+        // So we must convert it.
+        const answersObj = {};
+        answers.forEach((value, key) => {
+            answersObj[key] = value;
+        });
+
+        // 1. Try Vercel Backend First
+        const response = await fetch('/api/evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                questions,
+                answers: answersObj
+            })
+        });
+
+        if (response.ok) {
+            const results = await response.json();
+            console.log('✅ Backend batch evaluation successful:', results);
+            return results;
+        } else {
+            console.warn(`⚠️ Backend unavailable (Status: ${response.status}). Switching to client-side fallback.`);
+            throw new Error('Backend failed');
+        }
+
+    } catch (error) {
+        console.log('🔄 Falling back to client-side batch Gemini call...', error);
+        return await evaluateBatchClientSide(questions, answers);
+    }
 }
 
 async function evaluateBatchClientSide(questions, answers) {
