@@ -14,8 +14,13 @@ export default async function handler(req, res) {
   if (typeof body === "string") body = JSON.parse(body);
 
   // ===== Validate API Key =====
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return res.status(500).json({ error: "Missing API Key" });
+  // ===== Validate API Key =====
+  // Check multiple common names in case of typo in Vercel Settings
+  const key = process.env.GEMINI_API_KEY || process.env.GEMINI_API || process.env.GEMINI_KEY;
+  if (!key) {
+    console.error("❌ API Key Missing! Checked: GEMINI_API_KEY, GEMINI_API, GEMINI_KEY");
+    return res.status(500).json({ error: "Missing API Key in Environment Variables" });
+  }
 
   // ===== Check for Batch or Single Request =====
   const isBatch = Array.isArray(body.questions);

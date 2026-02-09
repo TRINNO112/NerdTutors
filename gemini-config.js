@@ -72,13 +72,30 @@ export async function evaluateBatchWithGemini(questions, answers) {
             console.log('✅ Backend batch evaluation successful:', results);
             return results;
         } else {
-            console.warn(`⚠️ Backend unavailable (Status: ${response.status}). Switching to client-side fallback.`);
-            throw new Error('Backend failed');
+            // Try to get error details
+            let errorMsg = 'Backend failed';
+            try {
+                const errorData = await response.json();
+                if (errorData.error) errorMsg = errorData.error;
+            } catch (e) {
+                // If not JSON, use status text
+                errorMsg = `Backend Error ${response.status}: ${response.statusText}`;
+            }
+
+            console.warn(`⚠️ Backend unavailable: ${errorMsg}`);
+            throw new Error(errorMsg);
         }
 
     } catch (error) {
-        console.log('🔄 Falling back to client-side batch Gemini call...', error);
-        return await evaluateBatchClientSide(questions, answers);
+        console.error('❌ Batch evaluation failed:', error.message);
+
+        // Return specific error to user
+        return questions.map(q => ({
+            questionId: q.id,
+            score: 0,
+            feedback: `System Error: ${error.message}`,
+            improvements: ["Please check Vercel logs.", "Ensure API Key is set."]
+        }));
     }
 }
 
