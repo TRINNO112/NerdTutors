@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  console.log("🚀 EVALUATE HANDLER STARTED");
+  console.log("🚀 EVALUATE HANDLER STARTED"); // Force redeploy check
 
   // ===== CORS =====
   res.setHeader("Access-Control-Allow-Origin", "*");
