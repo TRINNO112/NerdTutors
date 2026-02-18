@@ -1,0 +1,306 @@
+/* ==================== OCR SCAN - BASE STYLES ==================== */
+/* Reset & Variables & Layout */
+
+:root {
+    --ocr-bg: #0a0a0f;
+    --ocr-surface: #12121a;
+    --ocr-surface-hover: #1a1a28;
+    --ocr-border: rgba(255, 255, 255, 0.08);
+    --ocr-border-focus: rgba(102, 126, 234, 0.5);
+    --ocr-text: #e8e8f0;
+    --ocr-text-dim: #8888a0;
+    --ocr-text-muted: #55556a;
+    --ocr-primary: #667eea;
+    --ocr-primary-light: rgba(102, 126, 234, 0.15);
+    --ocr-secondary: #764ba2;
+    --ocr-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --ocr-gradient-soft: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+    --ocr-success: #10b981;
+    --ocr-success-bg: rgba(16, 185, 129, 0.12);
+    --ocr-warning: #f59e0b;
+    --ocr-warning-bg: rgba(245, 158, 11, 0.12);
+    --ocr-danger: #ef4444;
+    --ocr-danger-bg: rgba(239, 68, 68, 0.12);
+    --ocr-radius: 16px;
+    --ocr-radius-sm: 10px;
+    --ocr-radius-xs: 6px;
+    --ocr-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    --ocr-shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
+    --ocr-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --ocr-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --ocr-font-display: 'Poppins', var(--ocr-font);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--ocr-font);
+    background: var(--ocr-bg);
+    color: var(--ocr-text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==================== HEADER ==================== */
+
+.ocr-header {
+    background: var(--ocr-surface);
+    border-bottom: 1px solid var(--ocr-border);
+    padding: 1rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+}
+
+.ocr-header-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.ocr-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ocr-text-dim);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--ocr-transition);
+    padding: 0.5rem 0.8rem;
+    border-radius: var(--ocr-radius-xs);
+}
+
+.ocr-back-btn:hover {
+    color: var(--ocr-primary);
+    background: var(--ocr-primary-light);
+}
+
+.ocr-page-title {
+    font-family: var(--ocr-font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--ocr-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ocr-title-icon {
+    -webkit-text-fill-color: initial;
+    font-size: 1.3rem;
+}
+
+.ocr-header-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--ocr-gradient);
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 20px;
+}
+
+/* ==================== MAIN LAYOUT ==================== */
+
+.ocr-main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+}
+
+.ocr-section-title {
+    font-family: var(--ocr-font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    text-align: center;
+}
+
+.ocr-section-desc {
+    color: var(--ocr-text-dim);
+    font-size: 0.95rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* ==================== BUTTONS ==================== */
+
+.ocr-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--ocr-font);
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.85rem 1.5rem;
+    border-radius: var(--ocr-radius-sm);
+    border: none;
+    cursor: pointer;
+    transition: var(--ocr-transition);
+    text-decoration: none;
+}
+
+.ocr-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.ocr-btn-primary {
+    background: var(--ocr-gradient);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.ocr-btn-primary:hover:not(:disabled) {
+    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+    transform: translateY(-2px);
+}
+
+.ocr-btn-secondary {
+    background: var(--ocr-surface-hover);
+    color: var(--ocr-text);
+    border: 1px solid var(--ocr-border);
+}
+
+.ocr-btn-secondary:hover:not(:disabled) {
+    border-color: var(--ocr-primary);
+    background: var(--ocr-primary-light);
+}
+
+.ocr-btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--ocr-radius-xs);
+}
+
+.ocr-btn-small:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.ocr-btn-full {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.ocr-btn-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.ocr-btn-row .ocr-btn-primary {
+    flex: 1;
+}
+
+/* ==================== FORM ELEMENTS ==================== */
+
+.ocr-form-group {
+    margin-bottom: 1.25rem;
+}
+
+.ocr-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ocr-text);
+    margin-bottom: 0.5rem;
+}
+
+.ocr-required {
+    color: var(--ocr-danger);
+}
+
+.ocr-optional {
+    color: var(--ocr-text-muted);
+    font-weight: 400;
+}
+
+.ocr-textarea,
+.ocr-input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--ocr-bg);
+    border: 1.5px solid var(--ocr-border);
+    border-radius: var(--ocr-radius-sm);
+    color: var(--ocr-text);
+    font-family: var(--ocr-font);
+    font-size: 0.95rem;
+    transition: var(--ocr-transition);
+    resize: vertical;
+}
+
+.ocr-textarea:focus,
+.ocr-input:focus {
+    outline: none;
+    border-color: var(--ocr-border-focus);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.ocr-textarea::placeholder,
+.ocr-input::placeholder {
+    color: var(--ocr-text-muted);
+}
+
+.ocr-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+    .ocr-header-content {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .ocr-back-btn {
+        order: -1;
+        margin-right: auto;
+    }
+
+    .ocr-header-badge {
+        order: 1;
+    }
+
+    .ocr-page-title {
+        font-size: 1.1rem;
+    }
+
+    .ocr-main {
+        padding: 1.25rem 1rem 3rem;
+    }
+
+    .ocr-section-title {
+        font-size: 1.25rem;
+    }
+
+    .ocr-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .ocr-btn-row {
+        flex-direction: column;
+    }
+}

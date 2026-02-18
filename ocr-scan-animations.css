@@ -1,0 +1,248 @@
+/* ==================== OCR SCAN - ANIMATIONS ==================== */
+/* Scanning overlay, transitions, micro-animations */
+
+/* ===== SCANNING OVERLAY ===== */
+
+.ocr-scanning-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.ocr-scanning-card {
+    background: var(--ocr-surface);
+    border: 1px solid var(--ocr-border);
+    border-radius: var(--ocr-radius);
+    padding: 3rem 2.5rem;
+    text-align: center;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: var(--ocr-shadow-lg);
+}
+
+.ocr-scanning-animation {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ocr-primary);
+}
+
+.ocr-scan-line {
+    position: absolute;
+    height: 2px;
+    width: 70%;
+    left: 15%;
+    background: var(--ocr-gradient);
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(102, 126, 234, 0.6), 0 0 30px rgba(102, 126, 234, 0.3);
+    animation: scanLineMove 2s ease-in-out infinite;
+}
+
+@keyframes scanLineMove {
+    0%, 100% {
+        top: 10%;
+        opacity: 0.6;
+    }
+    50% {
+        top: 85%;
+        opacity: 1;
+    }
+}
+
+.ocr-scanning-title {
+    font-family: var(--ocr-font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: var(--ocr-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ocr-scanning-status {
+    color: var(--ocr-text-dim);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    min-height: 1.5em;
+}
+
+.ocr-scanning-progress {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ocr-scanning-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--ocr-gradient);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 8px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== ELEMENT ENTER ANIMATIONS ===== */
+
+.ocr-fade-in {
+    animation: ocrFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes ocrFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ocr-fade-in-delay-1 {
+    animation-delay: 0.1s;
+    opacity: 0;
+}
+
+.ocr-fade-in-delay-2 {
+    animation-delay: 0.2s;
+    opacity: 0;
+}
+
+.ocr-fade-in-delay-3 {
+    animation-delay: 0.3s;
+    opacity: 0;
+}
+
+.ocr-fade-in-delay-4 {
+    animation-delay: 0.4s;
+    opacity: 0;
+}
+
+/* ===== PULSE GLOW ===== */
+
+.ocr-pulse-glow {
+    animation: ocrPulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes ocrPulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(102, 126, 234, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.4), 0 0 40px rgba(102, 126, 234, 0.15);
+    }
+}
+
+/* ===== SHIMMER EFFECT (Loading placeholder) ===== */
+
+.ocr-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.ocr-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.04) 50%,
+        transparent 100%
+    );
+    animation: ocrShimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes ocrShimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ===== SCORE COUNTER ANIMATION ===== */
+
+.ocr-score-animate {
+    animation: ocrScoreCount 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes ocrScoreCount {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.15);
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ===== UPLOAD ZONE HOVER ANIMATION ===== */
+
+.ocr-upload-zone:hover:not(.has-image) {
+    border-color: var(--ocr-primary);
+    background: rgba(102, 126, 234, 0.04);
+}
+
+.ocr-upload-zone:hover .ocr-upload-icon {
+    animation: ocrUploadBounce 0.6s ease;
+}
+
+@keyframes ocrUploadBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-8px);
+    }
+    60% {
+        transform: translateY(-4px);
+    }
+}
+
+/* ===== MODE CARD SELECT RIPPLE ===== */
+
+.ocr-mode-card::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.1);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+    z-index: 0;
+}
+
+.ocr-mode-card.active::after {
+    width: 200%;
+    height: 200%;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+    .ocr-scanning-card {
+        padding: 2rem 1.5rem;
+    }
+}
