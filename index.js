@@ -242,6 +242,19 @@ textTestBtn.addEventListener('click', () => {
     }
 });
 
+// OCR Test Button
+const ocrTestBtn = document.getElementById('ocrTestBtn');
+if (ocrTestBtn) {
+    ocrTestBtn.addEventListener('click', () => {
+        if (currentUser) {
+            window.location.href = 'ocr-scan.html';
+        } else {
+            alert('🔐 Please login first to access OCR Scan & Evaluate!');
+            showLoginModal();
+        }
+    });
+}
+
 // ==================== SMOOTH SCROLL ====================
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {

@@ -113,4 +113,84 @@ async function evaluateBatchClientSide(questions, answers) {
     }));
 }
 
-console.log("✅ Gemini API configured (Backend Only Mode)");
+// 🔹 OCR Evaluation Function (Single Answer)
+export async function evaluateWithOCR({ image, mimeType, question, modelAnswer, maxMarks }) {
+    try {
+        console.log('📸 Attempting OCR evaluation via backend...');
+
+        const response = await fetch('/api/ocr-evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mode: 'single',
+                image,
+                mimeType: mimeType || 'image/jpeg',
+                question,
+                modelAnswer,
+                maxMarks: maxMarks || 5
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('✅ OCR evaluation successful:', result);
+            return result;
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Server error: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('❌ OCR evaluation failed:', error);
+        return {
+            extractedText: '',
+            score: 0,
+            maxMarks: maxMarks || 5,
+            improvements: ['OCR evaluation failed: ' + error.message],
+            feedback: 'Could not process the image. Please try again.'
+        };
+    }
+}
+
+// 🔹 OCR Batch Evaluation Function (Full Sheet)
+export async function evaluateBatchWithOCR({ image, mimeType, questions }) {
+    try {
+        console.log(`📄 Attempting OCR batch evaluation (${questions.length} questions)...`);
+
+        const response = await fetch('/api/ocr-evaluate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                mode: 'full-sheet',
+                image,
+                mimeType: mimeType || 'image/jpeg',
+                questions
+            })
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log('✅ OCR batch evaluation successful:', result);
+            return result;
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `Server error: ${response.status}`);
+        }
+    } catch (error) {
+        console.error('❌ OCR batch evaluation failed:', error);
+        return {
+            extractedText: '',
+            results: questions.map(q => ({
+                questionId: q.id,
+                score: 0,
+                maxMarks: q.marks || 5,
+                feedback: 'OCR evaluation failed: ' + error.message,
+                improvements: ['Please try again with a clearer photo.']
+            })),
+            totalScore: 0,
+            totalMaxMarks: questions.reduce((sum, q) => sum + (q.marks || 5), 0),
+            overallFeedback: 'Failed to process the answer sheet.'
+        };
+    }
+}
+
+console.log("✅ Gemini API configured (Backend Only Mode + OCR Support)");
