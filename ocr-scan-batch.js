@@ -100,6 +100,10 @@ function onBatchSelected(selectorId) {
     if (!batchId) {
         window.OCRBatchState.selectedBatch = null;
         if (preview) preview.style.display = 'none';
+        // Disable the Continue button when no batch selected
+        const nextBtnId = isSingle ? 'singleNextStep1' : 'fullSheetNextStep1';
+        const nextBtn = document.getElementById(nextBtnId);
+        if (nextBtn) nextBtn.disabled = true;
         return;
     }
 
@@ -107,6 +111,11 @@ function onBatchSelected(selectorId) {
     if (!batch) return;
 
     window.OCRBatchState.selectedBatch = batch;
+
+    // Enable the Continue button when batch is selected
+    const nextBtnId = isSingle ? 'singleNextStep1' : 'fullSheetNextStep1';
+    const nextBtn = document.getElementById(nextBtnId);
+    if (nextBtn) nextBtn.disabled = false;
 
     // Show preview
     if (preview) preview.style.display = 'block';

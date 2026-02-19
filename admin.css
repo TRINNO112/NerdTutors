@@ -1272,6 +1272,14 @@
             background: #2a5298;
         }
 
+        /* Hide keyboard shortcuts on mobile */
+        @media (max-width: 768px) {
+            .btn-shortcuts,
+            .shortcuts-help {
+                display: none !important;
+            }
+        }
+
         /* Draft Saved Indicator */
         .draft-indicator {
             display: none;
