@@ -99,27 +99,32 @@ const OCRApp = {
             return;
         }
 
-        const question = document.getElementById('singleQuestion').value.trim();
-        if (!question) {
-            alert('Please enter the question.');
-            document.getElementById('singleQuestion').focus();
+        // Get batch data from the batch module
+        const batchState = window.OCRBatchState;
+        if (!batchState || !batchState.selectedBatch) {
+            alert('Please select a question batch.');
             return;
         }
 
-        const modelAnswer = document.getElementById('singleModelAnswer').value.trim();
-        const maxMarks = parseInt(document.getElementById('singleMaxMarks').value) || 5;
+        const batch = batchState.selectedBatch;
+        // Use the first question from the batch for single mode
+        const firstQ = batch.questions[0];
+        if (!firstQ) {
+            alert('Selected batch has no questions.');
+            return;
+        }
 
         // Show scanning overlay
         OCRUI.showScanning();
         OCRUI.updateSteps('singleFlow', 3);
 
-        // Call API
+        // Call API with first question from batch
         const result = await OCRAPI.evaluateSingle({
             image: this.singleImageData.base64,
             mimeType: this.singleImageData.mimeType,
-            question,
-            modelAnswer,
-            maxMarks
+            question: firstQ.text,
+            modelAnswer: firstQ.modelAnswer || '',
+            maxMarks: firstQ.marks || 5
         });
 
         // Hide scanning, show results
@@ -128,6 +133,11 @@ const OCRApp = {
         // Hide flow section
         document.getElementById('singleFlow').style.display = 'none';
         document.getElementById('modeSelector').style.display = 'none';
+
+        // Save result to Firestore via batch module
+        if (window.OCRBatchSave) {
+            window.OCRBatchSave('single', batch, [result]);
+        }
 
         // Render results
         OCRUI.renderSingleResults(result);
@@ -156,10 +166,6 @@ const OCRApp = {
             document.getElementById('fullSheetStep1').style.display = 'none';
             document.getElementById('fullSheetStep2').style.display = 'block';
             OCRUI.updateSteps('fullSheetFlow', 2);
-            // Add first question if none exist
-            if (this.questionCounter === 0) {
-                this.addQuestion();
-            }
         });
 
         // Back button
@@ -168,9 +174,6 @@ const OCRApp = {
             document.getElementById('fullSheetStep1').style.display = 'block';
             OCRUI.updateSteps('fullSheetFlow', 1);
         });
-
-        // Add question button
-        document.getElementById('addQuestionBtn').addEventListener('click', () => this.addQuestion());
 
         // Submit button
         document.getElementById('fullSheetSubmitBtn').addEventListener('click', () => this.submitFullSheet());
@@ -186,74 +189,29 @@ const OCRApp = {
         });
     },
 
-    addQuestion() {
-        this.questionCounter++;
-        const list = document.getElementById('fullSheetQuestionsList');
-        const num = this.questionCounter;
-
-        const item = document.createElement('div');
-        item.className = 'ocr-question-item ocr-fade-in';
-        item.id = `questionItem${num}`;
-        item.innerHTML = `
-            <div class="ocr-question-item-header">
-                <span class="ocr-question-number">Q${num}</span>
-                <button class="ocr-question-remove" onclick="window.OCRApp.removeQuestion(${num})" title="Remove question">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button>
-            </div>
-            <div class="ocr-question-fields">
-                <textarea rows="2" placeholder="Enter question ${num}..." data-field="question" data-qnum="${num}"></textarea>
-                <textarea rows="2" placeholder="Model answer (optional)" data-field="modelAnswer" data-qnum="${num}"></textarea>
-                <div class="ocr-question-marks-row">
-                    <label>Max Marks:</label>
-                    <input type="number" value="5" min="1" max="100" data-field="marks" data-qnum="${num}">
-                </div>
-            </div>
-        `;
-        list.appendChild(item);
-    },
-
-    removeQuestion(num) {
-        const item = document.getElementById(`questionItem${num}`);
-        if (item) {
-            item.style.opacity = '0';
-            item.style.transform = 'translateX(-20px)';
-            setTimeout(() => item.remove(), 300);
-        }
-    },
-
-    getQuestions() {
-        const items = document.querySelectorAll('.ocr-question-item');
-        const questions = [];
-        items.forEach((item, index) => {
-            const qText = item.querySelector('[data-field="question"]')?.value.trim();
-            const modelAnswer = item.querySelector('[data-field="modelAnswer"]')?.value.trim();
-            const marks = parseInt(item.querySelector('[data-field="marks"]')?.value) || 5;
-
-            if (qText) {
-                questions.push({
-                    id: `q${index + 1}`,
-                    text: qText,
-                    modelAnswer: modelAnswer || '',
-                    marks
-                });
-            }
-        });
-        return questions;
-    },
-
     async submitFullSheet() {
         if (!this.fullSheetImageData) {
             alert('Please upload an answer sheet image first.');
             return;
         }
 
-        const questions = this.getQuestions();
+        // Get batch data from the batch module
+        const batchState = window.OCRBatchState;
+        if (!batchState || !batchState.selectedBatch) {
+            alert('Please select a question batch.');
+            return;
+        }
+
+        const batch = batchState.selectedBatch;
+        const questions = batch.questions.map((q, i) => ({
+            id: `q${i + 1}`,
+            text: q.text,
+            modelAnswer: q.modelAnswer || '',
+            marks: q.marks || 5
+        }));
+
         if (questions.length === 0) {
-            alert('Please add at least one question.');
+            alert('Selected batch has no questions.');
             return;
         }
 
@@ -274,6 +232,11 @@ const OCRApp = {
         // Hide flow section
         document.getElementById('fullSheetFlow').style.display = 'none';
         document.getElementById('modeSelector').style.display = 'none';
+
+        // Save results to Firestore via batch module
+        if (window.OCRBatchSave) {
+            window.OCRBatchSave('full-sheet', batch, result);
+        }
 
         // Render results
         OCRUI.renderFullSheetResults(result);
@@ -308,7 +271,6 @@ const OCRApp = {
         this.fullSheetImageData = null;
         this.currentMode = null;
         this.questionCounter = 0;
-        document.getElementById('fullSheetQuestionsList').innerHTML = '';
 
         // Reset upload zones
         ['singleUploadContent', 'fullSheetUploadContent'].forEach(id => {
@@ -324,10 +286,20 @@ const OCRApp = {
             document.getElementById(id).classList.remove('has-image');
         });
 
-        // Reset form fields
-        document.getElementById('singleQuestion').value = '';
-        document.getElementById('singleModelAnswer').value = '';
-        document.getElementById('singleMaxMarks').value = '5';
+        // Reset batch selectors
+        ['singleBatchSelect', 'fullSheetBatchSelect'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.selectedIndex = 0;
+        });
+        ['singleBatchPreview', 'fullSheetBatchPreview'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+
+        // Reset batch state
+        if (window.OCRBatchState) {
+            window.OCRBatchState.selectedBatch = null;
+        }
 
         // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });

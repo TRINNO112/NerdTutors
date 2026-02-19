@@ -357,12 +357,49 @@ function viewDetails(resultId) {
         result.results.forEach((item, index) => {
             const answerDiv = document.createElement('div');
             answerDiv.className = 'answer-item';
+
+            // Get student answer — handle both text and OCR field names
+            const studentAnswer = item.studentAnswer || item.extractedAnswer || 'No answer provided';
+
+            // Build improvements/suggestions HTML
+            let suggestionsHtml = '';
+            if (item.improvements && item.improvements.length > 0) {
+                suggestionsHtml = `
+                    <div style="margin-top: 0.75rem; background: #fef9c3; border-radius: 8px; padding: 0.75rem; border-left: 3px solid #f59e0b;">
+                        <div style="font-weight: 600; color: #92400e; font-size: 0.8rem; margin-bottom: 0.4rem;">💡 Suggestions for Improvement</div>
+                        <ul style="margin: 0; padding-left: 1.2rem; color: #78350f; font-size: 0.85rem;">
+                            ${item.improvements.map(s => `<li style="margin-bottom: 0.25rem;">${s}</li>`).join('')}
+                        </ul>
+                    </div>`;
+            }
+
+            // Build feedback HTML
+            let feedbackHtml = '';
+            if (item.feedback) {
+                feedbackHtml = `
+                    <div style="margin-top: 0.75rem; background: #eff6ff; border-radius: 8px; padding: 0.75rem; border-left: 3px solid #3b82f6;">
+                        <div style="font-weight: 600; color: #1e40af; font-size: 0.8rem; margin-bottom: 0.3rem;">🤖 AI Review</div>
+                        <div style="color: #1e3a5f; font-size: 0.85rem;">${item.feedback}</div>
+                    </div>`;
+            }
+
             answerDiv.innerHTML = `
-                    <div class="answer-question">Q${index + 1}: ${item.questionText || 'Question text not available'}</div>
-                    <div class="answer-text">${item.studentAnswer || 'No answer provided'}</div>
-                    <div class="answer-score">Score: ${item.earnedMarks}/${item.marks}</div>
-                    ${item.feedback ? `<div style="margin-top: 0.5rem; color: #64748b;">${item.feedback}</div>` : ''}
-                `;
+                <div class="answer-question">
+                    <strong style="color: #1e3c72;">Q${index + 1}:</strong> ${item.questionText || 'Question text not available'}
+                </div>
+                <div style="margin-top: 0.5rem; background: #f1f5f9; border-radius: 8px; padding: 0.75rem; border-left: 3px solid #6366f1;">
+                    <div style="font-weight: 600; color: #475569; font-size: 0.8rem; margin-bottom: 0.3rem;">📝 Student's Answer</div>
+                    <div style="color: #334155; font-size: 0.9rem; white-space: pre-wrap;">${studentAnswer}</div>
+                </div>
+                <div class="answer-score" style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-weight: 600;">Score: ${item.earnedMarks}/${item.marks}</span>
+                    <div style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+                        <div style="height: 100%; width: ${Math.min(100, ((item.earnedMarks || 0) / (item.marks || 1)) * 100)}%; background: ${((item.earnedMarks || 0) / (item.marks || 1)) >= 0.7 ? '#22c55e' : ((item.earnedMarks || 0) / (item.marks || 1)) >= 0.4 ? '#f59e0b' : '#ef4444'}; border-radius: 3px;"></div>
+                    </div>
+                </div>
+                ${feedbackHtml}
+                ${suggestionsHtml}
+            `;
             answersContainer.appendChild(answerDiv);
         });
     } else {
@@ -757,7 +794,8 @@ function renderTypeBreakdown() {
     tbody.innerHTML = '';
 
     const mcqResults = appState.testResults.filter(r => r.testType === 'mcq');
-    const textResults = appState.testResults.filter(r => r.testType !== 'mcq');
+    const ocrResults = appState.testResults.filter(r => r.testType === 'ocr');
+    const textResults = appState.testResults.filter(r => r.testType !== 'mcq' && r.testType !== 'ocr');
 
     const calcStats = (results) => {
         if (results.length === 0) return { count: 0, avg: 0, high: 0, low: 0 };
@@ -772,6 +810,7 @@ function renderTypeBreakdown() {
 
     const mcqStats = calcStats(mcqResults);
     const textStats = calcStats(textResults);
+    const ocrStats = calcStats(ocrResults);
 
     tbody.innerHTML = `
         <tr>
@@ -787,6 +826,13 @@ function renderTypeBreakdown() {
             <td>${textStats.avg}%</td>
             <td>${textStats.high}%</td>
             <td>${textStats.low}%</td>
+        </tr>
+        <tr>
+            <td><span class="type-badge" style="background:#e8f5e9;color:#2e7d32;">OCR</span></td>
+            <td>${ocrStats.count}</td>
+            <td>${ocrStats.avg}%</td>
+            <td>${ocrStats.high}%</td>
+            <td>${ocrStats.low}%</td>
         </tr>
     `;
 }
@@ -859,7 +905,8 @@ function exportFilteredResults(type) {
 function exportAnalyticsReport() {
     const total = appState.testResults.length;
     const mcqCount = appState.testResults.filter(r => r.testType === 'mcq').length;
-    const textCount = total - mcqCount;
+    const ocrCount = appState.testResults.filter(r => r.testType === 'ocr').length;
+    const textCount = total - mcqCount - ocrCount;
     const avgScore = total > 0 ? (appState.testResults.reduce((sum, r) => sum + (parseFloat(r.percentage) || 0), 0) / total).toFixed(1) : 0;
 
     let csv = 'Analytics Report\n\n';
@@ -867,6 +914,7 @@ function exportAnalyticsReport() {
     csv += `Total Tests,${total}\n`;
     csv += `MCQ Tests,${mcqCount}\n`;
     csv += `Text Tests,${textCount}\n`;
+    csv += `OCR Tests,${ocrCount}\n`;
     csv += `Average Score,${avgScore}%\n`;
     csv += `Unique Students,${new Set(appState.testResults.map(r => r.studentId)).size}\n`;
 

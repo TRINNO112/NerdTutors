@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Batch Manager | NerdTutors Admin</title>
+    <link rel="stylesheet" href="batch-manager.css">
+</head>
+
+<body>
+    <!-- Login Container -->
+    <div class="login-container" id="loginContainer">
+        <h2>🔐 Admin Login</h2>
+        <p>Sign in with admin account</p>
+        <button class="btn-google" id="googleSignIn">
+            <span>🔷</span> Sign in with Google
+        </button>
+    </div>
+
+    <!-- Main Container (hidden until auth) -->
+    <div class="batch-container" id="batchContainer" style="display: none;">
+
+        <!-- Header -->
+        <div class="batch-header">
+            <div class="batch-header-content">
+                <div class="batch-header-left">
+                    <h1>📦 Question Batches</h1>
+                </div>
+                <div class="batch-header-right">
+                    <a href="admin.html" class="btn-back">← Back to Admin</a>
+                    <span class="user-badge" id="userEmail">Loading...</span>
+                    <button class="btn-logout" id="btnLogout">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="batch-content">
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <h2 id="batchCount">All Batches (0)</h2>
+                <button class="btn-create" id="btnCreateBatch">
+                    ➕ Create New Batch
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-spinner" id="loadingSpinner">Loading batches...</div>
+
+            <!-- Batches Grid -->
+            <div class="batches-grid" id="batchesGrid" style="display: none;">
+                <!-- Cards populated by JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-state-icon">📦</div>
+                <h3>No Batches Yet</h3>
+                <p>Create your first question batch for students to use in OCR scan evaluations.</p>
+                <button class="btn-create" onclick="document.getElementById('btnCreateBatch').click()">
+                    ➕ Create First Batch
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div class="modal-overlay" id="batchModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">📦 Create New Batch</h2>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <!-- Batch Info Section -->
+                <div class="modal-section">
+                    <div class="modal-section-title">📋 Batch Information</div>
+                    <div class="form-group">
+                        <label for="batchName">Batch Name *</label>
+                        <input type="text" id="batchName" placeholder="e.g., Unit Test 1 - Microeconomics">
+                    </div>
+                    <div class="form-group">
+                        <label for="batchCategory">Category *</label>
+                        <select id="batchCategory" class="form-select">
+                            <option value="">-- Select Category --</option>
+                            <option value="Microeconomics">Microeconomics</option>
+                            <option value="Macroeconomics">Macroeconomics</option>
+                            <option value="International Economics">International Economics</option>
+                            <option value="Development Economics">Development Economics</option>
+                            <option value="Public Economics">Public Economics</option>
+                            <option value="Monetary Economics">Monetary Economics</option>
+                            <option value="Labor Economics">Labor Economics</option>
+                            <option value="Environmental Economics">Environmental Economics</option>
+                            <option value="Econometrics">Econometrics</option>
+                            <option value="Economic Theory">Economic Theory</option>
+                            <option value="Statistics">Statistics</option>
+                            <option value="General">General</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- CSV Upload Section -->
+                <div class="modal-section">
+                    <div class="modal-section-title">📤 Import from CSV / Excel</div>
+                    <div class="csv-actions-row">
+                        <button type="button" class="btn-template" id="btnDownloadTemplate">📥 Download
+                            Template</button>
+                        <button type="button" class="btn-format-guide" id="btnFormatGuide">❓ View Format Guide</button>
+                    </div>
+                    <!-- Format Guide (hidden by default) -->
+                    <div class="format-guide" id="formatGuide" style="display:none;">
+                        <div class="format-guide-header">📋 CSV / Excel Format Guide</div>
+                        <p>Your file should have these columns in the <strong>first row</strong> as headers:</p>
+                        <table class="format-table">
+                            <thead>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Required?</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>question</code></td>
+                                    <td>✅ Yes</td>
+                                    <td>The question text</td>
+                                </tr>
+                                <tr>
+                                    <td><code>modelAnswer</code></td>
+                                    <td>Optional</td>
+                                    <td>The correct / model answer</td>
+                                </tr>
+                                <tr>
+                                    <td><code>marks</code></td>
+                                    <td>Optional</td>
+                                    <td>Max marks (defaults to 5)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="format-example">
+                            <strong>Example:</strong>
+                            <pre>question,modelAnswer,marks
+What is GDP?,Gross Domestic Product is the total value of goods and services produced,5
+Define inflation,A sustained increase in the general price level,3
+Explain demand curve,Shows the relationship between price and quantity demanded,4</pre>
+                        </div>
+                        <p style="font-size:0.78rem;color:#64748b;">💡 Column names are flexible —
+                            <code>Question</code>, <code>text</code>, <code>answer</code>, <code>score</code> etc. all
+                            work too!</p>
+                    </div>
+                    <div class="csv-upload-zone" id="csvUploadZone">
+                        <div class="csv-upload-icon">📄</div>
+                        <div class="csv-upload-text">
+                            <strong>Click to upload CSV</strong> or drag & drop
+                        </div>
+                        <div class="csv-upload-hint">Supports .csv and .xlsx files</div>
+                        <input type="file" id="csvFileInput" accept=".csv,.xlsx,.xls" style="display:none;">
+                    </div>
+                    <div class="csv-status" id="csvStatus" style="display:none;"></div>
+                </div>
+
+                <!-- Questions Section -->
+                <div class="modal-section">
+                    <div class="modal-section-title">
+                        📝 Questions
+                        <span class="question-count-badge" id="questionCountBadge">0</span>
+                    </div>
+                    <div id="questionsContainer">
+                        <!-- Question items added dynamically -->
+                    </div>
+                    <button class="btn-add-question" id="btnAddQuestion">
+                        ➕ Add Question
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="btnCancelModal">Cancel</button>
+                <button class="btn-save" id="btnSaveBatch">Save Batch</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="batch-manager.js"></script>
+</body>
+
+</html>
