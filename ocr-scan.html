@@ -88,16 +88,47 @@
                 <button class="ocr-flow-back" id="singleFlowBack">← Change Mode</button>
                 <h2 class="ocr-section-title">Single Answer Scan</h2>
                 <div class="ocr-step-indicator">
-                    <span class="ocr-step active" data-step="1">1. Upload</span>
+                    <span class="ocr-step active" data-step="1">1. Select Batch</span>
                     <span class="ocr-step-divider">→</span>
-                    <span class="ocr-step" data-step="2">2. Context</span>
+                    <span class="ocr-step" data-step="2">2. Upload</span>
                     <span class="ocr-step-divider">→</span>
                     <span class="ocr-step" data-step="3">3. Results</span>
                 </div>
             </div>
 
-            <!-- Step 1: Upload -->
+            <!-- Step 1: Select Batch (students see questions FIRST) -->
             <div class="ocr-step-panel" id="singleStep1">
+                <div class="ocr-context-form">
+                    <div class="ocr-form-group">
+                        <label class="ocr-label" for="singleBatchSelect">Select Question Batch <span
+                                class="ocr-required">*</span></label>
+                        <select id="singleBatchSelect" class="ocr-input"
+                            style="padding: 0.75rem; font-size: 1rem; width: 100%;">
+                            <option value="">-- Loading batches... --</option>
+                        </select>
+                    </div>
+                    <!-- Batch Preview -->
+                    <div id="singleBatchPreview" style="display: none; margin-top: 1rem;">
+                        <div
+                            style="background: #f0f4ff; border-radius: 12px; padding: 1rem; border: 1px solid #d0d8ee;">
+                            <div style="font-weight: 700; color: #1e3c72; margin-bottom: 0.5rem;" id="singleBatchName">
+                                Batch Name</div>
+                            <div
+                                style="display: flex; gap: 1rem; font-size: 0.85rem; color: #666; margin-bottom: 0.75rem;">
+                                <span>📝 <strong id="singleBatchQCount">0</strong> Questions</span>
+                                <span>🎯 <strong id="singleBatchMarks">0</strong> Total Marks</span>
+                            </div>
+                            <div id="singleBatchQuestions" style="font-size: 0.8rem; color: #555;"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="ocr-btn ocr-btn-primary ocr-btn-full" id="singleNextStep1" disabled>
+                    Continue to Upload Answer →
+                </button>
+            </div>
+
+            <!-- Step 2: Upload Answer Photo -->
+            <div class="ocr-step-panel" id="singleStep2" style="display: none;">
                 <div class="ocr-upload-zone" id="singleUploadZone">
                     <div class="ocr-upload-content" id="singleUploadContent">
                         <div class="ocr-upload-icon">
@@ -141,36 +172,9 @@
                 </div>
                 <input type="file" id="singleFileInput" accept="image/*" style="display: none;">
                 <input type="file" id="singleCameraInput" accept="image/*" capture="environment" style="display: none;">
-                <button class="ocr-btn ocr-btn-primary ocr-btn-full" id="singleNextStep1" disabled>
-                    Continue to Question Context →
-                </button>
-            </div>
-
-            <!-- Step 2: Question Context -->
-            <div class="ocr-step-panel" id="singleStep2" style="display: none;">
-                <div class="ocr-context-form">
-                    <div class="ocr-form-group">
-                        <label class="ocr-label" for="singleQuestion">Question <span
-                                class="ocr-required">*</span></label>
-                        <textarea id="singleQuestion" class="ocr-textarea" rows="3"
-                            placeholder="Enter the question that the student answered..."></textarea>
-                    </div>
-                    <div class="ocr-form-group">
-                        <label class="ocr-label" for="singleModelAnswer">Model Answer <span
-                                class="ocr-optional">(optional)</span></label>
-                        <textarea id="singleModelAnswer" class="ocr-textarea" rows="4"
-                            placeholder="Enter the correct/model answer for comparison..."></textarea>
-                    </div>
-                    <div class="ocr-form-row">
-                        <div class="ocr-form-group">
-                            <label class="ocr-label" for="singleMaxMarks">Max Marks</label>
-                            <input type="number" id="singleMaxMarks" class="ocr-input" value="5" min="1" max="100">
-                        </div>
-                    </div>
-                </div>
                 <div class="ocr-btn-row">
-                    <button class="ocr-btn ocr-btn-secondary" id="singleBackStep2">← Back</button>
-                    <button class="ocr-btn ocr-btn-primary" id="singleSubmitBtn">
+                    <button class="ocr-btn ocr-btn-secondary" id="singleBackStep2">← Back to Batch</button>
+                    <button class="ocr-btn ocr-btn-primary" id="singleSubmitBtn" disabled>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
@@ -187,16 +191,49 @@
                 <button class="ocr-flow-back" id="fullSheetFlowBack">← Change Mode</button>
                 <h2 class="ocr-section-title">Full Answer Sheet Scan</h2>
                 <div class="ocr-step-indicator">
-                    <span class="ocr-step active" data-step="1">1. Upload</span>
+                    <span class="ocr-step active" data-step="1">1. Select Batch</span>
                     <span class="ocr-step-divider">→</span>
-                    <span class="ocr-step" data-step="2">2. Questions</span>
+                    <span class="ocr-step" data-step="2">2. Upload</span>
                     <span class="ocr-step-divider">→</span>
                     <span class="ocr-step" data-step="3">3. Results</span>
                 </div>
             </div>
 
-            <!-- Step 1: Upload -->
+            <!-- Step 1: Select Batch (students see questions FIRST) -->
             <div class="ocr-step-panel" id="fullSheetStep1">
+                <div class="ocr-questions-builder">
+                    <div class="ocr-questions-header">
+                        <h3>Select Question Batch</h3>
+                        <p>Choose the batch of questions for this answer sheet</p>
+                    </div>
+                    <div class="ocr-form-group">
+                        <select id="fullSheetBatchSelect" class="ocr-input"
+                            style="padding: 0.75rem; font-size: 1rem; width: 100%;">
+                            <option value="">-- Loading batches... --</option>
+                        </select>
+                    </div>
+                    <!-- Batch Preview -->
+                    <div id="fullSheetBatchPreview" style="display: none; margin-top: 1rem;">
+                        <div
+                            style="background: #f0f4ff; border-radius: 12px; padding: 1rem; border: 1px solid #d0d8ee;">
+                            <div style="font-weight: 700; color: #1e3c72; margin-bottom: 0.5rem;"
+                                id="fullSheetBatchName">Batch Name</div>
+                            <div
+                                style="display: flex; gap: 1rem; font-size: 0.85rem; color: #666; margin-bottom: 0.75rem;">
+                                <span>📝 <strong id="fullSheetBatchQCount">0</strong> Questions</span>
+                                <span>🎯 <strong id="fullSheetBatchMarks">0</strong> Total Marks</span>
+                            </div>
+                            <div id="fullSheetBatchQuestions" style="font-size: 0.8rem; color: #555;"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="ocr-btn ocr-btn-primary ocr-btn-full" id="fullSheetNextStep1" disabled>
+                    Continue to Upload Sheet →
+                </button>
+            </div>
+
+            <!-- Step 2: Upload Full Answer Sheet -->
+            <div class="ocr-step-panel" id="fullSheetStep2" style="display: none;">
                 <div class="ocr-upload-zone" id="fullSheetUploadZone">
                     <div class="ocr-upload-content" id="fullSheetUploadContent">
                         <div class="ocr-upload-icon">
@@ -242,33 +279,9 @@
                 <input type="file" id="fullSheetFileInput" accept="image/*" style="display: none;">
                 <input type="file" id="fullSheetCameraInput" accept="image/*" capture="environment"
                     style="display: none;">
-                <button class="ocr-btn ocr-btn-primary ocr-btn-full" id="fullSheetNextStep1" disabled>
-                    Continue to Add Questions →
-                </button>
-            </div>
-
-            <!-- Step 2: Questions List -->
-            <div class="ocr-step-panel" id="fullSheetStep2" style="display: none;">
-                <div class="ocr-questions-builder">
-                    <div class="ocr-questions-header">
-                        <h3>Add Your Questions</h3>
-                        <p>Enter the questions that appear on the answer sheet</p>
-                    </div>
-                    <div class="ocr-questions-list" id="fullSheetQuestionsList">
-                        <!-- Questions will be added dynamically -->
-                    </div>
-                    <button class="ocr-btn ocr-btn-secondary ocr-btn-full" id="addQuestionBtn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <line x1="12" y1="5" x2="12" y2="19" />
-                            <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                        Add Another Question
-                    </button>
-                </div>
                 <div class="ocr-btn-row">
-                    <button class="ocr-btn ocr-btn-secondary" id="fullSheetBackStep2">← Back</button>
-                    <button class="ocr-btn ocr-btn-primary" id="fullSheetSubmitBtn">
+                    <button class="ocr-btn ocr-btn-secondary" id="fullSheetBackStep2">← Back to Batch</button>
+                    <button class="ocr-btn ocr-btn-primary" id="fullSheetSubmitBtn" disabled>
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
                             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
@@ -310,6 +323,8 @@
     <script src="ocr-scan-api.js"></script>
     <script src="ocr-scan-ui.js"></script>
     <script src="ocr-scan.js"></script>
+    <!-- Firebase integration for batch loading + result saving -->
+    <script type="module" src="ocr-scan-batch.js"></script>
 </body>
 
 </html>
