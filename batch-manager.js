@@ -144,6 +144,16 @@ function renderBatches() {
             </div>
         `;
     }).join('');
+
+    // Add click-to-edit on entire card (for accessibility and mobile)
+    grid.querySelectorAll('.batch-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            // Don't trigger if clicking edit/delete buttons
+            if (e.target.closest('.btn-icon')) return;
+            const batchId = card.dataset.id;
+            if (batchId) window.editBatch(batchId);
+        });
+    });
 }
 
 // ==================== MODAL MANAGEMENT ====================

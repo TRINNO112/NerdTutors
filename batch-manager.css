@@ -162,6 +162,7 @@ body {
     box-shadow: 0 1px 8px rgba(0,0,0,0.06);
     border: 1px solid #e2e8f0;
     transition: all 0.2s;
+    cursor: pointer;
 }
 .batch-card:hover {
     box-shadow: 0 4px 20px rgba(0,0,0,0.1);
@@ -714,6 +715,11 @@ body {
     .btn-create {
         width: 100%;
         justify-content: center;
+    }
+
+    /* Hide edit button on mobile — card click opens edit instead */
+    .batch-card-actions .btn-icon.edit {
+        display: none;
     }
 
     /* Modal full screen on mobile */

@@ -60,7 +60,7 @@ const OCRApp = {
             imagePreview: document.getElementById('singleImagePreview'),
             previewImg: document.getElementById('singlePreviewImg'),
             changeImgBtn: document.getElementById('singleChangeImg'),
-            nextBtn: document.getElementById('singleNextStep1'),
+            nextBtn: document.getElementById('singleSubmitBtn'),
             onImageReady: (data) => { this.singleImageData = data; }
         });
 
@@ -157,7 +157,7 @@ const OCRApp = {
             imagePreview: document.getElementById('fullSheetImagePreview'),
             previewImg: document.getElementById('fullSheetPreviewImg'),
             changeImgBtn: document.getElementById('fullSheetChangeImg'),
-            nextBtn: document.getElementById('fullSheetNextStep1'),
+            nextBtn: document.getElementById('fullSheetSubmitBtn'),
             onImageReady: (data) => { this.fullSheetImageData = data; }
         });
 
