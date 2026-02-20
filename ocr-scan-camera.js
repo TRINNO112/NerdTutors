@@ -6,7 +6,7 @@ const OCRCamera = {
     // Max image size for API (4MB after base64 encoding ~ 3MB raw)
     MAX_IMAGE_SIZE: 3 * 1024 * 1024, // 3MB
     MAX_DIMENSION: 2048, // Max width/height
-    MAX_PAGES: 5, // Max number of pages per answer
+    MAX_PAGES: 10, // Max number of pages per answer
 
     /**
      * Setup file input and camera triggers

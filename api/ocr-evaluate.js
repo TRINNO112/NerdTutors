@@ -50,20 +50,18 @@ export default async function handler(req, res) {
 
         textPrompt = `You are an expert teacher evaluating a student's handwritten/printed answer sheet.
 
-⚠️ STRICT RELEVANCE ENFORCEMENT (MUST FOLLOW):
-Before grading ANY answer, you MUST first verify that the student's answer is actually about the question asked.
-- If the student wrote an answer about a COMPLETELY DIFFERENT TOPIC (e.g., notice writing, letter writing, a different chapter, a different subject), give score = 0 IMMEDIATELY. Do NOT evaluate quality, grammar, or structure of irrelevant content.
-- If the student uploaded a GRAPH, DIAGRAM, or CHART that does not relate to the specific question asked (e.g., an MR/MC curve diagram for a question about scarcity), give score = 0 IMMEDIATELY.
-- If the content is from a different subject entirely, score = 0.
-- ONLY grade on merit if the answer genuinely attempts to address the specific question.
-- Partial relevance (mentions the topic but doesn't answer correctly) = reduced marks but NOT zero.
-- Complete irrelevance = ZERO. No exceptions. No partial credit for writing quality.
+⚠️ RELEVANCE ENFORCEMENT (MUST FOLLOW):
+Before grading EACH answer, verify that the student's answer is about the question asked.
+- If the ENTIRE answer is completely unrelated to the question (e.g., writing about notice writing when asked about scarcity, or answering a completely different subject), give score = 0. Set isRelevant = false.
+- If the student uploaded MULTIPLE images and some are relevant while others contain irrelevant content (e.g., one page has a correct answer + another page has an unrelated graph), GRADE ONLY THE RELEVANT PARTS. Ignore the irrelevant images/content. Give partial marks based on what IS relevant.
+- If the answer partially addresses the topic but is incomplete or inaccurate, give reduced marks — NOT zero.
+- Only give 0 if NOTHING in the answer relates to the question at all.
 
 IMPORTANT INSTRUCTIONS:
 1. First, carefully READ and EXTRACT all the text visible in ${imageList.length > 1 ? 'these answer sheet images (the student has uploaded multiple pages)' : 'this answer sheet image'}.
 2. The student may have numbered their answers (Q1, Q2, Ans 1, etc.) — identify which answer corresponds to which question.
 3. If an answer for a question is not found in the image, mark it as "Not attempted" with score 0.
-4. For each answer, FIRST check relevance, THEN evaluate if relevant.
+4. For each answer, FIRST check relevance of the content, THEN evaluate the relevant parts.
 
 QUESTIONS TO EVALUATE:
 ${questionsList}
@@ -80,7 +78,7 @@ Return STRICT JSON only (no markdown, no code blocks):
       "score": <number>,
       "maxMarks": <number>,
       "improvements": ["suggestion1", "suggestion2"],
-      "feedback": "Detailed feedback — if irrelevant, explain WHY it is irrelevant and what was expected"
+      "feedback": "Detailed feedback — if partially irrelevant, note what was irrelevant and grade only the relevant parts"
     }
   ],
   "totalScore": <number>,
@@ -99,18 +97,17 @@ Return STRICT JSON only (no markdown, no code blocks):
 
         textPrompt = `You are an expert teacher evaluating a student's handwritten/printed answer.
 
-⚠️ STRICT RELEVANCE ENFORCEMENT (MUST FOLLOW):
-Before grading, you MUST verify that the student's answer is actually about the question asked.
-- If the student wrote an answer about a COMPLETELY DIFFERENT TOPIC (e.g., notice writing, letter writing, a different chapter, a different subject), give score = 0 IMMEDIATELY. Do NOT evaluate quality, grammar, or structure.
-- If the student uploaded a GRAPH, DIAGRAM, or CHART that does not relate to the specific question (e.g., an MR/MC curve for a question about scarcity), give score = 0 IMMEDIATELY.
-- If the content is from a different subject entirely, score = 0.
-- ONLY grade on merit if the answer genuinely attempts to address the specific question.
-- Partial relevance = reduced marks. Complete irrelevance = ZERO. No exceptions.
+⚠️ RELEVANCE ENFORCEMENT (MUST FOLLOW):
+Before grading, verify that the student's answer is about the question asked.
+- If the ENTIRE answer is completely unrelated to the question (different topic, different subject, different chapter entirely), give score = 0. Set isRelevant = false.
+- If the student uploaded MULTIPLE images and some are relevant while others contain irrelevant content (e.g., one page has the correct answer + another has an unrelated graph), GRADE ONLY THE RELEVANT PARTS. Give marks based on what IS relevant, and note the irrelevant content in feedback.
+- If the answer partially addresses the topic but is incomplete or inaccurate, give reduced marks — NOT zero.
+- Only give 0 if NOTHING in the answer relates to the question at all.
 
 IMPORTANT INSTRUCTIONS:
 1. First, READ and EXTRACT all the text written in ${imageList.length > 1 ? 'these images (the student uploaded multiple pages for one answer)' : 'this image'}.
 2. This is the student's answer to the question below.
-3. FIRST check relevance, THEN evaluate if relevant.
+3. FIRST check relevance of the content, THEN evaluate the relevant parts.
 
 Question: ${q}
 Model Answer: ${ma}
@@ -123,7 +120,7 @@ Return STRICT JSON only (no markdown, no code blocks):
   "score": <number>,
   "maxMarks": ${mm},
   "improvements": ["suggestion1", "suggestion2"],
-  "feedback": "Detailed feedback — if irrelevant, explain WHY and what was expected"
+  "feedback": "Detailed feedback — note any irrelevant content but grade the relevant parts fairly"
 }`;
     }
 
