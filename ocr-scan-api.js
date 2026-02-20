@@ -5,16 +5,15 @@ const OCRAPI = {
     ENDPOINT: '/api/ocr-evaluate',
 
     /**
-     * Evaluate a single answer image
+     * Evaluate a single answer image (or multiple pages)
      * @param {Object} params
-     * @param {string} params.image - Base64 encoded image data
-     * @param {string} params.mimeType - Image MIME type
+     * @param {Array} params.images - Array of { data, mimeType } objects
      * @param {string} params.question - The question text
      * @param {string} params.modelAnswer - The model/correct answer
      * @param {number} params.maxMarks - Maximum marks for this question
      * @returns {Object} { extractedText, score, maxMarks, improvements, feedback }
      */
-    async evaluateSingle({ image, mimeType, question, modelAnswer, maxMarks }) {
+    async evaluateSingle({ images, question, modelAnswer, maxMarks }) {
         try {
             console.log('📸 Sending single answer for OCR evaluation...');
 
@@ -23,8 +22,7 @@ const OCRAPI = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     mode: 'single',
-                    image,
-                    mimeType: mimeType || 'image/jpeg',
+                    images,
                     question,
                     modelAnswer,
                     maxMarks: maxMarks || 5
@@ -53,14 +51,13 @@ const OCRAPI = {
     },
 
     /**
-     * Evaluate a full answer sheet image with multiple questions
+     * Evaluate a full answer sheet image(s) with multiple questions
      * @param {Object} params
-     * @param {string} params.image - Base64 encoded image data
-     * @param {string} params.mimeType - Image MIME type
+     * @param {Array} params.images - Array of { data, mimeType } objects
      * @param {Array} params.questions - Array of { id, text, modelAnswer, marks }
      * @returns {Object} { extractedText, results[], totalScore, totalMaxMarks, overallFeedback }
      */
-    async evaluateFullSheet({ image, mimeType, questions }) {
+    async evaluateFullSheet({ images, questions }) {
         try {
             console.log(`📄 Sending full sheet for OCR evaluation (${questions.length} questions)...`);
 
@@ -69,8 +66,7 @@ const OCRAPI = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     mode: 'full-sheet',
-                    image,
-                    mimeType: mimeType || 'image/jpeg',
+                    images,
                     questions
                 })
             });

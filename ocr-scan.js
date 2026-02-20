@@ -94,7 +94,7 @@ const OCRApp = {
     },
 
     async submitSingle() {
-        if (!this.singleImageData) {
+        if (!this.singleImageData || this.singleImageData.length === 0) {
             alert('Please upload an image first.');
             return;
         }
@@ -118,10 +118,9 @@ const OCRApp = {
         OCRUI.showScanning();
         OCRUI.updateSteps('singleFlow', 3);
 
-        // Call API with first question from batch
+        // Call API with first question from batch — send all images
         const result = await OCRAPI.evaluateSingle({
-            image: this.singleImageData.base64,
-            mimeType: this.singleImageData.mimeType,
+            images: this.singleImageData.map(img => ({ data: img.base64, mimeType: img.mimeType })),
             question: firstQ.text,
             modelAnswer: firstQ.modelAnswer || '',
             maxMarks: firstQ.marks || 5
@@ -190,7 +189,7 @@ const OCRApp = {
     },
 
     async submitFullSheet() {
-        if (!this.fullSheetImageData) {
+        if (!this.fullSheetImageData || this.fullSheetImageData.length === 0) {
             alert('Please upload an answer sheet image first.');
             return;
         }
@@ -219,10 +218,9 @@ const OCRApp = {
         OCRUI.showScanning();
         OCRUI.updateSteps('fullSheetFlow', 3);
 
-        // Call API
+        // Call API — send all images
         const result = await OCRAPI.evaluateFullSheet({
-            image: this.fullSheetImageData.base64,
-            mimeType: this.fullSheetImageData.mimeType,
+            images: this.fullSheetImageData.map(img => ({ data: img.base64, mimeType: img.mimeType })),
             questions
         });
 

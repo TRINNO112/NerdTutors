@@ -45,6 +45,14 @@ export default async function handler(req, res) {
 
     prompt = `
       You are an expert economics teacher. Evaluate the following ${body.questions.length} student answers.
+
+      ⚠️ STRICT RELEVANCE ENFORCEMENT (MUST FOLLOW):
+      Before grading EACH answer, you MUST verify the student's answer is actually about the question asked.
+      - If the answer is about a COMPLETELY DIFFERENT TOPIC, chapter, or subject (e.g., writing about notice writing when asked about scarcity, or discussing MR/MC curves when asked about GDP), give score = 0 IMMEDIATELY. Do NOT evaluate quality or grammar of irrelevant content.
+      - If the content is from a different subject entirely, score = 0.
+      - ONLY grade on merit if the answer genuinely attempts to address the specific question.
+      - Partial relevance (mentions the topic but misses the point) = reduced marks but NOT zero.
+      - Complete irrelevance = ZERO. No exceptions. No partial credit for writing quality.
       
       ${questionsPrompt}
       
@@ -53,6 +61,7 @@ export default async function handler(req, res) {
       [
           {
               "questionId": "ID_FROM_INPUT",
+              "isRelevant": true or false,
               "score": <number>,
               "improvements": ["...", "..."],
               "feedback": "..."
@@ -70,6 +79,12 @@ export default async function handler(req, res) {
 
     prompt = `
       Evaluate the student's answer strictly in JSON.
+
+      ⚠️ STRICT RELEVANCE ENFORCEMENT (MUST FOLLOW):
+      Before grading, you MUST verify that the student's answer is actually about the question asked.
+      - If the answer is about a COMPLETELY DIFFERENT TOPIC, chapter, or subject, give score = 0 IMMEDIATELY. Do NOT evaluate quality or grammar.
+      - ONLY grade on merit if the answer genuinely attempts to address the specific question.
+      - Partial relevance = reduced marks. Complete irrelevance = ZERO. No exceptions.
       
       Question: ${question}
       Model Answer: ${modelAnswer}
@@ -78,6 +93,7 @@ export default async function handler(req, res) {
       
       Return STRICT JSON only:
       {
+        "isRelevant": true or false,
         "score": <number>,
         "improvements": ["...", "..."],
         "feedback": "..."
