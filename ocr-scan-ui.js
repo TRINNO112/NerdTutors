@@ -44,44 +44,72 @@ const OCRUI = {
     },
 
     /**
-     * Render single answer results
+     * Render single answer results (handles array from question loop)
      */
-    renderSingleResults(result) {
+    renderSingleResults(results, batch) {
         const section = document.getElementById('resultsSection');
-        const percentage = Math.round((result.score / (result.maxMarks || 5)) * 100);
+
+        // Handle array of results from question loop
+        const resultArray = Array.isArray(results) ? results : [results];
+        const totalScore = resultArray.reduce((sum, r) => sum + (r.score || 0), 0);
+        const totalMaxMarks = resultArray.reduce((sum, r) => sum + (r.maxMarks || 5), 0);
+        const percentage = Math.round((totalScore / totalMaxMarks) * 100);
         const scoreClass = this.getScoreClass(percentage);
         const emoji = this.getScoreEmoji(percentage);
+
+        // Build per-question cards
+        const questionCards = resultArray.map((r, i) => {
+            const qPercent = Math.round((r.score / (r.maxMarks || 5)) * 100);
+            const qClass = this.getScoreClass(qPercent);
+            const qNum = r.questionIndex !== undefined ? r.questionIndex + 1 : i + 1;
+            const qText = r.questionText || (batch?.questions?.[r.questionIndex]?.text) || `Question ${qNum}`;
+
+            return `
+                <div class="ocr-question-result ocr-fade-in" style="background: var(--ocr-surface); border-radius: var(--ocr-radius); padding: 1.25rem; margin-bottom: 1rem; border: 1px solid var(--ocr-border);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="font-weight: 700; color: var(--ocr-primary); font-size: 0.9rem;">Question ${qNum}</div>
+                        <div class="ocr-score-value ${qClass}" style="font-size: 1.1rem;">${r.score}/${r.maxMarks || 5}</div>
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--ocr-text-dim); margin-bottom: 0.75rem; line-height: 1.4;">${qText.substring(0, 120)}${qText.length > 120 ? '...' : ''}</div>
+                    ${r.feedback ? `<div style="font-size: 0.9rem; padding: 0.75rem; background: rgba(102,126,234,0.06); border-radius: 8px; border-left: 3px solid var(--ocr-primary); margin-bottom: 0.5rem;">📋 ${r.feedback}</div>` : ''}
+                    ${r.improvements && r.improvements.length > 0 ? `
+                        <div style="font-size: 0.85rem;">
+                            <strong style="color: var(--ocr-warning);">💡 Improvements:</strong>
+                            <ul style="margin: 0.3rem 0 0 1rem; color: var(--ocr-text-dim);">
+                                ${r.improvements.map(imp => `<li>${imp}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
 
         section.innerHTML = `
             <div class="ocr-results-header ocr-fade-in">
                 <div class="ocr-results-emoji">${emoji}</div>
-                <h2>Scan & Evaluation Complete!</h2>
-                <p>Here's how the answer was graded</p>
+                <h2>Evaluation Complete!</h2>
+                <p>${resultArray.length} question${resultArray.length > 1 ? 's' : ''} evaluated</p>
             </div>
 
             <div class="ocr-score-overview ocr-fade-in ocr-fade-in-delay-1">
                 <div class="ocr-score-card ocr-score-main">
-                    <div class="ocr-score-value ${scoreClass} ocr-score-animate">${result.score}/${result.maxMarks || 5}</div>
-                    <div class="ocr-score-label">Score</div>
+                    <div class="ocr-score-value ${scoreClass} ocr-score-animate">${totalScore}/${totalMaxMarks}</div>
+                    <div class="ocr-score-label">Total Score</div>
                 </div>
                 <div class="ocr-score-card">
                     <div class="ocr-score-value ${scoreClass} ocr-score-animate">${percentage}%</div>
                     <div class="ocr-score-label">Percentage</div>
                 </div>
                 <div class="ocr-score-card">
-                    <div class="ocr-score-value ocr-score-animate">${result.improvements ? result.improvements.length : 0}</div>
-                    <div class="ocr-score-label">Suggestions</div>
+                    <div class="ocr-score-value ocr-score-animate">${resultArray.length}</div>
+                    <div class="ocr-score-label">Questions</div>
                 </div>
             </div>
 
-            ${this.renderExtractedText(result.extractedText)}
-
-            <div class="ocr-overall-feedback ocr-fade-in ocr-fade-in-delay-3">
-                <h3>📋 AI Feedback</h3>
-                <p>${result.feedback || 'No feedback available.'}</p>
+            <div class="ocr-fade-in ocr-fade-in-delay-2" style="margin-top: 1.5rem;">
+                <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">📝 Question-wise Results</h3>
+                ${questionCards}
             </div>
-
-            ${this.renderImprovements(result.improvements)}
 
             <div class="ocr-results-actions ocr-fade-in ocr-fade-in-delay-4">
                 <button class="ocr-btn ocr-btn-primary" onclick="window.OCRApp.scanAnother()">

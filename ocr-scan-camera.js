@@ -254,6 +254,21 @@ const OCRCamera = {
     },
 
     /**
+     * Restore previously saved images (for question loop navigation)
+     */
+    restoreImages(config, images) {
+        if (!images || images.length === 0) return;
+        config._images = [...images];
+        // Show first image as preview
+        config.previewImg.src = images[0].dataUrl;
+        config.uploadContent.style.display = 'none';
+        config.imagePreview.style.display = 'block';
+        config.uploadZone.classList.add('has-image');
+        config.nextBtn.disabled = false;
+        this.updateMultiPageUI(config);
+    },
+
+    /**
      * Reset upload to initial state — clears ALL images
      */
     resetUpload(config) {

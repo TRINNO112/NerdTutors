@@ -52,8 +52,8 @@ export default async function handler(req, res) {
 
 ⚠️ RELEVANCE ENFORCEMENT (MUST FOLLOW):
 Before grading EACH answer, verify that the student's answer is about the question asked.
-- If the ENTIRE answer is completely unrelated to the question (e.g., writing about notice writing when asked about scarcity, or answering a completely different subject), give score = 0. Set isRelevant = false.
-- If the student uploaded MULTIPLE images and some are relevant while others contain irrelevant content (e.g., one page has a correct answer + another page has an unrelated graph), GRADE ONLY THE RELEVANT PARTS. Ignore the irrelevant images/content. Give partial marks based on what IS relevant.
+- If the ENTIRE answer is completely unrelated to the question (different topic, different subject, different chapter entirely), give score = 0. Set isRelevant = false.
+- If multiple images are uploaded and SOME images contain irrelevant content (e.g., one page has the correct answer but another page has an unrelated graph/diagram/text), apply a 50% PENALTY. Grade the relevant content fully, then cut the score in HALF. For example: if the relevant answer deserves 5/5 but one image is irrelevant, give 2.5/5. Always explain the deduction in feedback.
 - If the answer partially addresses the topic but is incomplete or inaccurate, give reduced marks — NOT zero.
 - Only give 0 if NOTHING in the answer relates to the question at all.
 
@@ -100,7 +100,7 @@ Return STRICT JSON only (no markdown, no code blocks):
 ⚠️ RELEVANCE ENFORCEMENT (MUST FOLLOW):
 Before grading, verify that the student's answer is about the question asked.
 - If the ENTIRE answer is completely unrelated to the question (different topic, different subject, different chapter entirely), give score = 0. Set isRelevant = false.
-- If the student uploaded MULTIPLE images and some are relevant while others contain irrelevant content (e.g., one page has the correct answer + another has an unrelated graph), GRADE ONLY THE RELEVANT PARTS. Give marks based on what IS relevant, and note the irrelevant content in feedback.
+- If multiple images are uploaded and SOME images contain irrelevant content (e.g., one page has the correct answer but another page has an unrelated graph/diagram/text), apply a 50% PENALTY. Grade the relevant content fully, then cut the score in HALF. For example: if the relevant answer deserves 5/5 but one image is irrelevant, give 2.5/5. Always explain the deduction in feedback.
 - If the answer partially addresses the topic but is incomplete or inaccurate, give reduced marks — NOT zero.
 - Only give 0 if NOTHING in the answer relates to the question at all.
 
