@@ -49,8 +49,17 @@ const OCRApp = {
     // ==================== SINGLE ANSWER FLOW ====================
 
     setupSingleFlow() {
-        // Camera setup
-        OCRCamera.setupUpload({
+        // State for question loop
+        this.singleAnswers = {}; // questionIndex → images array
+        this.currentSingleQIndex = 0;
+        this.singleCameraConfig = null;
+
+        // Camera setup — nextBtn is a dummy, we manage navigation ourselves
+        const dummyNextBtn = document.createElement('button');
+        dummyNextBtn.style.display = 'none';
+        document.body.appendChild(dummyNextBtn);
+
+        this.singleCameraConfig = {
             fileBtn: document.getElementById('singleFileBtn'),
             cameraBtn: document.getElementById('singleCameraBtn'),
             fileInput: document.getElementById('singleFileInput'),
@@ -60,57 +69,141 @@ const OCRApp = {
             imagePreview: document.getElementById('singleImagePreview'),
             previewImg: document.getElementById('singlePreviewImg'),
             changeImgBtn: document.getElementById('singleChangeImg'),
-            nextBtn: document.getElementById('singleSubmitBtn'),
-            onImageReady: (data) => { this.singleImageData = data; }
-        });
+            nextBtn: dummyNextBtn,
+            onImageReady: (data) => {
+                if (data && data.length > 0) {
+                    this.singleAnswers[this.currentSingleQIndex] = data;
+                } else {
+                    delete this.singleAnswers[this.currentSingleQIndex];
+                }
+                this.updateSingleLoopUI();
+            }
+        };
+        OCRCamera.setupUpload(this.singleCameraConfig);
 
-        // Next step button
+        // Next step button (from Step 1 → Step 2)
         document.getElementById('singleNextStep1').addEventListener('click', () => {
+            this.currentSingleQIndex = 0;
+            this.singleAnswers = {};
             document.getElementById('singleStep1').style.display = 'none';
             document.getElementById('singleStep2').style.display = 'block';
             OCRUI.updateSteps('singleFlow', 2);
+            this.showSingleQuestion(0);
         });
 
-        // Back button
+        // Back to Step 1
         document.getElementById('singleBackStep2').addEventListener('click', () => {
+            this.saveSingleCurrentImages();
             document.getElementById('singleStep2').style.display = 'none';
             document.getElementById('singleStep1').style.display = 'block';
             OCRUI.updateSteps('singleFlow', 1);
         });
 
-        // Submit button
-        document.getElementById('singleSubmitBtn').addEventListener('click', () => this.submitSingle());
+        // Navigation: Previous
+        document.getElementById('singlePrevQ').addEventListener('click', () => {
+            if (this.currentSingleQIndex > 0) {
+                this.saveSingleCurrentImages();
+                this.showSingleQuestion(this.currentSingleQIndex - 1);
+            }
+        });
+
+        // Navigation: Next / Skip
+        document.getElementById('singleNextQ').addEventListener('click', () => {
+            this.navigateSingleNext();
+        });
+        document.getElementById('singleSkipQ').addEventListener('click', () => {
+            this.navigateSingleNext();
+        });
+
+        // Submit All
+        document.getElementById('singleSubmitAll').addEventListener('click', () => this.submitSingle());
 
         // Back to mode selector
         document.getElementById('singleFlowBack').addEventListener('click', () => {
             document.getElementById('singleFlow').style.display = 'none';
             document.getElementById('singleModeCard').classList.remove('active');
             this.currentMode = null;
-            // Reset steps
             document.getElementById('singleStep1').style.display = 'block';
             document.getElementById('singleStep2').style.display = 'none';
             OCRUI.updateSteps('singleFlow', 1);
         });
     },
 
-    async submitSingle() {
-        if (!this.singleImageData || this.singleImageData.length === 0) {
-            alert('Please upload an image first.');
-            return;
+    // Save current images before navigating away
+    saveSingleCurrentImages() {
+        if (this.singleCameraConfig && this.singleCameraConfig._images && this.singleCameraConfig._images.length > 0) {
+            this.singleAnswers[this.currentSingleQIndex] = [...this.singleCameraConfig._images];
         }
+    },
 
-        // Get batch data from the batch module
+    // Navigate to next question
+    navigateSingleNext() {
+        const batch = window.OCRBatchState?.selectedBatch;
+        if (!batch) return;
+        this.saveSingleCurrentImages();
+        if (this.currentSingleQIndex < batch.questions.length - 1) {
+            this.showSingleQuestion(this.currentSingleQIndex + 1);
+        }
+    },
+
+    // Show a specific question in the loop
+    showSingleQuestion(index) {
+        const batch = window.OCRBatchState?.selectedBatch;
+        if (!batch || !batch.questions[index]) return;
+
+        this.currentSingleQIndex = index;
+        const q = batch.questions[index];
+        const total = batch.questions.length;
+
+        // Update question display
+        document.getElementById('singleQProgress').textContent = `Question ${index + 1} of ${total}`;
+        document.getElementById('singleQLabel').textContent = `Question ${index + 1}`;
+        document.getElementById('singleQText').textContent = q.text;
+        document.getElementById('singleQMarks').textContent = `${q.marks} marks`;
+
+        // Update progress bar
+        const answeredCount = Object.keys(this.singleAnswers).length;
+        document.getElementById('singleQStatus').textContent = `${answeredCount} answered`;
+        document.getElementById('singleProgressFill').style.width = `${((index + 1) / total) * 100}%`;
+
+        // Show/hide navigation buttons
+        document.getElementById('singlePrevQ').style.display = index > 0 ? 'inline-flex' : 'none';
+        const isLastQ = index === total - 1;
+        document.getElementById('singleNextQ').style.display = isLastQ ? 'none' : 'inline-flex';
+        document.getElementById('singleSkipQ').style.display = isLastQ ? 'none' : 'inline-flex';
+
+        // Enable submit if at least 1 answer exists
+        document.getElementById('singleSubmitAll').disabled = answeredCount === 0;
+
+        // Reset camera and restore saved images for this question
+        OCRCamera.resetUpload(this.singleCameraConfig);
+        if (this.singleAnswers[index] && this.singleAnswers[index].length > 0) {
+            OCRCamera.restoreImages(this.singleCameraConfig, this.singleAnswers[index]);
+        }
+    },
+
+    // Update Submit All button state
+    updateSingleLoopUI() {
+        const answeredCount = Object.keys(this.singleAnswers).length;
+        document.getElementById('singleQStatus').textContent = `${answeredCount} answered`;
+        document.getElementById('singleSubmitAll').disabled = answeredCount === 0;
+    },
+
+    async submitSingle() {
         const batchState = window.OCRBatchState;
         if (!batchState || !batchState.selectedBatch) {
             alert('Please select a question batch.');
             return;
         }
 
+        // Save current question's images
+        this.saveSingleCurrentImages();
+
         const batch = batchState.selectedBatch;
-        // Use the first question from the batch for single mode
-        const firstQ = batch.questions[0];
-        if (!firstQ) {
-            alert('Selected batch has no questions.');
+        const answeredIndices = Object.keys(this.singleAnswers).map(Number);
+
+        if (answeredIndices.length === 0) {
+            alert('Please upload at least one answer.');
             return;
         }
 
@@ -118,28 +211,39 @@ const OCRApp = {
         OCRUI.showScanning();
         OCRUI.updateSteps('singleFlow', 3);
 
-        // Call API with first question from batch — send all images
-        const result = await OCRAPI.evaluateSingle({
-            images: this.singleImageData.map(img => ({ data: img.base64, mimeType: img.mimeType })),
-            question: firstQ.text,
-            modelAnswer: firstQ.modelAnswer || '',
-            maxMarks: firstQ.marks || 5
+        // Evaluate each answered question in parallel
+        const evaluationPromises = answeredIndices.map(idx => {
+            const q = batch.questions[idx];
+            const images = this.singleAnswers[idx];
+            return OCRAPI.evaluateSingle({
+                images: images.map(img => ({ data: img.base64, mimeType: img.mimeType })),
+                question: q.text,
+                modelAnswer: q.modelAnswer || '',
+                maxMarks: q.marks || 5
+            }).then(result => ({
+                ...result,
+                questionIndex: idx,
+                questionText: q.text,
+                maxMarks: q.marks || 5
+            }));
         });
 
-        // Hide scanning, show results
+        const results = await Promise.all(evaluationPromises);
+
+        // Hide scanning
         OCRUI.hideScanning();
 
         // Hide flow section
         document.getElementById('singleFlow').style.display = 'none';
         document.getElementById('modeSelector').style.display = 'none';
 
-        // Save result to Firestore via batch module
+        // Save results to Firestore
         if (window.OCRBatchSave) {
-            window.OCRBatchSave('single', batch, [result]);
+            window.OCRBatchSave('single', batch, results);
         }
 
-        // Render results
-        OCRUI.renderSingleResults(result);
+        // Render combined results
+        OCRUI.renderSingleResults(results, batch);
     },
 
     // ==================== FULL SHEET FLOW ====================
