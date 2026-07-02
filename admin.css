@@ -2539,3 +2539,68 @@
                 padding: 0.6rem;
             }
         }
+
+        /* Evaluate Answers CSS Styling */
+        .eval-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .eval-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .eval-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: #1e3c72;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #e8f0fe;
+            border: 1px solid #c2dbff;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+        }
+
+        .file-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1a73e8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 80%;
+        }
+
+        .btn-remove-file {
+            background: none;
+            border: none;
+            color: #d93025;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0 0.25rem;
+        }
+
+        .btn-remove-file:hover {
+            color: #a51d24;
+        }
+
+        @media (max-width: 768px) {
+            .eval-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }

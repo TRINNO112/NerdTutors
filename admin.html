@@ -74,6 +74,7 @@
                 <button class="tab-btn" data-tab="bulk">📤 Bulk Upload (Excel)</button>
                 <button class="tab-btn" data-tab="manage">📋 Manage Questions</button>
                 <button class="tab-btn" data-tab="stats">📊 Statistics</button>
+                <button class="tab-btn" data-tab="evaluate-answers">📝 Evaluate Answers</button>
                 <a href="batch-manager.html" class="tab-btn"
                     style="text-decoration:none; background:#e8f5e9; color:#2e7d32; border: 2px solid #66bb6a;">📦
                     Manage Batches</a>
@@ -513,6 +514,100 @@
             <div class="content-box">
                 <div id="statsGrid">
                     <div class="spinner"></div>
+                </div>
+        </div>
+
+        <!-- Evaluate Answers Tab -->
+        <div class="tab-panel" id="evaluate-answersTab">
+            <div class="content-box">
+                <h2>📝 Answer Sheet Evaluation</h2>
+                <p style="color: #666; margin-bottom: 1.5rem;">Upload the official model answer sheet and a student's answer sheet to get detailed grading, feedback, and improvement suggestions using AI.</p>
+                
+                <div class="eval-grid">
+                    <!-- Model Answer Upload -->
+                    <div class="eval-card">
+                        <h3>🔑 1. Model Answer Key / Marking Scheme</h3>
+                        <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">Upload PDF or Image of the ideal/board answers.</p>
+                        <div class="upload-area" id="modelUploadArea">
+                            <input type="file" class="file-input" id="modelFileInput" accept=".pdf,image/*">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text" id="modelUploadText">Drag & Drop Model Answer here</div>
+                            <div class="upload-subtext">Supports PDF or Image files</div>
+                        </div>
+                        <div class="file-info" id="modelFileInfo" style="display: none;">
+                            <span class="file-name" id="modelFileName">filename.pdf</span>
+                            <button type="button" class="btn-remove-file" id="btnRemoveModelFile">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- Student Answer Upload -->
+                    <div class="eval-card">
+                        <h3>✍️ 2. Student's Answer Sheet</h3>
+                        <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">Upload PDF or Image of the student's actual work.</p>
+                        <div class="upload-area" id="studentUploadArea">
+                            <input type="file" class="file-input" id="studentFileInput" accept=".pdf,image/*">
+                            <div class="upload-icon">📝</div>
+                            <div class="upload-text" id="studentUploadText">Drag & Drop Student Answer here</div>
+                            <div class="upload-subtext">Supports PDF or Image files</div>
+                        </div>
+                        <div class="file-info" id="studentFileInfo" style="display: none;">
+                            <span class="file-name" id="studentFileName">filename.pdf</span>
+                            <button type="button" class="btn-remove-file" id="btnRemoveStudentFile">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="eval-settings" style="margin-top: 1.5rem; background: #f9f9f9; padding: 1.25rem; border-radius: 8px; border: 1px solid #e0e0e0;">
+                    <div class="form-row" style="margin-bottom: 0;">
+                        <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                            <label for="evalMaxMarks">Maximum Marks for the Sheet</label>
+                            <input type="number" id="evalMaxMarks" value="100" min="1" max="1000" style="padding: 0.5rem; width: 100%; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <button class="btn-submit" id="btnStartEvaluation" style="padding: 0.75rem 2rem; font-size: 1.05rem;" disabled>
+                        🔍 Start AI Evaluation
+                    </button>
+                </div>
+
+                <!-- Progress/Loading Screen -->
+                <div class="eval-loading" id="evalLoading" style="display: none; text-align: center; margin-top: 2rem; padding: 2rem; border: 1px dashed #ccd3ff; border-radius: 8px; background: #f5f7ff;">
+                    <div class="spinner" style="margin: 0 auto 1rem auto;"></div>
+                    <h4 style="color: #1e3c72; margin-bottom: 0.5rem;">Reading documents and evaluating answers...</h4>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0;">This may take up to 20-30 seconds. Gemini is comparing student writing to model answers.</p>
+                </div>
+
+                <!-- Results Container -->
+                <div class="eval-results" id="evalResults" style="display: none; margin-top: 2rem; padding: 1.5rem; border-radius: 8px; border: 1px solid #d0d8ee; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                        <h3 style="margin: 0; color: #1e3c72; font-size: 1.5rem;">📊 Evaluation Report</h3>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div class="eval-score-badge" style="background: #e2e8f0; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 700; font-size: 1.1rem; color: #2d3748;">
+                                Score: <span id="evalReportScore">0</span> / <span id="evalReportMax">100</span>
+                            </div>
+                            <div class="eval-score-pct" id="evalReportPct" style="font-weight: 800; font-size: 1.2rem; color: #2b6cb0;">0%</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4 style="color: #2b6cb0; margin-bottom: 0.5rem; font-weight: 600;">📋 Overall Feedback</h4>
+                        <p id="evalReportFeedback" style="line-height: 1.6; color: #4a5568; background: #f7fafc; padding: 1rem; border-radius: 6px; border-left: 4px solid #3182ce; margin: 0;"></p>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: #2f855a; margin-bottom: 0.5rem; font-weight: 600;">💡 Key Areas of Improvement</h4>
+                        <ul id="evalReportImprovements" style="padding-left: 1.25rem; line-height: 1.6; color: #4a5568; margin: 0;">
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 style="color: #2d3748; margin-bottom: 1rem; border-bottom: 1px solid #edf2f7; padding-bottom: 0.5rem; font-weight: 600;">🔍 Detailed Breakdown</h4>
+                        <div id="evalReportBreakdown" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Individual questions populated dynamically -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

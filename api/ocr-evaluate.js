@@ -20,14 +20,33 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "Missing API Key in Environment Variables" });
     }
 
-    // ===== Validate Image =====
-    const { image, images, mimeType, mode, questions, question, modelAnswer, maxMarks } = body;
+    // ===== Validate Input =====
+    const { 
+        image, 
+        images, 
+        mimeType, 
+        mode, 
+        questions, 
+        question, 
+        modelAnswer, 
+        maxMarks,
+        modelAnswerFile,
+        modelAnswerMimeType,
+        studentAnswerFile,
+        studentAnswerMimeType 
+    } = body;
 
-    // Support both single image and array of images
-    const imageList = images || (image ? [{ data: image, mimeType: mimeType || 'image/jpeg' }] : []);
-
-    if (imageList.length === 0) {
-        return res.status(400).json({ error: "No image provided. Send base64 image data." });
+    let imageList = [];
+    if (mode === "pdf-comparison") {
+        if (!modelAnswerFile || !studentAnswerFile) {
+            return res.status(400).json({ error: "Both modelAnswerFile and studentAnswerFile are required for comparison." });
+        }
+    } else {
+        // Support both single image and array of images
+        imageList = images || (image ? [{ data: image, mimeType: mimeType || 'image/jpeg' }] : []);
+        if (imageList.length === 0) {
+            return res.status(400).json({ error: "No image provided. Send base64 image data." });
+        }
     }
 
     // ===== Model =====
@@ -36,7 +55,45 @@ export default async function handler(req, res) {
     // ===== Build Prompt Based on Mode =====
     let textPrompt = "";
 
-    if (mode === "full-sheet" && Array.isArray(questions) && questions.length > 0) {
+    if (mode === "pdf-comparison") {
+        const mm = maxMarks || 100;
+        console.log(`📄 PDF COMPARISON MODE: Max Marks = ${mm}`);
+        textPrompt = `You are an expert teacher / exam moderator. You are provided with two documents:
+1. The first document (Part 1) is the official Model Answer Key / Marking Scheme.
+2. The second document (Part 2) is the Student's Answer Sheet.
+
+Your task is to:
+1. Read the Model Answer Key (Document 1) to understand the questions, the correct answers, and the marking criteria.
+2. Read the Student's Answer Sheet (Document 2) to identify the student's responses to those questions.
+3. Compare the student's answers to the model answers and grade them out of a maximum of ${mm} marks.
+4. For each question or section:
+   - Provide the score awarded.
+   - Give constructive feedback explaining why marks were awarded or deducted.
+   - Provide concrete, actionable improvement suggestions.
+
+Return STRICT JSON only (no markdown, no code blocks):
+{
+  "totalScore": <number>,
+  "maxMarks": ${mm},
+  "overallFeedback": "Overall summary of the student's performance, strengths, and weaknesses.",
+  "improvements": [
+    "Specific improvement suggestion 1",
+    "Specific improvement suggestion 2",
+    "Specific improvement suggestion 3"
+  ],
+  "results": [
+    {
+      "questionNumber": "Q1 or Section Name",
+      "questionText": "Brief description of the question",
+      "score": <number>,
+      "maxMarks": <number>,
+      "studentAnswerText": "Summary/transcription of what the student wrote for this question",
+      "feedback": "Why marks were given or lost.",
+      "improvements": ["suggestion 1", "suggestion 2"]
+    }
+  ]
+}`;
+    } else if (mode === "full-sheet" && Array.isArray(questions) && questions.length > 0) {
         // ========== FULL SHEET MODE ==========
         // Student uploads ONE photo with all answers, we provide questions list
         console.log(`📄 FULL SHEET MODE: ${questions.length} questions`);
@@ -124,29 +181,57 @@ Return STRICT JSON only (no markdown, no code blocks):
 }`;
     }
 
-    // Build image parts for all uploaded pages
-    const imageParts = imageList.map(img => ({
-        inlineData: {
-            mimeType: img.mimeType || "image/jpeg",
-            data: img.data
-        }
-    }));
+    let requestBody;
 
-    const requestBody = {
-        contents: [{
-            parts: [
-                ...imageParts,
-                {
-                    text: textPrompt
-                }
-            ]
-        }],
-        generationConfig: {
-            temperature: 0.2
-        }
-    };
+    if (mode === "pdf-comparison") {
+        requestBody = {
+            contents: [{
+                parts: [
+                    {
+                        inlineData: {
+                            mimeType: modelAnswerMimeType || "application/pdf",
+                            data: modelAnswerFile
+                        }
+                    },
+                    {
+                        inlineData: {
+                            mimeType: studentAnswerMimeType || "application/pdf",
+                            data: studentAnswerFile
+                        }
+                    },
+                    {
+                        text: textPrompt
+                    }
+                ]
+            }],
+            generationConfig: {
+                temperature: 0.2
+            }
+        };
+    } else {
+        const imageList = images || (image ? [{ data: image, mimeType: mimeType || 'image/jpeg' }] : []);
+        const imageParts = imageList.map(img => ({
+            inlineData: {
+                mimeType: img.mimeType || "image/jpeg",
+                data: img.data
+            }
+        }));
 
-    // ===== Call Gemini =====
+        requestBody = {
+            contents: [{
+                parts: [
+                    ...imageParts,
+                    {
+                        text: textPrompt
+                    }
+                ]
+            }],
+            generationConfig: {
+                temperature: 0.2
+            }
+        };
+    }
+
     async function callGemini() {
         const response = await fetch(`${MODEL_URL}?key=${key}`, {
             method: "POST",
