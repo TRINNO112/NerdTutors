@@ -1,4 +1,4 @@
-import { auth, db } from './firebase-config.js';
+import { auth, db, ADMIN_EMAILS } from './firebase-config.js';
 import {
     signInWithEmailAndPassword,
     GoogleAuthProvider,
@@ -18,12 +18,6 @@ import {
     query,
     orderBy
 } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-// Admin emails (add your admin emails here)
-const ADMIN_EMAILS = [
-    'kaushtubh457@gmail.com',
-    'jatinthacker000@gmail.com'
-];
 
 // Valid categories for validation
 const VALID_CATEGORIES = [
