@@ -2000,6 +2000,31 @@ function setupAnswerEvaluation() {
         
         if (feedbackEl) feedbackEl.textContent = report.overallFeedback || 'No overall feedback available.';
 
+        // Render Appeal summary
+        const appealContainer = document.getElementById('evalReportAppealContainer');
+        const appealPotentialEl = document.getElementById('evalReportAppealPotential');
+        const appealSummaryEl = document.getElementById('evalReportAppealSummary');
+
+        if (appealContainer && report.totalAppealPotential) {
+            appealContainer.style.display = 'block';
+            if (appealPotentialEl) {
+                appealPotentialEl.textContent = `Appeal Potential: ${report.totalAppealPotential}`;
+                // Set color based on potential
+                if (report.totalAppealPotential === 'High') {
+                    appealPotentialEl.style.backgroundColor = '#2f855a'; // green
+                } else if (report.totalAppealPotential === 'Medium') {
+                    appealPotentialEl.style.backgroundColor = '#dd6b20'; // orange
+                } else {
+                    appealPotentialEl.style.backgroundColor = '#718096'; // grey
+                }
+            }
+            if (appealSummaryEl) {
+                appealSummaryEl.textContent = report.appealSummary || 'No appeal summary available.';
+            }
+        } else if (appealContainer) {
+            appealContainer.style.display = 'none';
+        }
+
         // Render Improvements
         if (improvementsList) {
             improvementsList.innerHTML = '';
@@ -2036,6 +2061,20 @@ function setupAnswerEvaluation() {
                         `;
                     }
 
+                    let appealHtml = '';
+                    if (res.appealPotential && res.appealPotential !== 'Low' && res.appealJustification && res.appealJustification !== 'N/A') {
+                        appealHtml = `
+                            <div style="margin-top: 0.75rem; background: #fffaf0; border: 1px solid #feebc8; border-radius: 6px; padding: 0.75rem; border-left: 3px solid #dd6b20;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                    <strong style="color: #dd6b20; font-size: 0.85rem;">⚖️ Appeal Case (${res.appealPotential} Potential)</strong>
+                                </div>
+                                <p style="margin: 0; font-size: 0.85rem; color: #7b341e; line-height: 1.4;">
+                                    <strong>Justification:</strong> ${res.appealJustification}
+                                </p>
+                            </div>
+                        `;
+                    }
+
                     card.innerHTML = `
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; border-bottom: 1px solid #edf2f7; padding-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
                             <span style="font-weight: 700; color: #2d3748;">${res.questionNumber || 'Q'}</span>
@@ -2049,10 +2088,11 @@ function setupAnswerEvaluation() {
                         <div style="margin-bottom: 0.5rem; font-size: 0.9rem; background: #f7fafc; padding: 0.5rem; border-radius: 4px; border-left: 3px solid #cbd5e0;">
                             <strong>Student Answer Summary:</strong> ${res.studentAnswerText || 'N/A'}
                         </div>
-                        <div style="font-size: 0.9rem; color: #4a5568; line-height: 1.5;">
+                        <div style="font-size: 0.9rem; color: #4a5568; line-height: 1.5; margin-bottom: 0.5rem;">
                             <strong>Feedback:</strong> ${res.feedback || 'No detailed feedback.'}
                         </div>
                         ${improvementsHtml}
+                        ${appealHtml}
                     `;
                     breakdownContainer.appendChild(card);
                 });
