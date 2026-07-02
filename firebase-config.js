@@ -28,6 +28,7 @@ export const googleProvider = new GoogleAuthProvider();
 export const ADMIN_EMAILS = [
   "kaushtubh457@gmail.com",
   "jatinthacker000@gmail.com",
+  "pathak.amitkumar@hrjohnsonindia.com",
   // Add more admin emails as needed
 ];
 
