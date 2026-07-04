@@ -185,6 +185,7 @@ function showAdminPanel(user) {
     }
 
     loadTestSessionsForDropdown();
+    loadTestSessionsForManagement();
 }
 
 // Show Access Denied
@@ -752,6 +753,8 @@ function switchTab(tabName) {
 
     if (tabName === 'view-results') {
         loadTestSessionsForDropdown();
+    } else if (tabName === 'create-session') {
+        loadTestSessionsForManagement();
     }
 }
 
@@ -2144,12 +2147,14 @@ async function createTestSession() {
             maxMarks: parseInt(sessionMaxMarks) || 100,
             questions: sessionQuestions,
             markingScheme: sessionMarkingScheme,
+            status: "active",
             createdAt: serverTimestamp()
         });
 
         showToast('Test Session published successfully!', 'success');
         document.getElementById('createSessionForm').reset();
         loadTestSessionsForDropdown();
+        loadTestSessionsForManagement();
     } catch (error) {
         console.error('Error creating session:', error);
         showToast('Failed to create test session: ' + error.message, 'error');
@@ -2235,11 +2240,14 @@ async function loadResultsForSession(sessionId) {
                     </td>
                     <td style="padding: 1rem; color: #718096;">${dateStr}</td>
                     <td style="padding: 1rem; text-align: right;">
-                        <button class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; background: #3182ce; margin-right: 0.5rem; width: auto;" onclick="window.viewReportCard('${res.id}')">
+                        <button class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; background: #3182ce; margin-right: 0.35rem; width: auto;" onclick="window.viewReportCard('${res.id}')">
                             👁️ View Card
                         </button>
-                        <button class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; background: #2f855a; width: auto;" onclick="window.printReportCard('${res.id}')">
+                        <button class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; background: #2f855a; margin-right: 0.35rem; width: auto;" onclick="window.printReportCard('${res.id}')">
                             🖨️ Print
+                        </button>
+                        <button class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; background: #e53e3e; width: auto;" onclick="window.deleteResult('${res.id}')">
+                            🗑️ Delete
                         </button>
                     </td>
                 </tr>
@@ -2408,14 +2416,32 @@ async function populateMockData() {
     showToast("Generating mock test data...", "info");
 
     try {
-        // 1. Create Session A: Grade 12 Economics
+        // 1. Create Session A: Grade 12 Economics (10-Question Master Test)
         const sessionA = await addDoc(collection(db, 'testSessions'), {
             class: "Class 12th",
             subject: "Economics",
-            name: "Economics Term 1 Exam (Mock)",
+            name: "Economics 10-Question Master Test",
             maxMarks: 100,
-            questions: "Q1. Define Law of Demand.\nQ2. Explain the circular flow of income.",
-            markingScheme: "Q1. 50 marks for demand definition & inverse price-quantity relation. Q2. 50 marks for 2-sector circular flow description.",
+            questions: `Q1. Define microeconomics. (10 marks)
+Q2. What is price elasticity of demand? (10 marks)
+Q3. Explain the law of variable proportions. (10 marks)
+Q4. What is perfect competition? (10 marks)
+Q5. Define GDP. (10 marks)
+Q6. What is marginal propensity to consume (MPC)? (10 marks)
+Q7. Explain the function of Central Bank as banker's bank. (10 marks)
+Q8. Difference between direct and indirect taxes. (10 marks)
+Q9. What is balance of payments (BOP)? (10 marks)
+Q10. Define aggregate demand. (10 marks)`,
+            markingScheme: `Q1. Give 10 marks for definition of individual economic units behavior study.
+Q2. Give 10 marks for price responsiveness definition & formula (% change in QD / % change in P).
+Q3. Give 10 marks for stage-wise explanations of marginal product behavior (initially rises, then falls, then negative).
+Q4. Give 10 marks for naming key features (large buyers/sellers, homogeneous product, free entry/exit).
+Q5. Give 10 marks for definition of total money value of final goods/services within domestic territory in a year.
+Q6. Give 10 marks for ratio definition & formula (Delta C / Delta Y) lying between 0 and 1.
+Q7. Give 10 marks for mentioning accepts deposits, grants loans, and lender of last resort function.
+Q8. Give 10 marks for correct definition & shiftability explanation (direct tax cannot shift burden, indirect tax shifts burden).
+Q9. Give 10 marks for definition of systematic record of economic transactions between residents and rest of the world.
+Q10. Give 10 marks for total value sectors plan to buy and formula AD = C + I + G + (X-M).`,
             createdAt: serverTimestamp()
         });
 
@@ -2521,6 +2547,119 @@ async function populateMockData() {
         if (btn) btn.disabled = false;
     }
 }
+
+async function loadTestSessionsForManagement() {
+    const tbody = document.getElementById('sessionManageTableBody');
+    if (!tbody) return;
+
+    try {
+        const q = query(collection(db, 'testSessions'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        
+        let html = '';
+        if (querySnapshot.empty) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="padding: 1.5rem; text-align: center; color: #666; font-style: italic;">
+                        No published test sessions found. Create one above!
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        querySnapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+            const status = data.status || 'active';
+            const isActive = status === 'active';
+            
+            html += `
+                <tr style="border-bottom: 1px solid #edf2f7;">
+                    <td style="padding: 0.75rem; font-weight: 600; color: #2d3748;">${escapeHtml(data.name)}</td>
+                    <td style="padding: 0.75rem; color: #4a5568;">${escapeHtml(data.class)}</td>
+                    <td style="padding: 0.75rem; color: #4a5568;">${escapeHtml(data.subject)}</td>
+                    <td style="padding: 0.75rem; color: #4a5568;">${data.maxMarks}</td>
+                    <td style="padding: 0.75rem;">
+                        <span style="background: ${isActive ? '#c6f6d5' : '#fed7d7'}; color: ${isActive ? '#22543d' : '#742a2a'}; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">
+                            ${status}
+                        </span>
+                    </td>
+                    <td style="padding: 0.75rem; text-align: right;">
+                        <button style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid #cbd5e0; background: white; cursor: pointer; font-weight: 600; margin-right: 0.5rem;" onclick="window.toggleSessionStatus('${id}', '${status}')">
+                            ${isActive ? '⏸️ Deactivate' : '▶️ Activate'}
+                        </button>
+                        <button style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; border: none; background: #e53e3e; color: white; cursor: pointer; font-weight: 600;" onclick="window.deleteSession('${id}')">
+                            🗑️ Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading sessions for management:', error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="padding: 1.5rem; text-align: center; color: #e53e3e; font-weight: 600;">
+                    Error loading test sessions.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+async function toggleSessionStatus(id, currentStatus) {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    try {
+        await updateDoc(doc(db, 'testSessions', id), {
+            status: newStatus
+        });
+        showToast(`Test Session status changed to ${newStatus}!`, 'success');
+        loadTestSessionsForManagement();
+        loadTestSessionsForDropdown();
+    } catch (error) {
+        console.error("Error updating session status:", error);
+        showToast("Failed to update status: " + error.message, "error");
+    }
+}
+
+async function deleteSession(id) {
+    if (!confirm("Are you sure you want to delete this test session? Students will no longer be able to submit results for it.")) return;
+
+    try {
+        await deleteDoc(doc(db, 'testSessions', id));
+        showToast("Test Session deleted successfully!", "success");
+        loadTestSessionsForManagement();
+        loadTestSessionsForDropdown();
+    } catch (error) {
+        console.error("Error deleting session:", error);
+        showToast("Failed to delete session: " + error.message, "error");
+    }
+}
+
+async function deleteResult(id) {
+    if (!confirm("Are you sure you want to delete this student evaluation result?")) return;
+
+    try {
+        await deleteDoc(doc(db, 'testResults', id));
+        showToast("Student result deleted successfully!", "success");
+        // Reload results table for current session
+        const resultSessionSelect = document.getElementById('resultSessionSelect');
+        if (resultSessionSelect && resultSessionSelect.value) {
+            loadResultsForSession(resultSessionSelect.value);
+        }
+    } catch (error) {
+        console.error("Error deleting student result:", error);
+        showToast("Failed to delete result: " + error.message, "error");
+    }
+}
+
+// Bind to window for HTML click calls
+window.toggleSessionStatus = toggleSessionStatus;
+window.deleteSession = deleteSession;
+window.deleteResult = deleteResult;
 
 // Initialize app
 init();

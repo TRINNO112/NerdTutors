@@ -128,6 +128,33 @@
                         </div>
                     </form>
                 </div>
+
+                <!-- Manage Test Sessions Section -->
+                <div class="content-box" style="margin-top: 2rem; background: white; border-radius: 12px; padding: 2rem; border: 1px solid #edf2f7; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top: 0; color: #1a202c; font-family: 'Poppins', sans-serif;">⚙️ Manage Published Test Sessions</h3>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; margin-top: 0.25rem;">Toggle test status (Active/Inactive) to control what tests students see, or delete old sessions.</p>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #e2e8f0; background: #f7fafc; color: #4a5568; font-weight: 700;">
+                                    <th style="padding: 0.75rem;">Test Name</th>
+                                    <th style="padding: 0.75rem;">Class</th>
+                                    <th style="padding: 0.75rem;">Subject</th>
+                                    <th style="padding: 0.75rem;">Max Marks</th>
+                                    <th style="padding: 0.75rem;">Status</th>
+                                    <th style="padding: 0.75rem; text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessionManageTableBody">
+                                <tr>
+                                    <td colspan="6" style="padding: 1.5rem; text-align: center; color: #666; font-style: italic;">
+                                        Loading published test sessions...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- View Results Tab -->

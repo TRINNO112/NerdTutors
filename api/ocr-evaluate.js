@@ -1,3 +1,29 @@
+import fs from 'fs';
+import path from 'path';
+
+// Force load .env.local if present locally to bypass Vercel CLI sync overrides
+try {
+    const envPath = path.join(process.cwd(), '.env.local');
+    if (fs.existsSync(envPath)) {
+        const content = fs.readFileSync(envPath, 'utf8');
+        content.split('\n').forEach(line => {
+            const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+            if (match) {
+                const key = match[1];
+                let value = match[2] || '';
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    value = value.substring(1, value.length - 1);
+                } else if (value.startsWith("'") && value.endsWith("'")) {
+                    value = value.substring(1, value.length - 1);
+                }
+                process.env[key] = value;
+            }
+        });
+    }
+} catch (e) {
+    console.warn("Env force load error:", e.message);
+}
+
 export default async function handler(req, res) {
     console.log("📸 OCR-EVALUATE HANDLER STARTED");
 
@@ -327,9 +353,9 @@ Return STRICT JSON only (no markdown, no code blocks):
 
                 const raw = await response.text();
                 if (!response.ok) {
-                    if (response.status === 429) {
-                        console.warn(`⚠️ Rate limit (429) hit on Key ${i + 1}. Retrying with next key...`);
-                        lastError = new Error(`Rate limit hit: ${raw}`);
+                    if (response.status === 429 || response.status === 503 || response.status === 504) {
+                        console.warn(`⚠️ Temporary error (${response.status}) hit on Key ${i + 1}. Retrying with next key...`);
+                        lastError = new Error(`Temporary server error (${response.status}): ${raw}`);
                         continue;
                     }
                     throw new Error(raw);
@@ -338,7 +364,8 @@ Return STRICT JSON only (no markdown, no code blocks):
             } catch (err) {
                 console.error(`❌ Error with Key ${i + 1}:`, err.message);
                 lastError = err;
-                if (err.message.includes("429") || err.message.toLowerCase().includes("limit")) {
+                const errMsg = err.message.toLowerCase();
+                if (errMsg.includes("429") || errMsg.includes("503") || errMsg.includes("504") || errMsg.includes("limit") || errMsg.includes("demand") || errMsg.includes("quota") || errMsg.includes("unavailable")) {
                     continue;
                 }
                 throw err;

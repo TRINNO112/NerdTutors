@@ -340,6 +340,7 @@
                 left: 0;
                 top: 0;
                 width: 100%;
+                box-sizing: border-box;
                 margin: 0;
                 padding: 20mm;
                 box-shadow: none;
@@ -493,7 +494,8 @@
             const cls = studentClass.value;
             const sub = studentSubject.value;
 
-            const filtered = allSessions.filter(s => s.class === cls && s.subject === sub);
+            // Only show active sessions (or sessions where status is not explicitly inactive)
+            const filtered = allSessions.filter(s => s.class === cls && s.subject === sub && s.status !== 'inactive');
             
             let html = '<option value="">-- Select Test Session --</option>';
             filtered.forEach(s => {
