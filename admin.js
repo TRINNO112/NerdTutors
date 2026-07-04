@@ -184,8 +184,7 @@ function showAdminPanel(user) {
         elements.userEmail.textContent = user.email;
     }
 
-    loadQuestions();
-    loadStatistics();
+    loadTestSessionsForDropdown();
 }
 
 // Show Access Denied
@@ -243,16 +242,36 @@ function setupEventListeners() {
         }
     });
 
-    // Question form
-    elements.questionForm?.addEventListener('submit', async (e) => {
+    // Create Session Form
+    const createSessionForm = document.getElementById('createSessionForm');
+    createSessionForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        await addQuestion();
+        await createTestSession();
     });
 
-    // Edit question form
-    elements.editQuestionForm?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await updateQuestion();
+    // Results Session Select
+    const resultSessionSelect = document.getElementById('resultSessionSelect');
+    resultSessionSelect?.addEventListener('change', (e) => {
+        const sessionId = e.target.value;
+        if (sessionId) {
+            loadResultsForSession(sessionId);
+        } else {
+            document.getElementById('resultsTableBody').innerHTML = `
+                <tr>
+                    <td colspan="6" style="padding: 2rem; text-align: center; color: #666; font-style: italic;">
+                        Select a session to load student results.
+                    </td>
+                </tr>
+            `;
+        }
+    });
+
+    // Populate Mock Data Button
+    const btnPopulateMockData = document.getElementById('btnPopulateMockData');
+    btnPopulateMockData?.addEventListener('click', async () => {
+        if (confirm("Do you want to populate mock test sessions and 10 student evaluations into the database? This is great for dashboard testing!")) {
+            await populateMockData();
+        }
     });
 
     // Close modal
@@ -270,10 +289,6 @@ function setupEventListeners() {
             switchTab(tabName);
         });
     });
-
-    // Search and filter
-    elements.searchBox?.addEventListener('input', filterQuestions);
-    elements.filterCategory?.addEventListener('change', filterQuestions);
 }
 
 // ============================================
@@ -735,10 +750,8 @@ function switchTab(tabName) {
         panel.classList.toggle('active', panel.id === tabName + 'Tab');
     });
 
-    if (tabName === 'manage') {
-        loadQuestions();
-    } else if (tabName === 'stats') {
-        loadStatistics();
+    if (tabName === 'view-results') {
+        loadTestSessionsForDropdown();
     }
 }
 
@@ -2105,6 +2118,407 @@ function setupAnswerEvaluation() {
             evalResults.style.display = 'block';
             evalResults.scrollIntoView({ behavior: 'smooth' });
         }
+    }
+}
+
+// ============================================
+// SESSION EVALUATION & RESULTS VISUALIZATION
+// ============================================
+
+async function createTestSession() {
+    const btn = document.getElementById('btnCreateSession');
+    if (btn) btn.disabled = true;
+
+    const sessionClass = document.getElementById('sessionClass').value;
+    const sessionSubject = document.getElementById('sessionSubject').value;
+    const sessionName = document.getElementById('sessionName').value;
+    const sessionMaxMarks = document.getElementById('sessionMaxMarks').value;
+    const sessionQuestions = document.getElementById('sessionQuestions').value;
+    const sessionMarkingScheme = document.getElementById('sessionMarkingScheme').value;
+
+    try {
+        await addDoc(collection(db, 'testSessions'), {
+            class: sessionClass,
+            subject: sessionSubject,
+            name: sessionName,
+            maxMarks: parseInt(sessionMaxMarks) || 100,
+            questions: sessionQuestions,
+            markingScheme: sessionMarkingScheme,
+            createdAt: serverTimestamp()
+        });
+
+        showToast('Test Session published successfully!', 'success');
+        document.getElementById('createSessionForm').reset();
+        loadTestSessionsForDropdown();
+    } catch (error) {
+        console.error('Error creating session:', error);
+        showToast('Failed to create test session: ' + error.message, 'error');
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+}
+
+let allTestSessions = [];
+async function loadTestSessionsForDropdown() {
+    const selectEl = document.getElementById('resultSessionSelect');
+    if (!selectEl) return;
+
+    try {
+        const q = query(collection(db, 'testSessions'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        allTestSessions = [];
+
+        let optionsHtml = '<option value="">-- Select a Test Session --</option>';
+        querySnapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            const id = docSnap.id;
+            allTestSessions.push({ id, ...data });
+            optionsHtml += `<option value="${id}">${data.name} (${data.class} - ${data.subject})</option>`;
+        });
+
+        selectEl.innerHTML = optionsHtml;
+    } catch (error) {
+        console.error('Error loading sessions:', error);
+        showToast('Failed to load test sessions', 'error');
+    }
+}
+
+async function loadResultsForSession(sessionId) {
+    const tbody = document.getElementById('resultsTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6" style="padding: 2rem; text-align: center;">
+                <div class="spinner" style="margin: 0 auto;"></div>
+            </td>
+        </tr>
+    `;
+
+    try {
+        const querySnapshot = await getDocs(collection(db, 'testResults'));
+        let results = [];
+
+        querySnapshot.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.sessionId === sessionId) {
+                results.push({ id: docSnap.id, ...data });
+            }
+        });
+
+        if (results.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" style="padding: 2rem; text-align: center; color: #666; font-style: italic;">
+                        No student evaluations found for this session yet.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        // Sort by date desc
+        results.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+        let html = '';
+        results.forEach(res => {
+            const dateStr = res.createdAt ? new Date(res.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
+            html += `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 1rem; font-weight: 600; color: #2d3748;">${escapeHtml(res.studentName)}</td>
+                    <td style="padding: 1rem; color: #4a5568;">${escapeHtml(res.class)}</td>
+                    <td style="padding: 1rem; color: #4a5568;">${escapeHtml(res.subject)}</td>
+                    <td style="padding: 1rem;">
+                        <span style="background: #edf2f7; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; color: #2b6cb0;">
+                            ${res.score} / ${res.maxMarks}
+                        </span>
+                    </td>
+                    <td style="padding: 1rem; color: #718096;">${dateStr}</td>
+                    <td style="padding: 1rem; text-align: right;">
+                        <button class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; background: #3182ce; margin-right: 0.5rem; width: auto;" onclick="window.viewReportCard('${res.id}')">
+                            👁️ View Card
+                        </button>
+                        <button class="btn-submit" style="padding: 0.35rem 0.75rem; font-size: 0.85rem; background: #2f855a; width: auto;" onclick="window.printReportCard('${res.id}')">
+                            🖨️ Print
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+        window.currentResults = results;
+
+    } catch (error) {
+        console.error('Error loading results:', error);
+        showToast('Failed to load student results', 'error');
+    }
+}
+
+// Global hooks for dynamic actions
+window.viewReportCard = function(resultId) {
+    const res = window.currentResults?.find(r => r.id === resultId);
+    if (!res) return;
+
+    const modal = document.getElementById('resultPreviewModal');
+    const content = document.getElementById('modalReportCardContent');
+    const printBtn = document.getElementById('modalPrintBtn');
+    
+    if (!modal || !content) return;
+
+    const pct = Math.round((res.score / res.maxMarks) * 100);
+    let appealHtml = '';
+    if (res.totalAppealPotential && res.totalAppealPotential !== 'Low') {
+        appealHtml = `
+            <div style="background: #fffaf0; border: 1px solid #feebc8; border-left: 4px solid #dd6b20; border-radius: 8px; padding: 1.25rem; margin-top: 1.5rem;">
+                <h4 style="color: #dd6b20; margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 700;">⚖️ Re-evaluation Appeal Advisor</h4>
+                <p style="color: #7b341e; font-weight: 700; margin: 0 0 0.25rem 0; font-size: 0.95rem;">Appeal Case: ${res.totalAppealPotential}</p>
+                <p style="color: #7b341e; margin: 0; font-size: 0.9rem; line-height: 1.5;">${res.appealSummary}</p>
+            </div>
+        `;
+    }
+
+    content.innerHTML = `
+        <div style="text-align: center; border-bottom: 3px solid #1e3c72; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+            <h2 style="color: #1e3c72; margin: 0; font-size: 2rem; font-weight: 800; font-family: 'Poppins', sans-serif;">NERD TUTORS</h2>
+            <p style="margin: 4px 0 0 0; color: #718096; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Official Academic Report Card</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; background: #f7fafc; border: 1px solid #edf2f7; padding: 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.5rem;">
+            <div><strong>Student Name:</strong> ${escapeHtml(res.studentName)}</div>
+            <div><strong>Class / Subject:</strong> ${escapeHtml(res.class)} - ${escapeHtml(res.subject)}</div>
+            <div><strong>Total Marks:</strong> ${res.score} / ${res.maxMarks} (${pct}%)</div>
+            <div><strong>Date Evaluated:</strong> ${res.createdAt ? new Date(res.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</div>
+        </div>
+
+        <h4 style="color: #1e3c72; border-bottom: 1px solid #edf2f7; padding-bottom: 0.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 700;">📋 Performance Summary</h4>
+        <p style="font-size: 0.95rem; color: #4a5568; line-height: 1.5; margin: 0;">${escapeHtml(res.overallFeedback)}</p>
+
+        <h4 style="color: #1e3c72; border-bottom: 1px solid #edf2f7; padding-bottom: 0.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 700;">🚀 Recommended Areas to Improve</h4>
+        <ul style="padding-left: 1.25rem; margin: 0; line-height: 1.5; font-size: 0.95rem; color: #4a5568;">
+            ${res.improvements.map(imp => `<li>${escapeHtml(imp)}</li>`).join('')}
+        </ul>
+
+        ${appealHtml}
+    `;
+
+    if (printBtn) {
+        printBtn.onclick = () => window.printReportCard(res.id);
+    }
+
+    modal.style.display = 'flex';
+};
+
+window.printReportCard = function(resultId) {
+    const res = window.currentResults?.find(r => r.id === resultId);
+    if (!res) return;
+
+    const dateStr = res.createdAt ? new Date(res.createdAt.seconds * 1000).toLocaleString() : new Date().toLocaleString();
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Report Card - ${res.studentName}</title>
+            <style>
+                @page {
+                    size: auto;
+                    margin: 0; /* Strips browser headers/footers completely */
+                }
+                body { 
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    padding: 20mm; /* Simulates sheet margins */
+                    color: #333; 
+                    line-height: 1.6; 
+                }
+                .header { border-bottom: 4px solid #1e3c72; padding-bottom: 1.5rem; margin-bottom: 2rem; text-align: center; }
+                .header h1 { margin: 0; color: #1e3c72; font-size: 2.5rem; font-weight: 800; letter-spacing: 1px; }
+                .header p { margin: 6px 0 0 0; color: #718096; font-size: 1.1rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+                .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2.5rem; background: #f7fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #edf2f7; }
+                .meta-item { font-size: 1.05rem; color: #2d3748; }
+                .meta-item strong { color: #4a5568; font-weight: 700; }
+                .score-section { text-align: center; margin: 2.5rem 0; padding: 2rem; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; }
+                .score-value { font-size: 3.5rem; font-weight: 900; color: #2b6cb0; margin: 0.5rem 0; }
+                .section-title { color: #1e3c72; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-top: 2.5rem; font-size: 1.4rem; font-weight: 700; }
+                .feedback-box { background: #fffaf0; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #dd6b20; font-size: 1rem; color: #7b341e; margin-top: 1rem; line-height: 1.5; }
+                ul { padding-left: 1.5rem; }
+                li { margin-bottom: 0.6rem; font-size: 1rem; color: #4a5568; }
+                p { font-size: 1.05rem; color: #4a5568; }
+                .footer { margin-top: 4rem; text-align: center; font-size: 0.85rem; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 1.5rem; }
+                @media print {
+                    body { padding: 20mm; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>NERD TUTORS</h1>
+                <p>Official Performance Report Card</p>
+            </div>
+            
+            <div class="meta-grid">
+                <div class="meta-item"><strong>Student Name:</strong> ${res.studentName}</div>
+                <div class="meta-item"><strong>Date Evaluated:</strong> ${dateStr}</div>
+                <div class="meta-item"><strong>Class:</strong> ${res.class}</div>
+                <div class="meta-item"><strong>Subject:</strong> ${res.subject}</div>
+            </div>
+
+            <div class="score-section">
+                <div style="text-transform: uppercase; font-size: 0.9rem; font-weight: 800; color: #4a5568; letter-spacing: 1.5px;">Overall Exam Score</div>
+                <div class="score-value">${res.score} / ${res.maxMarks}</div>
+                <div style="font-weight: 700; color: #2b6cb0; font-size: 1.25rem;">Percentage: ${Math.round((res.score / res.maxMarks) * 100)}%</div>
+            </div>
+
+            <h3 class="section-title">📋 Performance Summary</h3>
+            <p>${res.overallFeedback}</p>
+
+            <h3 class="section-title">🚀 Key Areas of Improvement</h3>
+            <ul>
+                ${res.improvements.map(imp => `<li>${imp}</li>`).join('')}
+            </ul>
+
+            ${res.totalAppealPotential && res.totalAppealPotential !== 'Low' ? `
+                <h3 class="section-title">⚖️ Re-evaluation & Appeal Advisor</h3>
+                <div class="feedback-box">
+                    <strong>Appeal Potential Case: ${res.totalAppealPotential}</strong><br>
+                    <span style="display: block; margin-top: 0.5rem;">${res.appealSummary}</span>
+                </div>
+            ` : ''}
+
+            <div class="footer">
+                This report card is generated for student academic growth & feedback. NerdTutors © ${new Date().getFullYear()}.
+            </div>
+            
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() { window.close(); }, 500);
+                };
+            </script>
+        </body>
+        </html>
+    `);
+    printWindow.document.title = "Nerd Tutors - " + res.studentName;
+    printWindow.document.close();
+};
+
+async function populateMockData() {
+    const btn = document.getElementById('btnPopulateMockData');
+    if (btn) btn.disabled = true;
+    showToast("Generating mock test data...", "info");
+
+    try {
+        // 1. Create Session A: Grade 12 Economics
+        const sessionA = await addDoc(collection(db, 'testSessions'), {
+            class: "Class 12th",
+            subject: "Economics",
+            name: "Economics Term 1 Exam (Mock)",
+            maxMarks: 100,
+            questions: "Q1. Define Law of Demand.\nQ2. Explain the circular flow of income.",
+            markingScheme: "Q1. 50 marks for demand definition & inverse price-quantity relation. Q2. 50 marks for 2-sector circular flow description.",
+            createdAt: serverTimestamp()
+        });
+
+        // 2. Create Session B: Grade 10 Social Science
+        const sessionB = await addDoc(collection(db, 'testSessions'), {
+            class: "Class 10th",
+            subject: "Social Science",
+            name: "SST Quiz (Mock)",
+            maxMarks: 50,
+            questions: "Q1. What is democracy?\nQ2. Explain sustainable development.",
+            markingScheme: "Q1. 25 marks for citizen rights & voting representation. Q2. 25 marks for resources conservation.",
+            createdAt: serverTimestamp()
+        });
+
+        // 3. Create 5 results for Session A (Class 12 Economics)
+        const studentsA = [
+            { name: "Amit Pathak", score: 92, potential: "Low", summary: "N/A" },
+            { name: "Priya Sharma", score: 85, potential: "Low", summary: "N/A" },
+            { name: "Rahul Verma", score: 48, potential: "High", summary: "Student defined Law of Demand perfectly but got marked down 15 marks by human error." },
+            { name: "Sneha Reddy", score: 76, potential: "Medium", summary: "Circular flow explanation was correct but examiner missed 5 marks on diagrams." },
+            { name: "Jatin Thacker", score: 98, potential: "Low", summary: "N/A" }
+        ];
+
+        for (const s of studentsA) {
+            await addDoc(collection(db, 'testResults'), {
+                studentName: s.name,
+                class: "Class 12th",
+                subject: "Economics",
+                sessionId: sessionA.id,
+                score: s.score,
+                maxMarks: 100,
+                overallFeedback: `Excellent conceptual clarity shown by ${s.name}. Answer structure aligns well with model answers.`,
+                improvements: [
+                    "Improve handwriting legibility in definitions.",
+                    "Provide graphical illustrations for curve representation where applicable."
+                ],
+                totalAppealPotential: s.potential,
+                appealSummary: s.summary,
+                breakdown: [
+                    {
+                        questionNumber: "Q1",
+                        questionText: "Define Law of Demand.",
+                        score: Math.min(s.score, 50),
+                        maxMarks: 50,
+                        studentAnswerText: "Quantity demanded goes down when price goes up.",
+                        feedback: "Good response.",
+                        improvements: ["Add ceteris paribus clause."],
+                        appealPotential: s.potential,
+                        appealJustification: s.summary
+                    }
+                ],
+                createdAt: serverTimestamp()
+            });
+        }
+
+        // 4. Create 5 results for Session B (Class 10 Social Science)
+        const studentsB = [
+            { name: "Vikram Malhotra", score: 44, potential: "Low", summary: "N/A" },
+            { name: "Kunal Sen", score: 38, potential: "Medium", summary: "Citizens representation points deserved 5 extra marks." },
+            { name: "Ananya Iyer", score: 18, potential: "Low", summary: "N/A" },
+            { name: "Rohit Bansal", score: 49, potential: "Low", summary: "N/A" },
+            { name: "Nisha Gupta", score: 32, potential: "High", summary: "Democracy definition was fully matching grading criteria but was marked zero." }
+        ];
+
+        for (const s of studentsB) {
+            await addDoc(collection(db, 'testResults'), {
+                studentName: s.name,
+                class: "Class 10th",
+                subject: "Social Science",
+                sessionId: sessionB.id,
+                score: s.score,
+                maxMarks: 50,
+                overallFeedback: `Solid understanding of SST core principles. Good attempt.`,
+                improvements: [
+                    "Give real-world country examples in political science.",
+                    "Be more precise about environmental sustainability acts."
+                ],
+                totalAppealPotential: s.potential,
+                appealSummary: s.summary,
+                breakdown: [
+                    {
+                        questionNumber: "Q1",
+                        questionText: "What is democracy?",
+                        score: Math.min(s.score, 25),
+                        maxMarks: 25,
+                        studentAnswerText: "Government by the people, of the people, for the people.",
+                        feedback: "Excellent definition.",
+                        improvements: ["None"],
+                        appealPotential: s.potential,
+                        appealJustification: s.summary
+                    }
+                ],
+                createdAt: serverTimestamp()
+            });
+        }
+
+        showToast("Successfully generated 10 student evaluations!", "success");
+        loadTestSessionsForDropdown();
+    } catch (err) {
+        console.error("Failed to populate mock data:", err);
+        showToast("Mock data insertion failed: " + err.message, "error");
+    } finally {
+        if (btn) btn.disabled = false;
     }
 }
 

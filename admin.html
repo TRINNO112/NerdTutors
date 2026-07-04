@@ -70,453 +70,107 @@
         <div class="admin-content">
             <!-- Tabs -->
             <div class="tabs">
-                <button class="tab-btn active" data-tab="add">➕ Add Question</button>
-                <button class="tab-btn" data-tab="bulk">📤 Bulk Upload (Excel)</button>
-                <button class="tab-btn" data-tab="manage">📋 Manage Questions</button>
-                <button class="tab-btn" data-tab="stats">📊 Statistics</button>
-                <button class="tab-btn" data-tab="evaluate-answers">📝 Evaluate Answers</button>
-                <a href="batch-manager.html" class="tab-btn"
-                    style="text-decoration:none; background:#e8f5e9; color:#2e7d32; border: 2px solid #66bb6a;">📦
-                    Manage Batches</a>
+                <button class="tab-btn active" data-tab="create-session">➕ Create Test Session</button>
+                <button class="tab-btn" data-tab="view-results">📋 View Results</button>
+                <button class="tab-btn" data-tab="evaluate-answers">📝 Manual PDF Evaluation</button>
             </div>
 
-            <!-- Add Question Tab -->
-            <div class="tab-panel active" id="addTab">
+            <!-- Create Test Session Tab -->
+            <div class="tab-panel active" id="create-sessionTab">
                 <div class="question-form">
-                    <form id="questionForm">
+                    <form id="createSessionForm">
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label for="questionType">Question Type</label>
-                                <select id="questionType">
-                                    <option value="text">Text / Long Answer</option>
-                                    <option value="mcq">Multiple Choice (MCQ)</option>
-                                </select>
-                            </div>
-
-                            <div class="form-row">
+                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                                 <div class="form-group">
-                                    <label for="category">Category *</label>
-                                    <select id="category" required>
-                                        <option value="">Select Category</option>
-                                        <option value="Microeconomics">Microeconomics</option>
-                                        <option value="Macroeconomics">Macroeconomics</option>
-                                        <option value="International Economics">International Economics</option>
-                                        <option value="Development Economics">Development Economics</option>
-                                        <option value="Public Economics">Public Economics</option>
-                                        <option value="Monetary Economics">Monetary Economics</option>
-                                        <option value="Labor Economics">Labor Economics</option>
-                                        <option value="Environmental Economics">Environmental Economics</option>
-                                        <option value="Econometrics">Econometrics</option>
-                                        <option value="Economic Theory">Economic Theory</option>
+                                    <label for="sessionClass">Select Class *</label>
+                                    <select id="sessionClass" required>
+                                        <option value="Class 10th">Class 10th</option>
+                                        <option value="Class 12th">Class 12th</option>
                                     </select>
                                 </div>
-
                                 <div class="form-group">
-                                    <label for="marks">Marks *</label>
-                                    <input type="number" id="marks" min="1" max="100" required placeholder="e.g., 10">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="questionText">Question Text *</label>
-                                <textarea id="questionText" required
-                                    placeholder="Enter your economics question here..."></textarea>
-                            </div>
-
-                            <div id="mcqFields"
-                                style="display: none; background: rgba(255,255,255,0.5); padding: 1rem; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 1rem;">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="optionA">Option A *</label>
-                                        <input type="text" id="optionA" placeholder="Option A text">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="optionB">Option B *</label>
-                                        <input type="text" id="optionB" placeholder="Option B text">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="optionC">Option C *</label>
-                                        <input type="text" id="optionC" placeholder="Option C text">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="optionD">Option D *</label>
-                                        <input type="text" id="optionD" placeholder="Option D text">
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="correctAnswer">Correct Answer *</label>
-                                    <select id="correctAnswer">
-                                        <option value="">Select Correct Option</option>
-                                        <option value="A">Option A</option>
-                                        <option value="B">Option B</option>
-                                        <option value="C">Option C</option>
-                                        <option value="D">Option D</option>
+                                    <label for="sessionSubject">Select Subject *</label>
+                                    <select id="sessionSubject" required>
+                                        <option value="Economics">Economics</option>
+                                        <option value="Social Science">Social Science</option>
                                     </select>
                                 </div>
                             </div>
-                        </div>
 
-                        <div id="modelAnswerContainer">
-                            <div class="form-group">
-                                <label for="modelAnswer">Model Answer *</label>
-                                <textarea id="modelAnswer" required
-                                    placeholder="Provide the ideal answer for this question..."></textarea>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="difficulty">Difficulty Level</label>
-                                <select id="difficulty">
-                                    <option value="Easy">Easy</option>
-                                    <option value="Medium" selected>Medium</option>
-                                    <option value="Hard">Hard</option>
-                                </select>
+                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                                <div class="form-group">
+                                    <label for="sessionName">Test Title / Name *</label>
+                                    <input type="text" id="sessionName" required placeholder="e.g., Economics Term Exam 1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sessionMaxMarks">Maximum Marks *</label>
+                                    <input type="number" id="sessionMaxMarks" min="1" max="500" required placeholder="e.g., 80">
+                                </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="status">Status</label>
-                                <select id="status">
-                                    <option value="active" selected>Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
+                                <label for="sessionQuestions">Pasted Exam Questions *</label>
+                                <textarea id="sessionQuestions" required style="min-height: 150px;"
+                                    placeholder="Paste all the exam questions here (you can paste direct text or from a Word doc)...&#10;Q1. Explain the law of demand.&#10;Q2. Draw the GDP circular flow diagram."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="sessionMarkingScheme">Pasted Marking Scheme / Guidelines *</label>
+                                <textarea id="sessionMarkingScheme" required style="min-height: 150px;"
+                                    placeholder="Paste the marking scheme guidelines here...&#10;Q1. Give 4 marks for definition, 2 marks for curve negative slope.&#10;Q2. Give 5 marks for diagram, 5 marks for explanations."></textarea>
                             </div>
                         </div>
 
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                            <button type="submit" class="btn-submit" id="submitBtn">
-                                Add Question
-                            </button>
-                            <div class="draft-indicator" id="draftIndicator">
-                                <span>💾</span>
-                                <span id="draftText">Draft saved</span>
-                            </div>
-                        </div>
-                </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Bulk Upload Tab - NEW -->
-        <div class="tab-panel" id="bulkTab">
-            <!-- Upload Section -->
-            <div class="upload-section">
-                <h3>📤 Upload Questions from Excel</h3>
-                <div class="upload-area" id="uploadArea">
-                    <input type="file" class="file-input" id="excelFileInput" accept=".xlsx,.xls,.csv">
-                    <div class="upload-icon">📁</div>
-                    <div class="upload-text">Drag & Drop your Excel file here</div>
-                    <div class="upload-subtext">or click to browse (Supports .xlsx, .xls, .csv)</div>
-                </div>
-                <div class="upload-buttons">
-                    <button class="btn-download-template" id="btnDownloadTemplate">
-                        📥 Download Template
-                    </button>
-                    <button class="btn-download-template" id="btnDownloadSample">
-                        📄 Download Sample Data
-                    </button>
-                </div>
-            </div>
-
-            <!-- Format Guides -->
-            <div class="content-box">
-                <div class="format-guide">
-                    <h4>📋 Excel Format Guide - Text Questions</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Column Name</th>
-                                <th>Required</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>type</strong></td>
-                                <td><span class="optional">Optional</span></td>
-                                <td>Question type: "text" or "mcq"</td>
-                                <td>text</td>
-                            </tr>
-                            <tr>
-                                <td><strong>text</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>The question text</td>
-                                <td>Explain the law of demand</td>
-                            </tr>
-                            <tr>
-                                <td><strong>category</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>Question category</td>
-                                <td>Microeconomics</td>
-                            </tr>
-                            <tr>
-                                <td><strong>marks</strong></td>
-                                <td><span class="required">Yes (for text)</span></td>
-                                <td>Marks for the question (1-100)</td>
-                                <td>10</td>
-                            </tr>
-                            <tr>
-                                <td><strong>modelAnswer</strong></td>
-                                <td><span class="required">Yes (for text)</span></td>
-                                <td>The ideal answer</td>
-                                <td>The law of demand states...</td>
-                            </tr>
-                            <tr>
-                                <td><strong>difficulty</strong></td>
-                                <td><span class="optional">Optional</span></td>
-                                <td>Easy, Medium, or Hard</td>
-                                <td>Medium</td>
-                            </tr>
-                            <tr>
-                                <td><strong>status</strong></td>
-                                <td><span class="optional">Optional</span></td>
-                                <td>active or inactive</td>
-                                <td>active</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="format-guide" style="margin-top: 2rem;">
-                    <h4>📋 Excel Format Guide - MCQ Questions</h4>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Column Name</th>
-                                <th>Required</th>
-                                <th>Description</th>
-                                <th>Example</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>type</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>Must be "mcq" for MCQ questions</td>
-                                <td>mcq</td>
-                            </tr>
-                            <tr>
-                                <td><strong>text</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>The question text</td>
-                                <td>Which is NOT a component of GDP?</td>
-                            </tr>
-                            <tr>
-                                <td><strong>category</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>Question category</td>
-                                <td>Macroeconomics</td>
-                            </tr>
-                            <tr>
-                                <td><strong>optionA</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>First answer option</td>
-                                <td>Consumption</td>
-                            </tr>
-                            <tr>
-                                <td><strong>optionB</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>Second answer option</td>
-                                <td>Investment</td>
-                            </tr>
-                            <tr>
-                                <td><strong>optionC</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>Third answer option</td>
-                                <td>Imports</td>
-                            </tr>
-                            <tr>
-                                <td><strong>optionD</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>Fourth answer option</td>
-                                <td>Government Spending</td>
-                            </tr>
-                            <tr>
-                                <td><strong>correctAnswer</strong></td>
-                                <td><span class="required">Yes *</span></td>
-                                <td>Correct option: A, B, C, or D</td>
-                                <td>C</td>
-                            </tr>
-                            <tr>
-                                <td><strong>difficulty</strong></td>
-                                <td><span class="optional">Optional</span></td>
-                                <td>Easy, Medium, or Hard</td>
-                                <td>Easy</td>
-                            </tr>
-                            <tr>
-                                <td><strong>status</strong></td>
-                                <td><span class="optional">Optional</span></td>
-                                <td>active or inactive</td>
-                                <td>active</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #666;">
-                        <strong>Note:</strong> MCQ marks are automatically set to 1. Leave marks and modelAnswer empty
-                        for MCQ questions.
-                    </p>
-                </div>
-
-                <p style="margin-top: 1rem; font-size: 0.9rem;">
-                    <strong>Valid Categories:</strong> Microeconomics, Macroeconomics, International Economics,
-                    Development Economics, Public Economics, Monetary Economics, Labor Economics,
-                    Environmental Economics, Econometrics, Economic Theory
-                </p>
-            </div>
-
-            <!-- Preview Section -->
-            <div class="preview-section" id="previewSection">
-                <div class="preview-header">
-                    <h3>📋 Preview Data</h3>
-                    <div class="preview-info">
-                        <span class="preview-count" id="validCount">0 valid</span>
-                        <span class="preview-count" style="background: #f44336;" id="invalidCount">0 invalid</span>
-                    </div>
-                </div>
-                <div class="preview-table-container">
-                    <table class="preview-table" id="previewTable">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Status</th>
-                                <th>Question Text</th>
-                                <th>Category</th>
-                                <th>Marks</th>
-                                <th>Difficulty</th>
-                            </tr>
-                        </thead>
-                        <tbody id="previewTableBody">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="upload-actions">
-                    <button class="btn-cancel" id="btnCancelUpload">Cancel</button>
-                    <button class="btn-upload-confirm" id="btnConfirmUpload">
-                        ✅ Upload <span id="uploadCountText">0</span> Questions
-                    </button>
-                </div>
-            </div>
-
-            <!-- Upload Progress -->
-            <div class="upload-progress" id="uploadProgress">
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="progressBar"></div>
-                </div>
-                <div class="progress-text" id="progressText">Uploading... 0%</div>
-            </div>
-        </div>
-
-        <!-- Manage Questions Tab -->
-        <div class="tab-panel" id="manageTab">
-            <div class="content-box">
-                <div class="questions-list">
-                    <div class="list-header">
-                        <h2>All Questions</h2>
-                        <div class="filter-controls">
-                            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search questions...">
-                            <select class="filter-select" id="filterCategory">
-                                <option value="">All Categories</option>
-                                <option value="Microeconomics">Microeconomics</option>
-                                <option value="Macroeconomics">Macroeconomics</option>
-                                <option value="International Economics">International Economics</option>
-                                <option value="Development Economics">Development Economics</option>
-                                <option value="Public Economics">Public Economics</option>
-                                <option value="Monetary Economics">Monetary Economics</option>
-                                <option value="Labor Economics">Labor Economics</option>
-                                <option value="Environmental Economics">Environmental Economics</option>
-                                <option value="Econometrics">Econometrics</option>
-                                <option value="Economic Theory">Economic Theory</option>
-                            </select>
-                            <button class="btn-toggle-filters" id="btnToggleFilters">
-                                🔧 Advanced Filters
+                        <div style="margin-top: 1.5rem; text-align: right;">
+                            <button type="submit" class="btn-submit" id="btnCreateSession">
+                                💾 Create & Publish Test
                             </button>
                         </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- View Results Tab -->
+            <div class="tab-panel" id="view-resultsTab">
+                <div class="content-box">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                        <h3 style="margin: 0;">📋 Student Exam Results</h3>
+                        <button id="btnPopulateMockData" type="button" style="background: #edf2f7; color: #4a5568; border: 1px solid #cbd5e0; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                            🧪 Populate 10 Mock Results
+                        </button>
+                    </div>
+                    <p style="color: #666; margin-bottom: 1.5rem; margin-top: 0.5rem;">Select a Test Session below to view all student evaluations, scores, and print their report cards.</p>
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label for="resultSessionSelect">Select Test Session</label>
+                        <select id="resultSessionSelect" style="padding: 0.75rem; font-size: 1rem; width: 100%;">
+                            <option value="">-- Load sessions... --</option>
+                        </select>
                     </div>
 
-                    <!-- Advanced Filters Panel -->
-                    <div class="advanced-filters" id="advancedFilters">
-                        <div class="filters-grid">
-                            <div class="filter-group">
-                                <label>Status</label>
-                                <select id="filterStatus">
-                                    <option value="">All Status</option>
-                                    <option value="active">Active Only</option>
-                                    <option value="inactive">Inactive Only</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label>Difficulty</label>
-                                <select id="filterDifficulty">
-                                    <option value="">All Difficulty</option>
-                                    <option value="Easy">Easy</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Hard">Hard</option>
-                                </select>
-                            </div>
-                            <div class="filter-group">
-                                <label>Min Marks</label>
-                                <input type="number" id="filterMinMarks" placeholder="Min" min="1" max="100">
-                            </div>
-                            <div class="filter-group">
-                                <label>Max Marks</label>
-                                <input type="number" id="filterMaxMarks" placeholder="Max" min="1" max="100">
-                            </div>
-                        </div>
-                        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-                            <button class="btn-submit" style="padding: 0.5rem 1rem; font-size: 0.9rem;"
-                                id="btnApplyFilters">Apply Filters</button>
-                            <button class="btn-cancel" id="btnClearFilters">Clear All</button>
-                        </div>
-                    </div>
-
-                    <!-- Export Buttons -->
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
-                        <div class="select-all-container">
-                            <input type="checkbox" id="selectAllCheckbox" class="question-checkbox">
-                            <label for="selectAllCheckbox">Select All</label>
-                        </div>
-                        <div class="export-buttons">
-                            <button class="btn-export excel" id="btnExportExcel">
-                                📊 Export Excel
-                            </button>
-                            <button class="btn-export pdf" id="btnExportPDF">
-                                📄 Export PDF
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Bulk Actions Bar -->
-                    <div class="bulk-actions-bar" id="bulkActionsBar">
-                        <span class="selected-count"><span id="selectedCount">0</span> questions selected</span>
-                        <div class="bulk-buttons">
-                            <button class="btn-bulk activate" id="bulkActivate">✅ Set Active</button>
-                            <button class="btn-bulk deactivate" id="bulkDeactivate">⏸️ Set Inactive</button>
-                            <button class="btn-bulk category" id="bulkCategory">📁 Change Category</button>
-                            <button class="btn-bulk delete" id="bulkDelete">🗑️ Delete Selected</button>
-                            <button class="btn-bulk cancel" id="bulkCancel">✕ Cancel</button>
-                        </div>
-                    </div>
-
-                    <div id="questionsList">
-                        <div class="spinner"></div>
+                    <div class="results-table-container" style="overflow-x: auto; background: white; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 1rem;">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left;" id="resultsTable">
+                            <thead>
+                                <tr style="background: #f5f7ff; border-bottom: 2px solid #e2e8f0; color: #1e3c72; font-weight: 600;">
+                                    <th style="padding: 1rem;">Student Name</th>
+                                    <th style="padding: 1rem;">Class</th>
+                                    <th style="padding: 1rem;">Subject</th>
+                                    <th style="padding: 1rem;">Score</th>
+                                    <th style="padding: 1rem;">Date Taken</th>
+                                    <th style="padding: 1rem; text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <tr>
+                                    <td colspan="6" style="padding: 2rem; text-align: center; color: #666; font-style: italic;">
+                                        Select a session to load student results.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Statistics Tab -->
-        <div class="tab-panel" id="statsTab">
-            <div class="content-box">
-                <div id="statsGrid">
-                    <div class="spinner"></div>
-                </div>
-            </div>
-        </div>
 
         <!-- Evaluate Answers Tab -->
         <div class="tab-panel" id="evaluate-answersTab">
@@ -822,6 +476,18 @@
         </div>
     </div>
     <button class="btn-shortcuts" id="btnShortcuts" title="Keyboard Shortcuts">⌨️</button>
+
+    <!-- Result Preview Modal -->
+    <div id="resultPreviewModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); z-index: 2000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
+        <div style="background: white; width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 2.5rem; position: relative; font-family: 'Inter', sans-serif;">
+            <button onclick="document.getElementById('resultPreviewModal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; border: none; background: none; font-size: 1.5rem; cursor: pointer; color: #a0aec0; transition: color 0.2s;" onmouseover="this.style.color='#4a5568'" onmouseout="this.style.color='#a0aec0'">×</button>
+            <div id="modalReportCardContent"></div>
+            <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <button onclick="document.getElementById('resultPreviewModal').style.display='none'" style="flex: 1; padding: 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0; background: white; color: #4a5568; font-weight: 600; cursor: pointer;">Close</button>
+                <button id="modalPrintBtn" style="flex: 1; padding: 0.75rem; border-radius: 6px; border: none; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; font-weight: 600; cursor: pointer;">🖨️ Print Report</button>
+            </div>
+        </div>
+    </div>
 
     <!-- JavaScript Module -->
     <script type="module" src="admin.js"></script>
