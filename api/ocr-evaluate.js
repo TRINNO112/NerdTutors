@@ -128,6 +128,7 @@ You MUST evaluate and deduct marks if the student's answers are too brief/short 
    - Provide the score awarded.
    - Give comprehensive, detailed feedback explaining why marks were awarded or deducted.
    - Provide as many concrete, actionable improvement suggestions as needed based on the mistakes made.
+   - If the student made mistakes (e.g. incorrect definition, wrong concept, calculation error), extract the exact incorrect phrase, sentence, or calculation from their answer and populate it in "incorrectPhrases" with a brief explanation of why it is wrong.
 
 Return STRICT JSON only (no markdown, no code blocks):
 {
@@ -146,7 +147,13 @@ Return STRICT JSON only (no markdown, no code blocks):
       "maxMarks": <number>,
       "studentAnswerText": "Summary/transcription of what the student wrote for this question",
       "feedback": "Comprehensive and detailed explanation of why marks were given or lost.",
-      "improvements": ["List as many suggestions as needed", "..."]
+      "improvements": ["List as many suggestions as needed", "..."],
+      "incorrectPhrases": [
+        {
+          "wrongText": "The exact incorrect phrase or calculation from the student's answer text",
+          "explanation": "Why this specific phrase/calculation is incorrect"
+        }
+      ]
     }
   ]
 }`;
@@ -166,6 +173,7 @@ Your task is to:
 3. Compare the student's answers to the model answers and grade them out of a maximum of ${mm} marks.
    - Give comprehensive, detailed feedback for each question.
    - Provide as many concrete, actionable improvement suggestions as needed.
+   - If the student made mistakes (e.g. incorrect definition, wrong concept, calculation error), extract the exact incorrect phrase, sentence, or calculation from their answer and populate it in "incorrectPhrases" with a brief explanation of why it is wrong.
 
 Return STRICT JSON only (no markdown, no code blocks):
 {
@@ -184,7 +192,13 @@ Return STRICT JSON only (no markdown, no code blocks):
       "maxMarks": <number>,
       "studentAnswerText": "Summary/transcription of what the student wrote for this question",
       "feedback": "Comprehensive and detailed explanation of why marks were given or lost.",
-      "improvements": ["List as many suggestions as needed", "..."]
+      "improvements": ["List as many suggestions as needed", "..."],
+      "incorrectPhrases": [
+        {
+          "wrongText": "The exact incorrect phrase or calculation from the student's answer text",
+          "explanation": "Why this specific phrase/calculation is incorrect"
+        }
+      ]
     }
   ]
 }`;
@@ -217,6 +231,7 @@ IMPORTANT INSTRUCTIONS:
 2. The student may have numbered their answers (Q1, Q2, Ans 1, etc.) — identify which answer corresponds to which question.
 3. If an answer for a question is not found in the image, mark it as "Not attempted" with score 0.
 4. For each answer, FIRST check relevance of the content, THEN evaluate the relevant parts.
+5. If the student made mistakes (e.g. incorrect definition, wrong concept, calculation error), extract the exact incorrect phrase, sentence, or calculation from their answer and populate it in "incorrectPhrases" with a brief explanation of why it is wrong.
 
 QUESTIONS TO EVALUATE:
 ${questionsList}
@@ -233,7 +248,13 @@ Return STRICT JSON only (no markdown, no code blocks):
       "score": <number>,
       "maxMarks": <number>,
       "improvements": ["List as many suggestions as needed", "..."],
-      "feedback": "Detailed feedback — note any irrelevant content but provide comprehensive explanation for the score"
+      "feedback": "Detailed feedback — note any irrelevant content but provide comprehensive explanation for the score",
+      "incorrectPhrases": [
+        {
+          "wrongText": "The exact incorrect phrase or calculation from the student's answer text",
+          "explanation": "Why this specific phrase/calculation is incorrect"
+        }
+      ]
     }
   ],
   "totalScore": <number>,
