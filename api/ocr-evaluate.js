@@ -93,7 +93,7 @@ export default async function handler(req, res) {
     }
 
     // ===== Model =====
-    const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+    const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent";
 
     // ===== Build Prompt Based on Mode =====
     let textPrompt = "";
@@ -120,23 +120,18 @@ Your task is to:
 3. Grade the student's answers out of a maximum of ${mm} marks.
 4. For each question or section:
    - Provide the score awarded.
-   - Give constructive feedback explaining why marks were awarded or deducted.
-   - Provide concrete, actionable improvement suggestions.
-5. In addition, perform a Re-evaluation Check:
-   - Assess if the student's answer is correct and aligned with the Model Answer.
-   - If the student was graded lower than they deserved (e.g., if their answer is correct but marked down), identify the Appeal Potential (High, Medium, or Low) and write a concrete Appeal Justification.
+   - Give comprehensive, detailed feedback explaining why marks were awarded or deducted.
+   - Provide as many concrete, actionable improvement suggestions as needed based on the mistakes made.
 
 Return STRICT JSON only (no markdown, no code blocks):
 {
   "totalScore": <number>,
   "maxMarks": ${mm},
-  "overallFeedback": "Overall summary of the student's performance, strengths, and weaknesses.",
+  "overallFeedback": "Detailed overall summary of the student's performance, strengths, and weaknesses.",
   "improvements": [
-    "Specific improvement suggestion 1",
-    "Specific improvement suggestion 2"
+    "List as many specific improvement suggestions as needed based on the student's mistakes",
+    "..."
   ],
-  "totalAppealPotential": "High" | "Medium" | "Low",
-  "appealSummary": "Summary of whether there are grading discrepancies and which questions have the strongest case for reclaiming marks.",
   "results": [
     {
       "questionNumber": "Q1 or Section Name",
@@ -144,10 +139,8 @@ Return STRICT JSON only (no markdown, no code blocks):
       "score": <number>,
       "maxMarks": <number>,
       "studentAnswerText": "Summary/transcription of what the student wrote for this question",
-      "feedback": "Why marks were given or lost.",
-      "improvements": ["suggestion 1", "suggestion 2"],
-      "appealPotential": "High" | "Medium" | "Low",
-      "appealJustification": "If the student has a valid case to claim more marks because their answer is correct according to the marking scheme but got marked down, explain the exact argument. Otherwise, write 'N/A'."
+      "feedback": "Comprehensive and detailed explanation of why marks were given or lost.",
+      "improvements": ["List as many suggestions as needed", "..."]
     }
   ]
 }`;
@@ -165,21 +158,18 @@ Your task is to:
 1. Read the Model Answer Key (Document 1) to understand the questions, the correct answers, and the marking criteria.
 2. Read the Student's Answer Sheet (Document 2) to identify the student's responses to those questions.
 3. Compare the student's answers to the model answers and grade them out of a maximum of ${mm} marks.
-4. For each question, perform a **Re-evaluation Check**:
-   - Assess if the student's answer is correct and aligned with the Model Answer.
-   - If the student was graded lower than they deserved (e.g., if their answer is correct but marked down), identify the **Appeal Potential** (High, Medium, or Low) and write a concrete **Appeal Justification** stating exactly why their marks should be increased based on the marking scheme.
+   - Give comprehensive, detailed feedback for each question.
+   - Provide as many concrete, actionable improvement suggestions as needed.
 
 Return STRICT JSON only (no markdown, no code blocks):
 {
   "totalScore": <number>,
   "maxMarks": ${mm},
-  "overallFeedback": "Overall summary of the student's performance, strengths, and weaknesses.",
+  "overallFeedback": "Detailed overall summary of the student's performance, strengths, and weaknesses.",
   "improvements": [
-    "Specific improvement suggestion 1",
-    "Specific improvement suggestion 2"
+    "List as many specific improvement suggestions as needed based on the student's mistakes",
+    "..."
   ],
-  "totalAppealPotential": "High" | "Medium" | "Low",
-  "appealSummary": "Summary of whether there are grading discrepancies and which questions have the strongest case for reclaiming marks.",
   "results": [
     {
       "questionNumber": "Q1 or Section Name",
@@ -187,10 +177,8 @@ Return STRICT JSON only (no markdown, no code blocks):
       "score": <number>,
       "maxMarks": <number>,
       "studentAnswerText": "Summary/transcription of what the student wrote for this question",
-      "feedback": "Why marks were given or lost.",
-      "improvements": ["suggestion 1", "suggestion 2"],
-      "appealPotential": "High" | "Medium" | "Low",
-      "appealJustification": "If the student has a valid case to claim more marks because their answer is correct according to the model answer but got marked down, explain the exact argument the student can write to the board. Otherwise, write 'N/A'."
+      "feedback": "Comprehensive and detailed explanation of why marks were given or lost.",
+      "improvements": ["List as many suggestions as needed", "..."]
     }
   ]
 }`;
@@ -238,13 +226,13 @@ Return STRICT JSON only (no markdown, no code blocks):
       "isRelevant": true or false,
       "score": <number>,
       "maxMarks": <number>,
-      "improvements": ["suggestion1", "suggestion2"],
-      "feedback": "Detailed feedback — if partially irrelevant, note what was irrelevant and grade only the relevant parts"
+      "improvements": ["List as many suggestions as needed", "..."],
+      "feedback": "Detailed feedback — note any irrelevant content but provide comprehensive explanation for the score"
     }
   ],
   "totalScore": <number>,
   "totalMaxMarks": <number>,
-  "overallFeedback": "General feedback on the entire answer sheet"
+  "overallFeedback": "Detailed general feedback on the entire answer sheet"
 }`;
 
     } else {
@@ -283,8 +271,8 @@ Return STRICT JSON only (no markdown, no code blocks):
   "isRelevant": true or false,
   "score": <number>,
   "maxMarks": ${mm},
-  "improvements": ["suggestion1", "suggestion2"],
-  "feedback": "Detailed feedback — note any irrelevant content but grade the relevant parts fairly"
+  "improvements": ["List as many suggestions as needed", "..."],
+  "feedback": "Detailed feedback — note any irrelevant content but provide comprehensive explanation for the score"
 }`;
     }
 

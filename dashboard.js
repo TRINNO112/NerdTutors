@@ -20,7 +20,8 @@ const appState = {
     filteredResults: [],
     charts: {},
     sortField: 'date',
-    sortOrder: 'desc'
+    sortOrder: 'desc',
+    chartMetric: 'percentage'
 };
 
 // ==================== DOM ELEMENTS ====================
@@ -67,6 +68,10 @@ const elements = {
 
     // Analytics
     typeBreakdownBody: document.getElementById('typeBreakdownBody'),
+    analyticsClassFilter: document.getElementById('analyticsClassFilter'),
+    analyticsSubjectFilter: document.getElementById('analyticsSubjectFilter'),
+    analyticsSessionFilter: document.getElementById('analyticsSessionFilter'),
+    btnToggleChartMetric: document.getElementById('btnToggleChartMetric'),
 
     // Modal
     detailModal: document.getElementById('detailModal'),
@@ -701,22 +706,176 @@ function renderStudentsPage() {
     });
 }
 
+// Filtered results for analytics
+let analyticsSessions = [];
+
+async function loadSessionsForAnalyticsFilter() {
+    const sessionFilter = document.getElementById('analyticsSessionFilter');
+    if (!sessionFilter) return;
+
+    try {
+        const q = query(collection(db, 'testSessions'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        analyticsSessions = [];
+        querySnapshot.forEach(docSnap => {
+            analyticsSessions.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        
+        updateAnalyticsSessionDropdown();
+    } catch (error) {
+        console.error("Error loading sessions for analytics filter:", error);
+    }
+}
+
+function updateAnalyticsSessionDropdown() {
+    const sessionFilter = document.getElementById('analyticsSessionFilter');
+    if (!sessionFilter) return;
+
+    const classVal = document.getElementById('analyticsClassFilter')?.value || 'all';
+    const subjectVal = document.getElementById('analyticsSubjectFilter')?.value || 'all';
+
+    let filtered = analyticsSessions;
+    if (classVal !== 'all') {
+        filtered = filtered.filter(s => s.class === classVal);
+    }
+    if (subjectVal !== 'all') {
+        filtered = filtered.filter(s => s.subject === subjectVal);
+    }
+
+    let html = '<option value="all">All Test Sessions</option>';
+    filtered.forEach(s => {
+        html += `<option value="${s.id}">${s.name} (${s.class} - ${s.subject})</option>`;
+    });
+
+    sessionFilter.innerHTML = html;
+}
+
+// Helper to escape HTML safely
+function escapeHtml(text) {
+    if (typeof text !== 'string') return text;
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 // ==================== INITIALIZE ANALYTICS CHARTS ====================
 function initAnalyticsCharts() {
-    // Score distribution chart
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not loaded, skipping analytics');
+        return;
+    }
+
+    // 1. Get filter values
+    const classVal = document.getElementById('analyticsClassFilter')?.value || 'all';
+    const subjectVal = document.getElementById('analyticsSubjectFilter')?.value || 'all';
+    const sessionVal = document.getElementById('analyticsSessionFilter')?.value || 'all';
+
+    // 2. Filter testResults dataset
+    let filteredResults = appState.testResults;
+
+    if (classVal !== 'all') {
+        filteredResults = filteredResults.filter(r => r.class === classVal);
+    }
+    if (subjectVal !== 'all') {
+        filteredResults = filteredResults.filter(r => r.subject === subjectVal);
+    }
+    if (sessionVal !== 'all') {
+        filteredResults = filteredResults.filter(r => r.sessionId === sessionVal);
+    }
+
+    // 3. Render Student Performance Bar Chart
+    const perfCanvas = document.getElementById('studentPerformanceChart');
+    if (perfCanvas) {
+        if (appState.charts.studentPerformance) {
+            appState.charts.studentPerformance.destroy();
+        }
+
+        // Group latest percentage or score per student in this filtered set
+        const studentMap = {};
+        filteredResults.forEach(r => {
+            const sName = r.studentName || 'Anonymous';
+            const percentage = parseFloat(r.percentage) || 0;
+            const score = parseFloat(r.score) || 0;
+            const maxMarks = parseFloat(r.maxMarks) || 100;
+            
+            // Keep the latest score of each student
+            if (!studentMap[sName] || studentMap[sName].percentage < percentage) {
+                studentMap[sName] = { score, maxMarks, percentage };
+            }
+        });
+
+        const labels = Object.keys(studentMap);
+        const dataValues = labels.map(label => {
+            return appState.chartMetric === 'percentage' 
+                ? studentMap[label].percentage 
+                : studentMap[label].score;
+        });
+
+        const backgroundColors = labels.map(() => '#4f46e5'); // Sleek indigo
+
+        appState.charts.studentPerformance = new Chart(perfCanvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: appState.chartMetric === 'percentage' ? 'Score Percentage (%)' : 'Marks Obtained',
+                    data: dataValues,
+                    backgroundColor: backgroundColors,
+                    borderRadius: 6,
+                    maxBarThickness: 45
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const name = context.label;
+                                const val = context.parsed.y;
+                                if (appState.chartMetric === 'percentage') {
+                                    return `${name}: ${val}%`;
+                                } else {
+                                    const studentData = studentMap[name];
+                                    return `${name}: ${val} / ${studentData.maxMarks} Marks`;
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: appState.chartMetric === 'percentage' ? 100 : undefined,
+                        ticks: {
+                            callback: function(value) {
+                                return appState.chartMetric === 'percentage' ? value + '%' : value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 4. Update Score Distribution Doughnut Chart
     const scoreCanvas = document.getElementById('scoreDistributionChart');
-    if (scoreCanvas && typeof Chart !== 'undefined') {
-        // Destroy existing chart if any
+    if (scoreCanvas) {
         if (appState.charts.scoreDistribution) {
             appState.charts.scoreDistribution.destroy();
         }
 
-        const high = appState.testResults.filter(r => parseFloat(r.percentage) >= 80).length;
-        const medium = appState.testResults.filter(r => {
+        const high = filteredResults.filter(r => parseFloat(r.percentage) >= 80).length;
+        const medium = filteredResults.filter(r => {
             const p = parseFloat(r.percentage);
             return p >= 50 && p < 80;
         }).length;
-        const low = appState.testResults.filter(r => parseFloat(r.percentage) < 50).length;
+        const low = filteredResults.filter(r => parseFloat(r.percentage) < 50).length;
 
         appState.charts.scoreDistribution = new Chart(scoreCanvas.getContext('2d'), {
             type: 'doughnut',
@@ -736,14 +895,13 @@ function initAnalyticsCharts() {
         });
     }
 
-    // Tests per day chart
+    // 5. Update Tests Per Day Chart
     const testsCanvas = document.getElementById('testsPerDayChart');
-    if (testsCanvas && typeof Chart !== 'undefined') {
+    if (testsCanvas) {
         if (appState.charts.testsPerDay) {
             appState.charts.testsPerDay.destroy();
         }
 
-        // Get last 7 days
         const days = [];
         const counts = [];
         for (let i = 6; i >= 0; i--) {
@@ -752,7 +910,7 @@ function initAnalyticsCharts() {
             date.setHours(0, 0, 0, 0);
             days.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
 
-            const count = appState.testResults.filter(r => {
+            const count = filteredResults.filter(r => {
                 const testDate = new Date(r.submittedAt);
                 testDate.setHours(0, 0, 0, 0);
                 return testDate.getTime() === date.getTime();
@@ -767,7 +925,7 @@ function initAnalyticsCharts() {
                 datasets: [{
                     label: 'Tests Taken',
                     data: counts,
-                    backgroundColor: '#667eea',
+                    backgroundColor: '#6366f1',
                     borderRadius: 4
                 }]
             },
@@ -782,20 +940,23 @@ function initAnalyticsCharts() {
         });
     }
 
-    // Type breakdown table
-    renderTypeBreakdown();
+    // 6. Update Performance Type Breakdown Table
+    renderTypeBreakdownWithFiltered(filteredResults);
+
+    // 7. Update Leaderboard and Detailed Data Table
+    renderLeaderboardAndDetailedTable(filteredResults);
 }
 
 // ==================== RENDER TYPE BREAKDOWN ====================
-function renderTypeBreakdown() {
+function renderTypeBreakdownWithFiltered(filteredResults) {
     const tbody = elements.typeBreakdownBody;
     if (!tbody) return;
 
     tbody.innerHTML = '';
 
-    const mcqResults = appState.testResults.filter(r => r.testType === 'mcq');
-    const ocrResults = appState.testResults.filter(r => r.testType === 'ocr');
-    const textResults = appState.testResults.filter(r => r.testType !== 'mcq' && r.testType !== 'ocr');
+    const mcqResults = filteredResults.filter(r => r.testType === 'mcq');
+    const ocrResults = filteredResults.filter(r => r.testType === 'ocr');
+    const textResults = filteredResults.filter(r => r.testType !== 'mcq' && r.testType !== 'ocr');
 
     const calcStats = (results) => {
         if (results.length === 0) return { count: 0, avg: 0, high: 0, low: 0 };
@@ -835,6 +996,61 @@ function renderTypeBreakdown() {
             <td>${ocrStats.low}%</td>
         </tr>
     `;
+}
+
+// ==================== RENDER LEADERBOARD & DETAILED TABLE ====================
+function renderLeaderboardAndDetailedTable(filteredResults) {
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    const detailedBody = document.getElementById('detailedResultsBody');
+    if (!leaderboardBody || !detailedBody) return;
+
+    // 1. Leaderboard (Top 5 based on max percentage)
+    const studentMap = {};
+    filteredResults.forEach(r => {
+        const name = r.studentName || 'Anonymous';
+        const pct = parseFloat(r.percentage) || 0;
+        if (!studentMap[name] || studentMap[name] < pct) {
+            studentMap[name] = pct;
+        }
+    });
+
+    const sortedStudents = Object.entries(studentMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+    
+    leaderboardBody.innerHTML = sortedStudents.length === 0 
+        ? '<tr><td colspan="3" style="text-align:center;">No data available</td></tr>' 
+        : sortedStudents.map((s, index) => {
+            let medal = '';
+            if (index === 0) medal = '🥇 ';
+            else if (index === 1) medal = '🥈 ';
+            else if (index === 2) medal = '🥉 ';
+            return `
+                <tr>
+                    <td><strong>${index + 1}</strong></td>
+                    <td class="student-name">${medal}${s[0]}</td>
+                    <td><span class="score-badge score-high">${s[1]}%</span></td>
+                </tr>
+            `;
+        }).join('');
+
+    // 2. Detailed Data Table (Sorted by Date Desc)
+    const sortedDetails = [...filteredResults].sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+    
+    detailedBody.innerHTML = sortedDetails.length === 0 
+        ? '<tr><td colspan="6" style="text-align:center;">No data available</td></tr>'
+        : sortedDetails.map(r => {
+            const date = new Date(r.submittedAt);
+            const dateStr = date.toLocaleDateString();
+            return `
+                <tr>
+                    <td class="student-name">${r.studentName || 'Anonymous'}</td>
+                    <td>${r.class || '-'}</td>
+                    <td>${r.subject || '-'}</td>
+                    <td>${r.totalScore || '0/0'}</td>
+                    <td>${r.percentage || '0%'}</td>
+                    <td>${dateStr}</td>
+                </tr>
+            `;
+        }).join('');
 }
 
 // ==================== SETUP EXPORT BUTTONS ====================
@@ -1007,6 +1223,29 @@ function setupEventListeners() {
         elements.studentSortFilter.addEventListener('change', renderStudentsPage);
     }
 
+    // Analytics Filters
+    if (elements.analyticsClassFilter) {
+        elements.analyticsClassFilter.addEventListener('change', () => {
+            updateAnalyticsSessionDropdown();
+            initAnalyticsCharts();
+        });
+    }
+    if (elements.analyticsSubjectFilter) {
+        elements.analyticsSubjectFilter.addEventListener('change', () => {
+            updateAnalyticsSessionDropdown();
+            initAnalyticsCharts();
+        });
+    }
+    if (elements.analyticsSessionFilter) {
+        elements.analyticsSessionFilter.addEventListener('change', initAnalyticsCharts);
+    }
+    if (elements.btnToggleChartMetric) {
+        elements.btnToggleChartMetric.addEventListener('click', () => {
+            appState.chartMetric = appState.chartMetric === 'percentage' ? 'score' : 'percentage';
+            initAnalyticsCharts();
+        });
+    }
+
     // Modal close button
     elements.closeModal.addEventListener('click', () => {
         elements.detailModal.classList.remove('active');
@@ -1120,6 +1359,9 @@ async function init() {
 
         // Load data
         await loadTestResults();
+
+        // Load sessions list for analytics filter
+        await loadSessionsForAnalyticsFilter();
 
         // Setup event listeners
         setupEventListeners();

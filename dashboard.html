@@ -245,6 +245,47 @@
                         <h3 class="section-title">📈 Analytics & Insights</h3>
                     </div>
 
+                    <!-- Analytics Filter Bar -->
+                    <div class="filters-bar" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; width: 100%; box-sizing: border-box;">
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; text-align: left;">Filter Class</label>
+                            <select class="filter-select" id="analyticsClassFilter" style="width: 100%; margin: 0; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e0;">
+                                <option value="all">All Classes</option>
+                                <option value="Class 10th">Class 10th</option>
+                                <option value="Class 12th">Class 12th</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; text-align: left;">Filter Subject</label>
+                            <select class="filter-select" id="analyticsSubjectFilter" style="width: 100%; margin: 0; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e0;">
+                                <option value="all">All Subjects</option>
+                                <option value="Economics">Economics</option>
+                                <option value="Social Science">Social Science</option>
+                            </select>
+                        </div>
+                        <div style="flex: 2; min-width: 200px;">
+                            <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; text-align: left;">Filter Test Session</label>
+                            <select class="filter-select" id="analyticsSessionFilter" style="width: 100%; margin: 0; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e0;">
+                                <option value="all">All Test Sessions</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Student Comparison Chart Card -->
+                    <div class="content-box" style="margin-bottom: 1.5rem; padding: 1.5rem; background: white; border-radius: 12px; border: 1px solid #edf2f7; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <h4 style="margin: 0; color: #2d3748; font-family: 'Poppins', sans-serif;">📊 Student Marks Comparison</h4>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn" id="btnToggleChartMetric" style="background: #edf2f7; color: #4a5568; border: 1px solid #cbd5e0; padding: 0.35rem 0.75rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; border-radius: 6px;">
+                                    Toggle Score / Percentage
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper" style="height: 350px; position: relative;">
+                            <canvas id="studentPerformanceChart"></canvas>
+                        </div>
+                    </div>
+
                     <!-- Analytics Stats -->
                     <div class="analytics-stats" id="analyticsStats">
                         <div class="analytics-card">
@@ -277,6 +318,43 @@
                             </thead>
                             <tbody id="typeBreakdownBody">
                                 <!-- Type breakdown will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Top Performers Leaderboard -->
+                    <div class="analytics-table" style="margin-top: 2rem;">
+                        <h4>🏆 Top 5 Performers Leaderboard</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Student Name</th>
+                                    <th>Highest Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboardBody">
+                                <!-- Leaderboard will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Detailed Results Table -->
+                    <div class="analytics-table" style="margin-top: 2rem;">
+                        <h4>📋 Detailed Results Data</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Subject</th>
+                                    <th>Score</th>
+                                    <th>Percentage</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailedResultsBody">
+                                <!-- Detailed results will be populated here -->
                             </tbody>
                         </table>
                     </div>

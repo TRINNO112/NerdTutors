@@ -507,7 +507,14 @@
         }
 
         // Event listeners
-        studentClass.addEventListener('change', updateSessionDropdown);
+        studentClass.addEventListener('change', (e) => {
+            if (e.target.value === 'Class 10th') {
+                studentSubject.value = 'Social Science';
+            } else if (e.target.value === 'Class 12th') {
+                studentSubject.value = 'Economics';
+            }
+            updateSessionDropdown();
+        });
         studentSubject.addEventListener('change', updateSessionDropdown);
         studentTestSession.addEventListener('change', (e) => {
             selectedSession = allSessions.find(s => s.id === e.target.value) || null;
@@ -645,8 +652,6 @@
                     maxMarks: report.maxMarks,
                     overallFeedback: report.overallFeedback,
                     improvements: report.improvements,
-                    totalAppealPotential: report.totalAppealPotential || 'Low',
-                    appealSummary: report.appealSummary || 'No re-evaluation appeal case.',
                     breakdown: report.results || [],
                     createdAt: serverTimestamp()
                 });
@@ -666,17 +671,6 @@
             const cls = studentClass.value;
             const sub = studentSubject.value;
             const pct = Math.round((report.totalScore / report.maxMarks) * 100);
-
-            let appealHtml = '';
-            if (report.totalAppealPotential && report.totalAppealPotential !== 'Low') {
-                appealHtml = `
-                    <div style="background: #fffaf0; border: 1px solid #feebc8; border-left: 4px solid #dd6b20; border-radius: 8px; padding: 1.25rem; margin-top: 2rem;">
-                        <h3 style="color: #dd6b20; margin: 0 0 0.5rem 0; font-family: 'Poppins', sans-serif; font-size: 1.15rem;">⚖️ Re-evaluation & Appeal Recommendation</h3>
-                        <p style="color: #7b341e; font-weight: 700; margin: 0 0 0.25rem 0;">Potential Case: ${report.totalAppealPotential}</p>
-                        <p style="color: #7b341e; margin: 0; font-size: 0.95rem;">${report.appealSummary}</p>
-                    </div>
-                `;
-            }
 
             reportCardContainer.innerHTML = `
                 <div style="text-align: center; border-bottom: 4px solid var(--primary); padding-bottom: 1.5rem; margin-bottom: 2.5rem;">
@@ -704,8 +698,6 @@
                 <ul style="padding-left: 1.5rem; line-height: 1.6; color: #4a5568; font-size: 1.05rem;">
                     ${report.improvements.map(imp => `<li>${imp}</li>`).join('')}
                 </ul>
-
-                ${appealHtml}
             `;
 
             inputCard.style.display = 'none';
