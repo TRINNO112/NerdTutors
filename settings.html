@@ -723,7 +723,7 @@
             </div>
             <div style="padding: 1.5rem; border-top: 1px solid #edf2f7; display: flex; justify-content: flex-end; gap: 1rem;">
                 <button onclick="document.getElementById('reportModal').style.display='none'" class="btn btn-secondary">Close</button>
-                <button onclick="printReport()" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); transition: all 0.2s ease;">🖨️ Print / Save PDF</button>
+                <button id="printReportBtn" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); transition: all 0.2s ease;">🖨️ Print / Save PDF</button>
             </div>
         </div>
     </div>
@@ -1151,11 +1151,173 @@
             `;
 
             document.getElementById('reportModalContent').innerHTML = content;
+            document.getElementById('printReportBtn').onclick = () => {
+                window.printCustomReport(report, questionsArr, markingSchemeText);
+            };
             document.getElementById('reportModal').style.display = 'flex';
         };
 
-        window.printReport = function() {
-            window.print();
+        window.printCustomReport = function(res, questionsArr, markingSchemeText) {
+            if (!res) return;
+
+            const dateStr = res.completedAt ? new Date(res.completedAt.seconds * 1000).toLocaleString() : new Date().toLocaleString();
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                alert("Please allow popups to print reports.");
+                return;
+            }
+
+            let totalMarks = 0;
+            let earnedMarks = 0;
+            questionsArr.forEach(q => {
+                totalMarks += q.marks !== undefined ? q.marks : (q.maxMarks || 0);
+                earnedMarks += q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0);
+            });
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Report Card - ${res.studentName || 'Student'}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+                    <style>
+                        @page {
+                            size: auto;
+                            margin: 0;
+                        }
+                        *, *:before, *:after {
+                            box-sizing: border-box !important;
+                        }
+                        body { 
+                            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                            padding: 5mm 8mm !important;
+                            margin: 0 !important;
+                            color: #2d3748; 
+                            line-height: 1.6; 
+                        }
+                        .header { border-bottom: 4px solid #1e3c72; padding-bottom: 1rem; margin-bottom: 1.5rem; text-align: center; }
+                        .header h1 { margin: 0; color: #1e3c72; font-size: 2.2rem; font-weight: 800; letter-spacing: 1px; }
+                        .header p { margin: 6px 0 0 0; color: #718096; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+                        .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; background: #f7fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid #edf2f7; }
+                        .meta-item { font-size: 0.95rem; color: #2d3748; }
+                        .meta-item strong { color: #4a5568; font-weight: 700; }
+                        .score-section { text-align: center; margin: 2rem 0; padding: 1.5rem; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; }
+                        .score-label { text-transform: uppercase; font-size: 0.8rem; font-weight: 700; color: #4a5568; letter-spacing: 1.5px; }
+                        .score-value { font-size: 3.5rem; font-weight: 900; color: #2b6cb0; margin: 0.25rem 0; }
+                        .score-pct { font-weight: 700; color: #2b6cb0; font-size: 1.2rem; }
+                        .section-title { color: #1e3c72; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.3rem; font-weight: 700; }
+                        ul { padding-left: 1.5rem; }
+                        li { margin-bottom: 0.6rem; font-size: 0.95rem; color: #4a5568; }
+                        p { font-size: 0.95rem; color: #4a5568; }
+                        .report-block {
+                            display: inline-block;
+                            width: 100%;
+                            break-inside: avoid !important;
+                            page-break-inside: avoid !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>NERD TUTORS</h1>
+                        <p>EVALUATION REPORT CARD</p>
+                    </div>
+                    
+                    <div class="meta-grid">
+                        <div class="meta-item"><strong>Student Name:</strong> ${res.studentName || 'Student'}</div>
+                        <div class="meta-item"><strong>Date Evaluated:</strong> ${dateStr}</div>
+                        <div class="meta-item"><strong>Class:</strong> ${res.class || 'N/A'}</div>
+                        <div class="meta-item"><strong>Subject:</strong> ${res.subject || 'N/A'}</div>
+                    </div>
+
+                    <div class="score-section report-block">
+                        <div class="score-label">MARKS OBTAINED</div>
+                        <div class="score-value">${earnedMarks} / ${totalMarks}</div>
+                        <div class="score-pct">Percentage Score: ${Math.round((earnedMarks / totalMarks) * 100)}%</div>
+                    </div>
+
+                    <div class="report-block">
+                        <h3 class="section-title">📋 Performance Analysis</h3>
+                        <p>${res.overallFeedback || ''}</p>
+                    </div>
+
+                    ${res.improvements && res.improvements.length > 0 ? `
+                    <div class="report-block">
+                        <h3 class="section-title">🚀 Areas to Improve</h3>
+                        <ul>
+                            ${res.improvements.map(imp => `<li>${imp}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+
+                    ${(() => {
+                        const wrongQuestions = questionsArr.filter(q => {
+                            const earned = Number(q.score !== undefined ? q.score : (q.earnedMarks || 0));
+                            const max = Number(q.maxMarks !== undefined ? q.maxMarks : (q.marks || 1));
+                            return earned < max;
+                        });
+                        
+                        if (wrongQuestions.length > 0) {
+                            return `
+                            <h3 class="section-title">🔍 Detailed Question-by-Question Mistakes</h3>
+                            <div style="margin-top: 1rem;">
+                                ${wrongQuestions.map((q, idx) => {
+                                    const originalIndex = questionsArr.findIndex(x => x.questionNumber === q.questionNumber || x.questionText === q.questionText);
+                                    const earned = q.score !== undefined ? q.score : (q.earnedMarks || 0);
+                                    const max = q.maxMarks !== undefined ? q.maxMarks : (q.marks || 1);
+                                    const studentAns = q.studentAnswerText || q.studentAnswer || q.extractedAnswer || '';
+                                    const qText = q.questionText || q.questionNumber || `Question ${originalIndex + 1}`;
+                                    const correctAns = getCorrectAnswer(markingSchemeText, originalIndex);
+                                    
+                                    return `
+                                    <div class="report-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: inline-block; width: 100%; break-inside: avoid; page-break-inside: avoid;">
+                                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #edf2f7; padding-bottom: 0.5rem; margin-bottom: 0.5rem; gap: 1rem; align-items: flex-start;">
+                                            <strong>${qText}</strong>
+                                            <span style="font-weight: bold; background: #fed7d7; color: #9b2c2c; padding: 0.25rem 0.75rem; border-radius: 12px; white-space: nowrap; flex-shrink: 0;">${earned} / ${max}</span>
+                                        </div>
+                                        ${studentAns ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.95rem;"><strong>Student Answer:</strong> <em>"${studentAns}"</em></p>` : ''}
+                                        ${q.incorrectPhrases && q.incorrectPhrases.length > 0 ? `
+                                            <div style="margin: 0.5rem 0; background: #fff5f5; border: 1px solid #fed7d7; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; break-inside: avoid;">
+                                                <strong style="color: #c53030; display: block; margin-bottom: 0.25rem;">❌ Identified Mistakes in Student Text:</strong>
+                                                <ul style="margin: 0; padding-left: 1.25rem; color: #9b2c2c;">
+                                                    ${q.incorrectPhrases.map(phrase => `
+                                                        <li>
+                                                            <span style="background: #ffebeb; text-decoration: line-through; font-weight: 600;">"${phrase.wrongText}"</span> 
+                                                            &mdash; <span style="font-style: italic; color: #4a5568;">${phrase.explanation}</span>
+                                                        </li>
+                                                    `).join('')}
+                                                </ul>
+                                            </div>
+                                        ` : ''}
+                                        ${q.feedback ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #c53030;"><strong>Feedback:</strong> ${q.feedback}</p>` : ''}
+                                        <div style="margin-top: 0.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; color: #15803d; line-height: 1.5;">
+                                            <strong>🔑 Correct Answer:</strong>
+                                            <div style="margin-top: 0.25rem;">${correctAns}</div>
+                                        </div>
+                                        ${q.improvements && q.improvements.length > 0 ? `
+                                            <div style="font-size: 0.9rem; color: #dd6b20; margin-top: 0.5rem;">
+                                                <strong>Required Answer / Corrective Steps:</strong>
+                                                <ul style="margin: 0.25rem 0 0 0;">
+                                                    ${q.improvements.map(i => `<li>${i}</li>`).join('')}
+                                                </ul>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    `;
+                                }).join('')}
+                            </div>`;
+                        }
+                        return '';
+                    })()}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+                printWindow.close();
+            }, 500);
         };
 
         // Toast notification

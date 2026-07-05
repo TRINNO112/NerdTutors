@@ -2390,35 +2390,36 @@ window.printReportCard = function(resultId) {
         <html>
         <head>
             <title>Report Card - ${res.studentName}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
             <style>
                 @page {
                     size: auto;
-                    margin: 0; /* Strips browser headers/footers completely */
+                    margin: 0;
                 }
                 *, *:before, *:after {
                     box-sizing: border-box !important;
                 }
                 body { 
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                    padding: 5mm 8mm !important; /* Simulates narrow print margins safely */
+                    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                    padding: 5mm 8mm !important;
                     margin: 0 !important;
-                    color: #333; 
+                    color: #2d3748; 
                     line-height: 1.6; 
                 }
                 .header { border-bottom: 4px solid #1e3c72; padding-bottom: 1rem; margin-bottom: 1.5rem; text-align: center; }
                 .header h1 { margin: 0; color: #1e3c72; font-size: 2.2rem; font-weight: 800; letter-spacing: 1px; }
-                .header p { margin: 4px 0 0 0; color: #e53e3e; font-size: 1rem; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; }
+                .header p { margin: 6px 0 0 0; color: #718096; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
                 .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; background: #f7fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid #edf2f7; }
-                .meta-item { font-size: 1rem; color: #2d3748; }
+                .meta-item { font-size: 0.95rem; color: #2d3748; }
                 .meta-item strong { color: #4a5568; font-weight: 700; }
                 .score-section { text-align: center; margin: 2rem 0; padding: 1.5rem; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; }
-                .score-value { font-size: 3rem; font-weight: 900; color: #2b6cb0; margin: 0.25rem 0; }
+                .score-label { text-transform: uppercase; font-size: 0.8rem; font-weight: 700; color: #4a5568; letter-spacing: 1.5px; }
+                .score-value { font-size: 3.5rem; font-weight: 900; color: #2b6cb0; margin: 0.25rem 0; }
+                .score-pct { font-weight: 700; color: #2b6cb0; font-size: 1.2rem; }
                 .section-title { color: #1e3c72; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.3rem; font-weight: 700; }
-                .feedback-box { background: #fffaf0; padding: 1.25rem; border-radius: 8px; border-left: 4px solid #dd6b20; font-size: 1rem; color: #7b341e; margin-top: 1rem; line-height: 1.5; }
                 ul { padding-left: 1.5rem; }
-                li { margin-bottom: 0.6rem; font-size: 1rem; color: #4a5568; }
-                p { font-size: 1rem; color: #4a5568; }
-                .footer { margin-top: 3rem; text-align: center; font-size: 0.8rem; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 1rem; }
+                li { margin-bottom: 0.6rem; font-size: 0.95rem; color: #4a5568; }
+                p { font-size: 0.95rem; color: #4a5568; }
                 .report-block {
                     display: inline-block;
                     width: 100%;
@@ -2439,7 +2440,7 @@ window.printReportCard = function(resultId) {
         <body>
             <div class="header">
                 <h1>NERD TUTORS</h1>
-                <p>Teacher Critical Analysis & Performance Report</p>
+                <p>EVALUATION REPORT CARD</p>
             </div>
             
             <div class="meta-grid">
@@ -2450,18 +2451,18 @@ window.printReportCard = function(resultId) {
             </div>
 
             <div class="score-section report-block">
-                <div style="text-transform: uppercase; font-size: 0.85rem; font-weight: 800; color: #4a5568; letter-spacing: 1.5px;">Overall Exam Score</div>
+                <div class="score-label">MARKS OBTAINED</div>
                 <div class="score-value">${res.score} / ${res.maxMarks}</div>
-                <div style="font-weight: 700; color: #2b6cb0; font-size: 1.2rem;">Percentage: ${Math.round((res.score / res.maxMarks) * 100)}%</div>
+                <div class="score-pct">Percentage Score: ${Math.round((res.score / res.maxMarks) * 100)}%</div>
             </div>
 
             <div class="report-block">
-                <h3 class="section-title">📋 Performance Summary</h3>
+                <h3 class="section-title">📋 Performance Analysis</h3>
                 <p>${res.overallFeedback}</p>
             </div>
 
             <div class="report-block">
-                <h3 class="section-title">🚀 Key Areas of Improvement</h3>
+                <h3 class="section-title">🚀 Areas to Improve</h3>
                 <ul>
                     ${res.improvements.map(imp => `<li>${imp}</li>`).join('')}
                 </ul>
