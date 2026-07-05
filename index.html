@@ -41,19 +41,19 @@
                     <div class="modal-visual-features">
                         <div class="modal-feature-item">
                             <div class="modal-feature-icon">✓</div>
-                            <span>MCQ Practice Tests</span>
+                            <span>AI-Powered Scanner</span>
                         </div>
                         <div class="modal-feature-item">
                             <div class="modal-feature-icon">✓</div>
-                            <span>Text-Based Questions</span>
+                            <span>Handwriting Recognition</span>
                         </div>
                         <div class="modal-feature-item">
                             <div class="modal-feature-icon">✓</div>
-                            <span>AI-Powered Feedback</span>
+                            <span>Detailed Rubric Evaluation</span>
                         </div>
                         <div class="modal-feature-item">
                             <div class="modal-feature-icon">✓</div>
-                            <span>Track Your Progress</span>
+                            <span>Track Scanned Marks</span>
                         </div>
                     </div>
                 </div>
@@ -160,7 +160,7 @@
                 </div>
 
                 <div class="account-menu">
-                    <a href="test.html" class="account-menu-item">
+                    <a href="ocr-scan.html" class="account-menu-item">
                         <div class="account-menu-icon green">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
@@ -169,8 +169,8 @@
                             </svg>
                         </div>
                         <div class="account-menu-text">
-                            <div class="account-menu-title">Take a Test</div>
-                            <div class="account-menu-desc">Start a practice test now</div>
+                            <div class="account-menu-title">Scan an Exam</div>
+                            <div class="account-menu-desc">Evaluate handwritten answers now</div>
                         </div>
                         <svg class="account-menu-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2">
@@ -253,172 +253,118 @@
         <div class="floating-shape shape-1"></div>
         <div class="floating-shape shape-2"></div>
         <div class="floating-shape shape-3"></div>
-        <div class="floating-cube">
-            <div class="cube-face front"></div>
-            <div class="cube-face back"></div>
-            <div class="cube-face right"></div>
-            <div class="cube-face left"></div>
-            <div class="cube-face top"></div>
-            <div class="cube-face bottom"></div>
-        </div>
     </div>
+
+    <!-- Custom CSS for Revamped Hero Layout -->
+    <style>
+        .main-content {
+            padding-top: 6rem;
+            padding-bottom: 6rem;
+        }
+        @keyframes scanAnimation {
+            0% { top: 5%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 95%; opacity: 0; }
+        }
+        @media (max-width: 968px) {
+            .main-container {
+                flex-direction: column !important;
+                text-align: center;
+                gap: 3rem !important;
+                padding: 1rem !important;
+            }
+            .hero-info {
+                align-items: center !important;
+                text-align: center !important;
+            }
+            .hero-features {
+                align-items: flex-start;
+                max-width: 500px;
+                margin: 0 auto 2rem auto;
+            }
+        }
+    </style>
 
     <!-- Main Content Section -->
     <main class="main-content" id="home">
-        <div class="main-container">
-            <!-- Page Header -->
-            <div class="page-header">
-                <div class="header-badge">
+        <div class="main-container" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 4rem; max-width: 1200px; width: 100%; padding: 2rem 0;">
+            <!-- Left Side: Hero Info -->
+            <div class="hero-info" style="flex: 1.1; display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                <div class="header-badge" style="margin-bottom: 1.5rem;">
                     <span class="badge-icon">🎓</span>
-                    <span>NerdTutors Test Platform</span>
+                    <span>NerdTutors AI Evaluation</span>
                 </div>
-                <h1 class="page-title">
-                    Test Your <span class="text-gradient">Economics</span> Knowledge
+                <h1 class="page-title" style="margin-bottom: 1.5rem; line-height: 1.15; font-size: clamp(2.2rem, 4.5vw, 3.5rem); font-weight: 800;">
+                    AI-Powered <span class="text-gradient">Handwritten</span> Exam Grading
                 </h1>
-                <p class="page-description">
-                    Practice with MCQ tests and text-based questions designed for CBSE Grade 12 Economics
+                <p class="page-description" style="margin-bottom: 2rem; max-width: 100%; font-size: 1.15rem; line-height: 1.6; color: var(--gray);">
+                    Upload photos of your handwritten answer sheets. Our advanced AI instantly transcribes your handwriting, calculates scores, and provides detailed suggestions mapped strictly to official grading rubrics.
                 </p>
+                
+                <div class="hero-features" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.05rem; color: var(--dark-light);">
+                        <span style="background: #e0e7ff; color: #4f46e5; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; font-size: 0.9rem;">✓</span>
+                        <span><strong>Instant Scan:</strong> Snap photos of your sheets and upload them directly</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.05rem; color: var(--dark-light);">
+                        <span style="background: #e0e7ff; color: #4f46e5; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; font-size: 0.9rem;">✓</span>
+                        <span><strong>Handwriting Transcription:</strong> AI transcribes cursive or printed text automatically</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.05rem; color: var(--dark-light);">
+                        <span style="background: #e0e7ff; color: #4f46e5; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; font-size: 0.9rem;">✓</span>
+                        <span><strong>Rubric Evaluation:</strong> Scores are mapped strictly to the marking scheme</span>
+                    </div>
+                </div>
+
+                <a href="ocr-scan.html" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 14px; background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); text-decoration: none; display: inline-flex; align-items: center; gap: 0.75rem; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3); transition: all 0.2s ease;">
+                    <span>Start Evaluating Answer Sheet</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </a>
             </div>
 
-            <!-- Test Cards Section -->
-            <div class="test-cards-container">
-                <!-- MCQ Test Card -->
-                <div class="test-card mcq-card">
-                    <div class="test-card-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            <path d="M9 12l2 2 4-4" />
-                        </svg>
+            <!-- Right Side: Beautiful App Preview Mockup -->
+            <div class="hero-visual" style="flex: 0.9; position: relative; display: flex; justify-content: center; align-items: center; padding: 2rem 0;">
+                <!-- Decorative glow backdrops -->
+                <div style="position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%); filter: blur(30px); z-index: -1;"></div>
+                
+                <!-- Main Mockup Container -->
+                <div style="background: white; border: 1px solid #edf2f7; border-radius: 24px; padding: 2rem; box-shadow: var(--shadow-xl); width: 100%; max-width: 440px; position: relative; overflow: hidden; transform: rotate(1deg); transition: all 0.3s ease;">
+                    
+                    <!-- App Interface Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 1rem;">
+                        <div style="display: flex; gap: 0.35rem;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444;"></span>
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b;"></span>
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span>
+                        </div>
+                        <span style="background: #e0e7ff; color: #4f46e5; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 20px; letter-spacing: 0.5px;">AI SCANNER ACTIVE</span>
                     </div>
-                    <div class="test-card-content">
-                        <h2 class="test-card-title">MCQ Tests</h2>
-                        <p class="test-card-description">
-                            Multiple choice questions with instant feedback and detailed explanations. Perfect for quick
-                            revision and exam preparation.
-                        </p>
-                        <div class="test-card-features">
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>Instant Results</span>
-                            </div>
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>Chapter-wise</span>
-                            </div>
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>Timed Mode</span>
-                            </div>
+
+                    <!-- Simulated Paper Scan Section -->
+                    <div style="background: #fcfcf9; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
+                        <!-- Scan effect line -->
+                        <div style="position: absolute; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, #4f46e5, transparent); top: 0%; animation: scanAnimation 3.5s linear infinite;"></div>
+                        
+                        <div style="font-family: 'Courier New', Courier, monospace; color: #475569; font-size: 0.85rem; line-height: 1.45;">
+                            <div style="font-weight: bold; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.25rem; margin-bottom: 0.5rem; color: #64748b; font-family: sans-serif;">Student's Answer Sheet:</div>
+                            <span style="text-decoration: underline; text-decoration-color: #cbd5e0; text-underline-offset: 4px;">Crowding out refers to when the government borrows money to finance spending, which raises interest rates. Higher interest rates then reduce private investment because borrowing becomes too expensive for companies.</span>
                         </div>
                     </div>
-                    <button class="test-card-btn" id="mcqTestBtn">
-                        <span>Start MCQ Test</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                </div>
 
-                <!-- Text-Based Test Card -->
-                <div class="test-card text-card">
-                    <div class="test-card-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                            <polyline points="14,2 14,8 20,8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
-                            <polyline points="10,9 9,9 8,9" />
-                        </svg>
-                    </div>
-                    <div class="test-card-content">
-                        <h2 class="test-card-title">Text-Based Questions</h2>
-                        <p class="test-card-description">
-                            Descriptive questions with AI-powered evaluation. Write your answers and get detailed
-                            feedback to improve.
-                        </p>
-                        <div class="test-card-features">
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>AI Feedback</span>
-                            </div>
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>CBSE Pattern</span>
-                            </div>
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>Model Answers</span>
-                            </div>
+                    <!-- Simulated Evaluation Result Card -->
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: 1.25rem; box-shadow: 0 8px 16px rgba(59, 130, 246, 0.12); transform: rotate(-2deg) translateY(10px) translateX(-10px); z-index: 2; border-left: 5px solid #3b82f6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <strong style="color: #1e3a8a; font-size: 0.9rem; font-family: 'Poppins', sans-serif;">🤖 AI Rubric Analysis</strong>
+                            <span style="background: #dbeafe; color: #1e40af; font-weight: 800; font-size: 0.9rem; padding: 0.25rem 0.75rem; border-radius: 50px; white-space: nowrap;">3 / 3 Marks</span>
                         </div>
-                    </div>
-                    <button class="test-card-btn" id="textTestBtn">
-                        <span>Start Text Test</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- OCR Scan Test Card -->
-                <div class="test-card ocr-card">
-                    <div class="test-card-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
-                            <circle cx="12" cy="13" r="4" />
-                        </svg>
-                    </div>
-                    <div class="test-card-content">
-                        <h2 class="test-card-title">OCR Scan & Evaluate</h2>
-                        <p class="test-card-description">
-                            Scan handwritten answer sheets and get instant AI evaluation. Just photograph your answers
-                            and let AI do the grading.
+                        <p style="color: #1e3a8a; font-size: 0.825rem; line-height: 1.45; margin: 0;">
+                            <strong>Feedback:</strong> Perfect definition. Correctly identified government borrowing, interest rate mechanism, and reduction in private investment.
                         </p>
-                        <div class="test-card-features">
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>Scan & Grade</span>
-                            </div>
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>Handwriting Support</span>
-                            </div>
-                            <div class="feature-tag">
-                                <span class="tag-icon">✓</span>
-                                <span>Full Sheet Mode</span>
-                            </div>
-                        </div>
                     </div>
-                    <button class="test-card-btn" id="ocrTestBtn">
-                        <span>Start OCR Scan</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
 
-            <!-- Quick Stats -->
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <div class="stat-number">500+</div>
-                    <div class="stat-label">Practice Questions</div>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <div class="stat-number">50+</div>
-                    <div class="stat-label">Chapter Topics</div>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <div class="stat-number">100%</div>
-                    <div class="stat-label">CBSE Aligned</div>
                 </div>
             </div>
         </div>
@@ -443,7 +389,7 @@
                     <h4>Quick Links</h4>
                     <div class="footer-links">
                         <a href="#home" class="footer-link">Home</a>
-                        <a href="test.html" class="footer-link">Take Test</a>
+                        <a href="ocr-scan.html" class="footer-link">AI Scanner</a>
                         <a href="./admin.html" class="footer-link">Admin</a>
                     </div>
                 </div>

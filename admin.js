@@ -2307,6 +2307,41 @@ window.viewReportCard = function(resultId) {
             ${res.improvements.map(imp => `<li>${escapeHtml(imp)}</li>`).join('')}
         </ul>
 
+        ${(() => {
+            const resultsArr = res.results || res.breakdown;
+            if (resultsArr && resultsArr.length > 0) {
+                return `
+                <h4 style="color: #1e3c72; border-bottom: 1px solid #edf2f7; padding-bottom: 0.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 700;">🔍 Detailed Question Breakdown</h4>
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                    ${resultsArr.map((q, idx) => {
+                        const earned = q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0);
+                        const max = q.marks !== undefined ? q.marks : (q.maxMarks || 1);
+                        const studentAns = q.studentAnswer || q.extractedAnswer || q.studentAnswerText || '';
+                        const qText = q.questionText || q.questionNumber || `Question ${idx + 1}`;
+                        
+                        return `
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid #edf2f7; padding-bottom: 0.5rem; gap: 1rem; align-items: flex-start;">
+                                <strong>${escapeHtml(qText)}</strong>
+                                <span style="background: #e2e8f0; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: bold; font-size: 0.9rem; white-space: nowrap; flex-shrink: 0;">${earned} / ${max}</span>
+                            </div>
+                            ${studentAns ? `<div style="margin-bottom: 0.5rem; font-size: 0.9rem; color: #4a5568;"><strong>Student Answer:</strong> ${escapeHtml(studentAns)}</div>` : ''}
+                            ${q.feedback ? `<div style="font-size: 0.9rem; color: #2b6cb0; margin-bottom: 0.5rem;"><strong>AI Feedback:</strong> ${escapeHtml(q.feedback)}</div>` : ''}
+                            ${q.improvements && q.improvements.length > 0 ? `
+                                <div style="font-size: 0.85rem; color: #c05621;">
+                                    <strong>Suggestions:</strong>
+                                    <ul style="margin: 0; padding-left: 1rem;">
+                                        ${q.improvements.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                        </div>`;
+                    }).join('')}
+                </div>`;
+            }
+            return '';
+        })()}
+
         ${appealHtml}
     `;
 
@@ -2384,6 +2419,41 @@ window.printReportCard = function(resultId) {
             <ul>
                 ${res.improvements.map(imp => `<li>${imp}</li>`).join('')}
             </ul>
+
+            ${(() => {
+                const resultsArr = res.results || res.breakdown;
+                if (resultsArr && resultsArr.length > 0) {
+                    return `
+                    <h3 class="section-title">🔍 Detailed Question Breakdown</h3>
+                    <div style="margin-top: 1rem;">
+                        ${resultsArr.map((q, idx) => {
+                            const earned = q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0);
+                            const max = q.marks !== undefined ? q.marks : (q.maxMarks || 1);
+                            const studentAns = q.studentAnswer || q.extractedAnswer || q.studentAnswerText || '';
+                            const qText = q.questionText || q.questionNumber || `Question ${idx + 1}`;
+                            
+                            return `
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #edf2f7; padding-bottom: 0.5rem; margin-bottom: 0.5rem; gap: 1rem; align-items: flex-start;">
+                                    <strong>${qText}</strong>
+                                    <span style="font-weight: bold; background: #e2e8f0; padding: 0.25rem 0.75rem; border-radius: 12px; white-space: nowrap; flex-shrink: 0;">${earned} / ${max}</span>
+                                </div>
+                                ${studentAns ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.95rem;"><strong>Student Answer:</strong> ${studentAns}</p>` : ''}
+                                ${q.feedback ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #2b6cb0;"><strong>AI Feedback:</strong> ${q.feedback}</p>` : ''}
+                                ${q.improvements && q.improvements.length > 0 ? `
+                                    <div style="font-size: 0.9rem; color: #c05621;">
+                                        <strong>Suggestions:</strong>
+                                        <ul style="margin: 0.25rem 0 0 0;">
+                                            ${q.improvements.map(i => `<li>${i}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                ` : ''}
+                            </div>`;
+                        }).join('')}
+                    </div>`;
+                }
+                return '';
+            })()}
 
             ${res.totalAppealPotential && res.totalAppealPotential !== 'Low' ? `
                 <h3 class="section-title">⚖️ Re-evaluation & Appeal Advisor</h3>

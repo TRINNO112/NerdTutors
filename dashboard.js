@@ -111,21 +111,37 @@ async function loadTestResults() {
         console.log('📊 Loading test results...');
 
         const resultsRef = collection(db, 'testResults');
-        const q = query(resultsRef, orderBy('submittedAt', 'desc'));
+        const q = query(resultsRef);
         const snapshot = await getDocs(q);
 
         appState.testResults = [];
 
         snapshot.forEach((doc) => {
             const data = doc.data();
+            const dateObj = data.submittedAt || data.createdAt;
+            
+            let pct = data.percentage;
+            let totScore = data.totalScore;
+            
+            // Standardize OCR score fields
+            if (pct === undefined && data.score !== undefined && data.maxMarks) {
+                pct = `${Math.round((data.score / data.maxMarks) * 100)}%`;
+            }
+            if (totScore === undefined && data.score !== undefined && data.maxMarks) {
+                totScore = `${data.score}/${data.maxMarks}`;
+            }
+
             appState.testResults.push({
                 id: doc.id,
                 ...data,
-                submittedAt: data.submittedAt?.toDate() || new Date()
+                percentage: pct || '0%',
+                totalScore: totScore || '0/0',
+                submittedAt: dateObj?.toDate?.() || dateObj?.toDate || new Date()
             });
         });
 
-        console.log(`✅ Loaded ${appState.testResults.length} test results`);
+        // Sort in memory by date descending
+        appState.testResults.sort((a, b) => b.submittedAt - a.submittedAt);
 
         appState.filteredResults = [...appState.testResults];
 
@@ -358,13 +374,18 @@ function viewDetails(resultId) {
     const answersContainer = document.getElementById('modalAnswersList');
     answersContainer.innerHTML = '';
 
-    if (result.results && result.results.length > 0) {
-        result.results.forEach((item, index) => {
+    const resultsArray = result.results || result.breakdown;
+    if (resultsArray && resultsArray.length > 0) {
+        resultsArray.forEach((item, index) => {
             const answerDiv = document.createElement('div');
             answerDiv.className = 'answer-item';
 
             // Get student answer — handle both text and OCR field names
-            const studentAnswer = item.studentAnswer || item.extractedAnswer || 'No answer provided';
+            const studentAnswer = item.studentAnswer || item.extractedAnswer || item.studentAnswerText || 'No answer provided';
+            
+            // Handle score/marks mapping (MCQ uses earnedMarks/marks, OCR uses score/maxMarks)
+            const earned = item.earnedMarks !== undefined ? item.earnedMarks : (item.score || 0);
+            const max = item.marks !== undefined ? item.marks : (item.maxMarks || 1);
 
             // Build improvements/suggestions HTML
             let suggestionsHtml = '';
@@ -397,9 +418,9 @@ function viewDetails(resultId) {
                     <div style="color: #334155; font-size: 0.9rem; white-space: pre-wrap;">${studentAnswer}</div>
                 </div>
                 <div class="answer-score" style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="font-weight: 600;">Score: ${item.earnedMarks}/${item.marks}</span>
+                    <span style="font-weight: 600;">Score: ${earned}/${max}</span>
                     <div style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
-                        <div style="height: 100%; width: ${Math.min(100, ((item.earnedMarks || 0) / (item.marks || 1)) * 100)}%; background: ${((item.earnedMarks || 0) / (item.marks || 1)) >= 0.7 ? '#22c55e' : ((item.earnedMarks || 0) / (item.marks || 1)) >= 0.4 ? '#f59e0b' : '#ef4444'}; border-radius: 3px;"></div>
+                        <div style="height: 100%; width: ${Math.min(100, (earned / max) * 100)}%; background: ${(earned / max) >= 0.7 ? '#22c55e' : (earned / max) >= 0.4 ? '#f59e0b' : '#ef4444'}; border-radius: 3px;"></div>
                     </div>
                 </div>
                 ${feedbackHtml}
@@ -431,12 +452,16 @@ function exportResult(resultId) {
 
     csv += 'Question,Student Answer,Score,Feedback\n';
 
-    if (result.results) {
-        result.results.forEach((item, index) => {
+    const resultsArrayToExport = result.results || result.breakdown;
+    if (resultsArrayToExport) {
+        resultsArrayToExport.forEach((item, index) => {
             const question = `"${(item.questionText || '').replace(/"/g, '""')}"`;
-            const answer = `"${(item.studentAnswer || '').replace(/"/g, '""')}"`;
+            const answerTxt = item.studentAnswer || item.extractedAnswer || item.studentAnswerText || '';
+            const answer = `"${answerTxt.replace(/"/g, '""')}"`;
             const feedback = `"${(item.feedback || '').replace(/"/g, '""')}"`;
-            csv += `${question},${answer},${item.earnedMarks}/${item.marks},${feedback}\n`;
+            const earned = item.earnedMarks !== undefined ? item.earnedMarks : (item.score || 0);
+            const max = item.marks !== undefined ? item.marks : (item.maxMarks || 1);
+            csv += `${question},${answer},${earned}/${max},${feedback}\n`;
         });
     }
 
