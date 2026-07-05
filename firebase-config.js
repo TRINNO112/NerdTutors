@@ -29,12 +29,11 @@ export const ADMIN_EMAILS = [
   "kaushtubh457@gmail.com",
   "jatinthacker000@gmail.com",
   "pathak.amitkumar@hrjohnsonindia.com",
-  // Add more admin emails as needed
 ];
 
 // Helper function to check if user is admin
 export const isAdmin = (email) => {
-  return ADMIN_EMAILS.includes(email?.toLowerCase());
+  return ADMIN_EMAILS.includes(email?.toLowerCase().trim());
 };
 
 googleProvider.setCustomParameters({ prompt: "select_account" });

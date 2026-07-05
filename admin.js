@@ -1,4 +1,4 @@
-import { auth, db, ADMIN_EMAILS } from './firebase-config.js';
+import { auth, db, isAdmin } from './firebase-config.js';
 import {
     signInWithEmailAndPassword,
     GoogleAuthProvider,
@@ -79,6 +79,8 @@ let deletedQuestionBackup = null;
 let undoTimeout = null;
 let draftSaveTimeout = null;
 let chartInstances = {};
+
+
 
 // Initialize
 function init() {
@@ -163,7 +165,7 @@ function setupMcqFields() {
 function setupAuth() {
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            if (ADMIN_EMAILS.includes(user.email) || user.email?.includes('admin')) {
+            if (isAdmin(user.email) || user.email?.includes('admin')) {
                 showAdminPanel(user);
             } else {
                 showAccessDenied(user);
