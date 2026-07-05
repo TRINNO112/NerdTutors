@@ -469,10 +469,32 @@
         const reportCardContainer = document.getElementById('reportCardContainer');
         const printActions = document.getElementById('printActions');
 
+        // Form persistence functions (Cache memory)
+        function saveDraft() {
+            localStorage.setItem('ocr_scan_studentName', studentNameInput.value);
+            localStorage.setItem('ocr_scan_studentClass', studentClass.value);
+            localStorage.setItem('ocr_scan_studentSubject', studentSubject.value);
+            localStorage.setItem('ocr_scan_testSessionId', studentTestSession.value);
+        }
+
+        function loadDraft() {
+            if (localStorage.getItem('ocr_scan_studentName') !== null) {
+                studentNameInput.value = localStorage.getItem('ocr_scan_studentName');
+            }
+            if (localStorage.getItem('ocr_scan_studentClass') !== null) {
+                studentClass.value = localStorage.getItem('ocr_scan_studentClass');
+            }
+            if (localStorage.getItem('ocr_scan_studentSubject') !== null) {
+                studentSubject.value = localStorage.getItem('ocr_scan_studentSubject');
+            }
+        }
+
         // Check auth and auto-populate name
         onAuthStateChanged(auth, (user) => {
-            if (user && user.displayName) {
+            loadDraft();
+            if (user && user.displayName && !studentNameInput.value) {
                 studentNameInput.value = user.displayName;
+                saveDraft();
             }
         });
 
@@ -485,6 +507,14 @@
                     allSessions.push({ id: docSnap.id, ...docSnap.data() });
                 });
                 updateSessionDropdown();
+                
+                // Restore saved session ID if it matches class and subject
+                const savedSessionId = localStorage.getItem('ocr_scan_testSessionId');
+                if (savedSessionId && Array.from(studentTestSession.options).some(opt => opt.value === savedSessionId)) {
+                    studentTestSession.value = savedSessionId;
+                    selectedSession = allSessions.find(s => s.id === savedSessionId) || null;
+                    validateForm();
+                }
             } catch (error) {
                 console.error("Error loading test sessions:", error);
             }
@@ -507,6 +537,8 @@
         }
 
         // Event listeners
+        studentNameInput.addEventListener('input', saveDraft);
+
         studentClass.addEventListener('change', (e) => {
             if (e.target.value === 'Class 10th') {
                 studentSubject.value = 'Social Science';
@@ -514,11 +546,18 @@
                 studentSubject.value = 'Economics';
             }
             updateSessionDropdown();
+            saveDraft();
         });
-        studentSubject.addEventListener('change', updateSessionDropdown);
+        
+        studentSubject.addEventListener('change', () => {
+            updateSessionDropdown();
+            saveDraft();
+        });
+
         studentTestSession.addEventListener('change', (e) => {
             selectedSession = allSessions.find(s => s.id === e.target.value) || null;
             validateForm();
+            saveDraft();
         });
 
         // Trigger file select
@@ -658,6 +697,7 @@
                     createdAt: serverTimestamp()
                 });
 
+                localStorage.removeItem('ocr_scan_testSessionId');
                 renderReportCard(report);
 
             } catch (error) {

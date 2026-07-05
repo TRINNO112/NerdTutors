@@ -22,12 +22,25 @@ export default async function handler(req, res) {
   if (typeof body === "string") body = JSON.parse(body);
 
   // ===== Validate API Key =====
-  // ===== Validate API Key =====
-  // Check multiple common names in case of typo in Vercel Settings
-  const key = process.env.GEMINI_API_KEY || process.env.GEMINI_API || process.env.GEMINI_KEY;
-  if (!key) {
-    console.error("❌ API Key Missing! Checked: GEMINI_API_KEY, GEMINI_API, GEMINI_KEY");
-    return res.status(500).json({ error: "Missing API Key in Environment Variables" });
+  let apiKeys = [];
+  const rawKeys = process.env.GEMINI_API_KEY || process.env.GEMINI_API || process.env.GEMINI_KEY;
+  if (rawKeys) {
+      apiKeys = apiKeys.concat(rawKeys.split(",").map(k => k.trim()).filter(Boolean));
+  }
+  const secondaryKeys = [
+      process.env.GEMINI_API_KEY_2,
+      process.env.GEMINI_API_KEY_3,
+      process.env.GEMINI_API_KEY_4,
+      process.env.GEMINI_API_2,
+      process.env.GEMINI_KEY_2
+  ];
+  secondaryKeys.forEach(k => {
+      if (k) apiKeys.push(k.trim());
+  });
+
+  if (apiKeys.length === 0) {
+      console.error("❌ API Key Missing!");
+      return res.status(500).json({ error: "Missing API Key in Environment Variables" });
   }
 
   // ===== Check for Batch or Single Request =====
@@ -129,15 +142,25 @@ export default async function handler(req, res) {
   };
 
   async function callGemini() {
-    const response = await fetch(`${MODEL_URL}?key=${key}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody)
-    });
+    let lastError = null;
+    for (let i = 0; i < apiKeys.length; i++) {
+      try {
+        console.log(`📡 Trying Gemini API Key ${i + 1}/${apiKeys.length}...`);
+        const response = await fetch(`${MODEL_URL}?key=${apiKeys[i]}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody)
+        });
 
-    const raw = await response.text();
-    if (!response.ok) throw new Error(raw);
-    return JSON.parse(raw);
+        const raw = await response.text();
+        if (!response.ok) throw new Error(raw);
+        return JSON.parse(raw);
+      } catch (err) {
+        lastError = err;
+        console.warn(`⚠️ Key ${i + 1} failed:`, err.message || err);
+      }
+    }
+    throw lastError || new Error("All API keys failed");
   }
 
   try {

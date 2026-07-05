@@ -2234,8 +2234,9 @@ async function loadResultsForSession(sessionId) {
                     <td style="padding: 1rem; color: #4a5568;">${escapeHtml(res.class)}</td>
                     <td style="padding: 1rem; color: #4a5568;">${escapeHtml(res.subject)}</td>
                     <td style="padding: 1rem;">
-                        <span style="background: #edf2f7; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; color: #2b6cb0;">
-                            ${res.score} / ${res.maxMarks}
+                        <span style="background: #edf2f7; padding: 0.25rem 0.5rem; border-radius: 4px; font-weight: 700; color: #2b6cb0; display: inline-flex; align-items: center; gap: 0.35rem;">
+                            <span>${res.score} / ${res.maxMarks}</span>
+                            <span style="cursor: pointer; color: #718096; font-size: 0.9rem;" title="Edit Score" onclick="window.editStudentScore('${res.id}', ${res.score}, ${res.maxMarks})">✏️</span>
                         </span>
                     </td>
                     <td style="padding: 1rem; color: #718096;">${dateStr}</td>
@@ -2796,10 +2797,37 @@ async function deleteResult(id) {
     }
 }
 
+async function editStudentScore(id, currentScore, maxMarks) {
+    const newScoreStr = prompt(`Edit Student Score (Max: ${maxMarks}):`, currentScore);
+    if (newScoreStr === null) return; // User cancelled
+    
+    const newScore = parseFloat(newScoreStr);
+    if (isNaN(newScore) || newScore < 0 || newScore > maxMarks) {
+        alert(`Please enter a valid number between 0 and ${maxMarks}.`);
+        return;
+    }
+
+    try {
+        await updateDoc(doc(db, 'testResults', id), {
+            score: newScore
+        });
+        showToast("Student score updated successfully!", "success");
+        // Reload results table for current session
+        const resultSessionSelect = document.getElementById('resultSessionSelect');
+        if (resultSessionSelect && resultSessionSelect.value) {
+            loadResultsForSession(resultSessionSelect.value);
+        }
+    } catch (error) {
+        console.error("Error updating student score:", error);
+        showToast("Failed to update score: " + error.message, "error");
+    }
+}
+
 // Bind to window for HTML click calls
 window.toggleSessionStatus = toggleSessionStatus;
 window.deleteSession = deleteSession;
 window.deleteResult = deleteResult;
+window.editStudentScore = editStudentScore;
 
 // Initialize app
 init();
