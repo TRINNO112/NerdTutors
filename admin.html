@@ -429,6 +429,62 @@
         </div>
     </div>
 
+    <!-- Edit Test Session Modal -->
+    <div class="modal" id="editSessionModal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h2>✏️ Edit Test Session</h2>
+                <button class="btn-close" id="btnCloseSessionModal">✕</button>
+            </div>
+            <form id="editSessionForm">
+                <div class="form-grid">
+                    <input type="hidden" id="editSessionId">
+                    
+                    <div class="form-group">
+                        <label for="editSessionName">Test Name *</label>
+                        <input type="text" id="editSessionName" required placeholder="e.g. Monthly Test">
+                    </div>
+
+                    <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="editSessionClass">Class *</label>
+                            <select id="editSessionClass" required>
+                                <option value="Class 10th">Class 10th</option>
+                                <option value="Class 12th">Class 12th</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editSessionSubject">Subject *</label>
+                            <select id="editSessionSubject" required>
+                                <option value="Economics">Economics</option>
+                                <option value="Social Science">Social Science</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editSessionMaxMarks">Maximum Marks *</label>
+                        <input type="number" id="editSessionMaxMarks" min="1" max="1000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editSessionQuestions">Exam Questions *</label>
+                        <textarea id="editSessionQuestions" style="height: 120px;" required placeholder="Enter exam questions..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editSessionMarkingScheme">Marking Scheme / Evaluation Guidelines *</label>
+                        <textarea id="editSessionMarkingScheme" style="height: 120px;" required placeholder="Enter marking scheme guidelines..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
 

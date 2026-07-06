@@ -2852,34 +2852,63 @@ async function editSession(id) {
         }
         const data = docSnap.data();
         
-        // Simple prompt based editor for session details
-        const newName = prompt("Edit Test Session Name:", data.name || "");
-        if (newName === null) return; // cancel
-        
-        const newMaxMarksStr = prompt("Edit Max Marks:", data.maxMarks || "100");
-        if (newMaxMarksStr === null) return;
-        const newMaxMarks = parseInt(newMaxMarksStr) || 100;
+        // Populate modal inputs
+        document.getElementById('editSessionId').value = id;
+        document.getElementById('editSessionName').value = data.name || '';
+        document.getElementById('editSessionClass').value = data.class || 'Class 12th';
+        document.getElementById('editSessionSubject').value = data.subject || 'Economics';
+        document.getElementById('editSessionMaxMarks').value = data.maxMarks || 100;
+        document.getElementById('editSessionQuestions').value = data.questions || '';
+        document.getElementById('editSessionMarkingScheme').value = data.markingScheme || '';
 
-        const newQuestions = prompt("Edit Exam Questions (Use newlines for multiple questions):", data.questions || "");
-        if (newQuestions === null) return;
+        // Show Modal
+        const modal = document.getElementById('editSessionModal');
+        if (modal) modal.classList.add('show');
+    } catch (error) {
+        console.error("Error loading session for editing:", error);
+        showToast("Failed to load session details", "error");
+    }
+}
 
-        const newMarkingScheme = prompt("Edit Marking Scheme Details:", data.markingScheme || "");
-        if (newMarkingScheme === null) return;
+// Bind Close and Submit events for the Session Edit Modal
+document.getElementById('btnCloseSessionModal')?.addEventListener('click', () => {
+    document.getElementById('editSessionModal')?.classList.remove('show');
+});
 
-        await updateDoc(docRef, {
-            name: newName,
-            maxMarks: newMaxMarks,
-            questions: newQuestions,
-            markingScheme: newMarkingScheme
+document.getElementById('editSessionModal')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('editSessionModal')) {
+        document.getElementById('editSessionModal')?.classList.remove('show');
+    }
+});
+
+document.getElementById('editSessionForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editSessionId').value;
+    const name = document.getElementById('editSessionName').value;
+    const cls = document.getElementById('editSessionClass').value;
+    const subject = document.getElementById('editSessionSubject').value;
+    const maxMarks = parseInt(document.getElementById('editSessionMaxMarks').value) || 100;
+    const questions = document.getElementById('editSessionQuestions').value;
+    const markingScheme = document.getElementById('editSessionMarkingScheme').value;
+
+    try {
+        await updateDoc(doc(db, 'testSessions', id), {
+            name,
+            class: cls,
+            subject,
+            maxMarks,
+            questions,
+            markingScheme
         });
         showToast("Test Session updated successfully!", "success");
+        document.getElementById('editSessionModal')?.classList.remove('show');
         loadTestSessionsForManagement();
         loadTestSessionsForDropdown();
     } catch (error) {
-        console.error("Error editing session:", error);
-        showToast("Failed to edit session: " + error.message, "error");
+        console.error("Error updating session:", error);
+        showToast("Failed to save changes: " + error.message, "error");
     }
-}
+});
 
 // Bind to window for HTML click calls
 window.toggleSessionStatus = toggleSessionStatus;
