@@ -71,14 +71,14 @@ export default async function handler(req, res) {
     }
 
     // ===== Validate Input =====
-    const { 
-        image, 
-        images, 
-        mimeType, 
-        mode, 
-        questions, 
-        question, 
-        modelAnswer, 
+    const {
+        image,
+        images,
+        mimeType,
+        mode,
+        questions,
+        question,
+        modelAnswer,
         maxMarks,
         modelAnswerFile,
         modelAnswerMimeType,
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
     if (mode === "session-evaluate") {
         const mm = maxMarks || 100;
         console.log(`📄 SESSION EVALUATE MODE: Max Marks = ${mm}, Subject = ${subject || 'General'}`);
-        
+
         let subjectSpecificInstructions = "";
         const sub = (subject || "").toLowerCase();
         if (sub.includes("economics")) {
@@ -159,8 +159,10 @@ Your task is to:
 - You MUST evaluate strictly and objectively. Avoid leniency.
 - MCQ questions: Prioritize the selected option letter (e.g., "A"). If the selected option letter is wrong, award 0/1 immediately.
 - 🔴 CRITICAL RULE: ZERO MARKS FOR OFF-TOPIC / OUT-OF-SCOPE TRUTHS. If a student's answer contains factually true statements that do NOT directly address the specific question prompt (for example: writing about 'Lender of Last Resort' or 'Issuing of Notes' when asked about 'Banker to the Government' functions, or listing monetary tools without explicitly naming the situation as 'Inflation' when asked), you MUST award 0 MARKS for that question. Do NOT award partial credit (like 2/3 or 1.5/3), and do NOT apply brevity caps. It is a strict 0/3.
+- SCIENTIFIC / CONCEPTUAL INACCURACY: If the student's answer contains scientifically, ecologically, or economically incorrect reasoning (for example: claiming crops dry up because of fertilizers in Q10 instead of explaining soil degradation and water contamination), you MUST deduct at least 1.5 marks.
+- MULTI-PART IDENTIFICATION GAP: In any multi-part or identification question, if the student fails to explicitly identify the core concept/situation (for example: failing to explicitly write the word 'Inflation' in any question), you MUST deduct at least 1.5 marks.
+- MISSING COMPARISON IN NUMERICALS: For calculation/numerical questions, if the student sets up the equations/cases correctly but fails to explicitly calculate the final difference/subtraction amount (for example: stating the cases but not writing the final '10,000 - 5,000 = 5,000 crore' change in Q14), you MUST deduct 1.0 mark.
 - DEDUCTIONS FOR BREVITY: For 3-mark or higher questions, if the student merely lists the correct points/keywords but fails to explain or elaborate on them (making the answer under 3 lines or under 40 words), you MUST deduct 1.0 mark (awarding a maximum of 2 / 3 marks). Elaboration is mandatory for full credit.
-- NUMERICAL STEP COMPLETENESS: For calculation questions (like Q14), if the student sets up the cases correctly but fails to explicitly calculate the final change/difference, you MUST award partial marks (maximum of 1.5 or 2.0 out of 3 depending on depth) by deducting 0.5 to 1.5 marks. Do not award full marks.
 - SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
 - If a question is unattempted or skipped, automatically score it as 0.
 
@@ -219,8 +221,10 @@ Your task is to:
    - You MUST evaluate strictly and objectively. Avoid leniency.
    - MCQ questions: If the option letter selected by the student is wrong, award 0/1 immediately.
    - 🔴 CRITICAL RULE: ZERO MARKS FOR OFF-TOPIC / OUT-OF-SCOPE TRUTHS. If a student's answer contains factually true statements that do NOT directly address the specific question prompt (for example: writing about 'Lender of Last Resort' or 'Issuing of Notes' when asked about 'Banker to the Government' functions, or listing monetary tools without explicitly naming the situation as 'Inflation' when asked), you MUST award 0 MARKS for that question. Do NOT award partial credit (like 2/3 or 1.5/3), and do NOT apply brevity caps. It is a strict 0/3.
+   - SCIENTIFIC / CONCEPTUAL INACCURACY: If the student's answer contains scientifically, ecologically, or economically incorrect reasoning (for example: claiming crops dry up because of fertilizers in Q10 instead of explaining soil degradation and water contamination), you MUST deduct at least 1.5 marks.
+   - MULTI-PART IDENTIFICATION GAP: In any multi-part or identification question, if the student fails to explicitly identify the core concept/situation (for example: failing to explicitly write the word 'Inflation' in Q13), you MUST deduct at least 1.5 marks.
+   - MISSING COMPARISON IN NUMERICALS: For calculation/numerical questions, if the student sets up the equations/cases correctly but fails to explicitly calculate the final difference/subtraction amount (for example: stating the cases but not writing the final '10,000 - 5,000 = 5,000 crore' change in Q14), you MUST deduct 1.0 mark.
    - DEDUCTIONS FOR BREVITY: For 3-mark or higher questions, if the student merely lists the correct points/keywords but fails to explain or elaborate on them (making the answer under 3 lines or under 40 words), you MUST deduct 1.0 mark (awarding a maximum of 2 / 3 marks). Elaboration is mandatory for full credit.
-   - NUMERICAL STEP COMPLETENESS: For calculation questions (like Q14), if the student sets up the cases correctly but fails to explicitly calculate the final change/difference, you MUST award partial marks (maximum of 1.5 or 2.0 out of 3 depending on depth) by deducting 0.5 to 1.5 marks. Do not award full marks.
    - SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
    - If a question is unattempted or skipped, automatically score it as 0.
    - Give comprehensive, detailed feedback for each question.
