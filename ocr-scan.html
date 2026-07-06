@@ -405,17 +405,11 @@
                 <div class="form-group">
                     <label>Upload Answer Sheets (Multiple images supported) *</label>
                     <div class="dropzone" id="dropzone">
-                        <div class="dropzone-icon">📁</div>
+                        <div class="dropzone-icon">📸</div>
                         <div class="dropzone-text">Drag & drop your files here</div>
                         <div class="dropzone-subtext">or click to upload images (PNG, JPG, JPEG)</div>
                     </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 0.75rem; margin-bottom: 0.75rem;">
-                        <button type="button" id="btnCameraUpload" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #f5f3ff; color: #7c3aed; border: 1px dashed #7c3aed; padding: 0.75rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Poppins', sans-serif;">
-                            📷 Take Photo with Device Camera
-                        </button>
-                    </div>
                     <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
-                    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
                     
                     <div class="file-list" id="fileList"></div>
                 </div>
@@ -573,15 +567,7 @@
             handleFiles(e.target.files);
         });
 
-        // Trigger camera capture
-        const cameraInput = document.getElementById('cameraInput');
-        const btnCameraUpload = document.getElementById('btnCameraUpload');
-        if (btnCameraUpload && cameraInput) {
-            btnCameraUpload.addEventListener('click', () => cameraInput.click());
-            cameraInput.addEventListener('change', (e) => {
-                handleFiles(e.target.files);
-            });
-        }
+
 
         // Drag & Drop
         dropzone.addEventListener('dragover', (e) => {
