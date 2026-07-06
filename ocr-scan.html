@@ -561,7 +561,16 @@
         });
 
         // Trigger file select
-        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('click', (e) => {
+            // Avoid recursion if the target was the file input itself propagating back up
+            if (e.target !== fileInput) {
+                fileInput.click();
+            }
+        });
+
+        fileInput.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
 
         fileInput.addEventListener('change', (e) => {
             handleFiles(e.target.files);

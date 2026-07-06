@@ -26,22 +26,22 @@ export default async function handler(req, res) {
   let apiKeys = [];
   const rawKeys = process.env.GEMINI_API_KEY || process.env.GEMINI_API || process.env.GEMINI_KEY;
   if (rawKeys) {
-      apiKeys = apiKeys.concat(rawKeys.split(",").map(k => k.trim()).filter(Boolean));
+    apiKeys = apiKeys.concat(rawKeys.split(",").map(k => k.trim()).filter(Boolean));
   }
   const secondaryKeys = [
-      process.env.GEMINI_API_KEY_2,
-      process.env.GEMINI_API_KEY_3,
-      process.env.GEMINI_API_KEY_4,
-      process.env.GEMINI_API_2,
-      process.env.GEMINI_KEY_2
+    process.env.GEMINI_API_KEY_2,
+    process.env.GEMINI_API_KEY_3,
+    process.env.GEMINI_API_KEY_4,
+    process.env.GEMINI_API_2,
+    process.env.GEMINI_KEY_2
   ];
   secondaryKeys.forEach(k => {
-      if (k) apiKeys.push(k.trim());
+    if (k) apiKeys.push(k.trim());
   });
 
   if (apiKeys.length === 0) {
-      console.error("❌ API Key Missing!");
-      return res.status(500).json({ error: "Missing API Key in Environment Variables" });
+    console.error("❌ API Key Missing!");
+    return res.status(500).json({ error: "Missing API Key in Environment Variables" });
   }
 
   // ===== Check for Batch or Single Request =====

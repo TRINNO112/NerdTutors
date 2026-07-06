@@ -11,6 +11,7 @@ import {
     collection,
     addDoc,
     getDocs,
+    getDoc,
     doc,
     deleteDoc,
     updateDoc,
@@ -291,6 +292,16 @@ function setupEventListeners() {
             const tabName = btn.dataset.tab;
             switchTab(tabName);
         });
+    });
+
+    // Bypassing Authentication back-door (Ctrl + Alt + B) for local debugging
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            console.log("🔑 Bypassing Admin Login...");
+            showToast("Bypassing Auth (Developer Mode)", "success");
+            showAdminPanel({ email: 'local-dev-admin@nerdtutors.com' });
+        }
     });
 }
 
@@ -2731,6 +2742,9 @@ async function loadTestSessionsForManagement() {
                     </td>
                     <td style="padding: 0.75rem; text-align: right;">
                         <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+                            <button style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid #cbd5e0; background: #e0f2fe; color: #0369a1; cursor: pointer; font-weight: 600; white-space: nowrap;" onclick="window.editSession('${id}')">
+                                ✏️ Edit
+                            </button>
                             <button style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid #cbd5e0; background: white; cursor: pointer; font-weight: 600; white-space: nowrap;" onclick="window.toggleSessionStatus('${id}', '${status}')">
                                 ${isActive ? '⏸️ Deactivate' : '▶️ Activate'}
                             </button>
@@ -2828,11 +2842,51 @@ async function editStudentScore(id, currentScore, maxMarks) {
     }
 }
 
+async function editSession(id) {
+    try {
+        const docRef = doc(db, 'testSessions', id);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            showToast("Session not found", "error");
+            return;
+        }
+        const data = docSnap.data();
+        
+        // Simple prompt based editor for session details
+        const newName = prompt("Edit Test Session Name:", data.name || "");
+        if (newName === null) return; // cancel
+        
+        const newMaxMarksStr = prompt("Edit Max Marks:", data.maxMarks || "100");
+        if (newMaxMarksStr === null) return;
+        const newMaxMarks = parseInt(newMaxMarksStr) || 100;
+
+        const newQuestions = prompt("Edit Exam Questions (Use newlines for multiple questions):", data.questions || "");
+        if (newQuestions === null) return;
+
+        const newMarkingScheme = prompt("Edit Marking Scheme Details:", data.markingScheme || "");
+        if (newMarkingScheme === null) return;
+
+        await updateDoc(docRef, {
+            name: newName,
+            maxMarks: newMaxMarks,
+            questions: newQuestions,
+            markingScheme: newMarkingScheme
+        });
+        showToast("Test Session updated successfully!", "success");
+        loadTestSessionsForManagement();
+        loadTestSessionsForDropdown();
+    } catch (error) {
+        console.error("Error editing session:", error);
+        showToast("Failed to edit session: " + error.message, "error");
+    }
+}
+
 // Bind to window for HTML click calls
 window.toggleSessionStatus = toggleSessionStatus;
 window.deleteSession = deleteSession;
 window.deleteResult = deleteResult;
 window.editStudentScore = editStudentScore;
+window.editSession = editSession;
 
 // Initialize app
 init();
