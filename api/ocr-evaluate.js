@@ -460,6 +460,38 @@ Return STRICT JSON only (no markdown, no code blocks):
         console.log("🧼 CLEAN JSON received from Gemini Vision");
 
         const result = JSON.parse(clean);
+
+        // Programmatic score check to override MCQ scores if feedback says "Incorrect" or "wrong"
+        if (result && Array.isArray(result.results)) {
+            result.results.forEach(resObj => {
+                const feedbackText = (resObj.feedback || "").toLowerCase();
+                const isIncorrectText = feedbackText.includes("incorrect") || 
+                                        feedbackText.includes("wrong") || 
+                                        feedbackText.includes("correct answer is") || 
+                                        feedbackText.includes("should be") || 
+                                        feedbackText.includes("instead of") || 
+                                        feedbackText.includes("0/1") ||
+                                        feedbackText.includes("0 out of 1");
+                                        
+                const isMCQ = Number(resObj.maxMarks) === 1 || 
+                              (resObj.questionNumber || "").toLowerCase().includes("mcq") || 
+                              (resObj.questionText || "").toLowerCase().includes("mcq") ||
+                              /^[qQ][1-8]\b/.test((resObj.questionNumber || "").trim());
+                
+                if (isMCQ && isIncorrectText) {
+                    console.log(`🔧 Programmatic Override: Overriding MCQ score of ${resObj.questionNumber} to 0 due to 'Incorrect' text in feedback.`);
+                    resObj.score = 0;
+                }
+            });
+            
+            // Recalculate totalScore to ensure mathematical accuracy
+            const calculatedTotal = result.results.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
+            if (result.totalScore !== calculatedTotal) {
+                console.log(`🔧 Programmatic Override: Recalculated totalScore from ${result.totalScore} to ${calculatedTotal}.`);
+                result.totalScore = calculatedTotal;
+            }
+        }
+
         return res.status(200).json(result);
 
     } catch (err) {
