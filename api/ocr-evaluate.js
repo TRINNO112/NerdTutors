@@ -30,6 +30,7 @@ export default async function handler(req, res) {
     // ===== CORS =====
     const allowedOrigins = [
         "https://nerd-tutors.vercel.app",
+        "https://nerd-tutors-two.vercel.app",
         "http://localhost:3000",
         "http://localhost:5000"
     ];
@@ -161,6 +162,12 @@ You MUST evaluate and deduct marks if the student's answers are too brief/short 
 - 4 Marks Questions: Require 80-100 words (at least 8-10 lines). Deduct 1.5-2 marks if correct but too short (e.g., 4 lines or less).
 - 6-8 Marks Questions: Require 150-200 words (at least 15-20 lines, ~full page). If a student writes a correct but very short answer (e.g., under 10 lines), award no more than 4 marks out of 8, as they failed to explain the concepts in depth.
 
+⚠️ OBJECTIVE & STRICTOR GRADING REGIME (CBSE/NCERT ALIGNED):
+- You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize immediately.
+- If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 0.5 marks.
+- Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept.
+- If a question is unattempted or skipped, automatically score it as 0.
+
 4. For each question or section:
    - Provide the score awarded.
    - Give comprehensive, detailed feedback explaining why marks were awarded or deducted.
@@ -208,6 +215,10 @@ Your task is to:
 1. Read the Model Answer Key (Document 1) to understand the questions, the correct answers, and the marking criteria.
 2. Read the Student's Answer Sheet (Document 2) to identify the student's responses to those questions.
 3. Compare the student's answers to the model answers and grade them out of a maximum of ${mm} marks.
+   - You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize immediately.
+   - If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 0.5 marks.
+   - Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept.
+   - If a question is unattempted or skipped, automatically score it as 0.
    - Give comprehensive, detailed feedback for each question.
    - Provide as many concrete, actionable improvement suggestions as needed.
    - If the student made mistakes (e.g. incorrect definition, wrong concept, calculation error), extract the exact incorrect phrase, sentence, or calculation from their answer and populate it in "incorrectPhrases" with a brief explanation of why it is wrong.
