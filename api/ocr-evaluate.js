@@ -168,6 +168,11 @@ You MUST evaluate and deduct marks if the student's answers are too brief/short 
 - Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept.
 - If a question is unattempted or skipped, automatically score it as 0.
 
+⚠️ DOUBLE-PASS SELF-CORRECTION PROTOCOL (CRITICAL FOR ACCURACY):
+Before returning the final score and JSON response:
+1. PASS 1 (Verbatim Transcription): Mentally transcribe the student's handwritten answer text word-for-word. Check it against the Model Answer Key for correctness.
+2. PASS 2 (Strict Score Verification & Math Audit): Evaluate if the student's answer meets the required length and concept guidelines. Perform a final mathematical check: you MUST sum the scores of all individual questions yourself and make sure that "totalScore" is exactly equal to the sum of the scores of all questions in the "results" array. No rounding errors allowed.
+
 4. For each question or section:
    - Provide the score awarded.
    - Give comprehensive, detailed feedback explaining why marks were awarded or deducted.
@@ -222,6 +227,11 @@ Your task is to:
    - Give comprehensive, detailed feedback for each question.
    - Provide as many concrete, actionable improvement suggestions as needed.
    - If the student made mistakes (e.g. incorrect definition, wrong concept, calculation error), extract the exact incorrect phrase, sentence, or calculation from their answer and populate it in "incorrectPhrases" with a brief explanation of why it is wrong.
+
+⚠️ DOUBLE-PASS SELF-CORRECTION PROTOCOL (CRITICAL FOR ACCURACY):
+Before returning the final score and JSON response:
+1. PASS 1 (Verbatim Transcription): Mentally transcribe the student's handwritten answer text word-for-word. Check it against the Model Answer Key for correctness.
+2. PASS 2 (Strict Score Verification & Math Audit): Evaluate if the student's answer meets the required length and concept guidelines. Perform a final mathematical check: you MUST sum the scores of all individual questions yourself and make sure that "totalScore" is exactly equal to the sum of the scores of all questions in the "results" array. No rounding errors allowed.
 
 Return STRICT JSON only (no markdown, no code blocks):
 {
