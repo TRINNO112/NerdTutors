@@ -163,14 +163,16 @@ You MUST evaluate and deduct marks if the student's answers are too brief/short 
 - 6-8 Marks Questions: Require 150-200 words (at least 15-20 lines, ~full page). If a student writes a correct but very short answer (e.g., under 10 lines), award no more than 4 marks out of 8, as they failed to explain the concepts in depth.
 
 ⚠️ OBJECTIVE & STRICTOR GRADING REGIME (CBSE/NCERT ALIGNED):
-- You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize immediately.
-- If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 0.5 marks.
+- You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize heavily.
+- SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
+- MISSING KEYWORDS PENALTY: Cross-reference the student's response with the marking scheme. If a core keyword, phrase, definition component, or step is missing, automatically deduct 50% of the question's allocated marks. Do NOT award full marks or lenient partial credit unless ALL key NCERT points are fully present.
+- If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 1.0 mark.
 - Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept.
 - If a question is unattempted or skipped, automatically score it as 0.
 
 ⚠️ DOUBLE-PASS SELF-CORRECTION PROTOCOL (CRITICAL FOR ACCURACY):
 Before returning the final score and JSON response:
-1. PASS 1 (Verbatim Transcription): Mentally transcribe the student's handwritten answer text word-for-word. Check it against the Model Answer Key for correctness.
+1. PASS 1 (Verbatim Transcription): Mentally transcribe the student's handwritten answer text word-for-word, checking for spelling mistakes, syntax, and missing conceptual words.
 2. PASS 2 (Strict Score Verification & Math Audit): Evaluate if the student's answer meets the required length and concept guidelines. Perform a final mathematical check: you MUST sum the scores of all individual questions yourself and make sure that "totalScore" is exactly equal to the sum of the scores of all questions in the "results" array. No rounding errors allowed.
 
 4. For each question or section:
@@ -220,8 +222,10 @@ Your task is to:
 1. Read the Model Answer Key (Document 1) to understand the questions, the correct answers, and the marking criteria.
 2. Read the Student's Answer Sheet (Document 2) to identify the student's responses to those questions.
 3. Compare the student's answers to the model answers and grade them out of a maximum of ${mm} marks.
-   - You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize immediately.
-   - If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 0.5 marks.
+   - You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize heavily.
+   - SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
+   - MISSING KEYWORDS PENALTY: Cross-reference the student's response with the marking scheme. If a core keyword, phrase, definition component, or step is missing, automatically deduct 50% of the question's allocated marks. Do NOT award full marks or lenient partial credit unless ALL key NCERT points are fully present.
+   - If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 1.0 mark.
    - Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept.
    - If a question is unattempted or skipped, automatically score it as 0.
    - Give comprehensive, detailed feedback for each question.
@@ -230,7 +234,7 @@ Your task is to:
 
 ⚠️ DOUBLE-PASS SELF-CORRECTION PROTOCOL (CRITICAL FOR ACCURACY):
 Before returning the final score and JSON response:
-1. PASS 1 (Verbatim Transcription): Mentally transcribe the student's handwritten answer text word-for-word. Check it against the Model Answer Key for correctness.
+1. PASS 1 (Verbatim Transcription): Mentally transcribe the student's handwritten answer text word-for-word, checking for spelling mistakes, syntax, and missing conceptual words.
 2. PASS 2 (Strict Score Verification & Math Audit): Evaluate if the student's answer meets the required length and concept guidelines. Perform a final mathematical check: you MUST sum the scores of all individual questions yourself and make sure that "totalScore" is exactly equal to the sum of the scores of all questions in the "results" array. No rounding errors allowed.
 
 Return STRICT JSON only (no markdown, no code blocks):
