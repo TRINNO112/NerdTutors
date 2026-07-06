@@ -170,6 +170,7 @@ Your task is to:
 Before returning the final score and JSON response:
 1. PASS 1 (Verbatim Transcription): Mentally transcribe the student's handwritten answer text word-for-word, checking for spelling mistakes, syntax, and missing conceptual words.
 2. PASS 2 (Strict Score Verification & Math Audit): Evaluate if the student's answer meets the required length and concept guidelines. Perform a final mathematical check: you MUST sum the scores of all individual questions yourself and make sure that "totalScore" is exactly equal to the sum of the scores of all questions in the "results" array. No rounding errors allowed.
+3. PASS 3 (MCQ Score Consistency): Double-check every MCQ question. If the student's option letter does not match the marking scheme key, you MUST set the "score" field for that question to 0 in the JSON response. Do NOT leave "score" as 1 if the feedback states the answer is "Incorrect" or wrong.
 
 4. For each question or section:
    - Provide the score awarded.
@@ -235,6 +236,7 @@ Your task is to:
 Before returning the final score and JSON response:
 1. PASS 1 (Verbatim Transcription): Mentally transcribe the student's handwritten answer text word-for-word, checking for spelling mistakes, syntax, and missing conceptual words.
 2. PASS 2 (Strict Score Verification & Math Audit): Evaluate if the student's answer meets the required length and concept guidelines. Perform a final mathematical check: you MUST sum the scores of all individual questions yourself and make sure that "totalScore" is exactly equal to the sum of the scores of all questions in the "results" array. No rounding errors allowed.
+3. PASS 3 (MCQ Score Consistency): Double-check every MCQ question. If the student's option letter does not match the marking scheme key, you MUST set the "score" field for that question to 0 in the JSON response. Do NOT leave "score" as 1 if the feedback states the answer is "Incorrect" or wrong.
 
 Return STRICT JSON only (no markdown, no code blocks):
 {
