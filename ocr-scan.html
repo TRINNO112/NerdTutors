@@ -792,7 +792,18 @@
             const cls = studentClass.value;
             const sub = studentSubject.value;
             const pct = Math.round((report.totalScore / report.maxMarks) * 100);
-            const questionsArr = selectedSession ? (selectedSession.questions || []) : [];
+            let questionsArr = [];
+            if (selectedSession && selectedSession.questions) {
+                if (typeof selectedSession.questions === 'string') {
+                    try {
+                        questionsArr = JSON.parse(selectedSession.questions);
+                    } catch (e) {
+                        console.error("Failed to parse selectedSession.questions:", e);
+                    }
+                } else if (Array.isArray(selectedSession.questions)) {
+                    questionsArr = selectedSession.questions;
+                }
+            }
             const markingSchemeText = selectedSession ? selectedSession.markingScheme : "";
 
             reportCardContainer.innerHTML = `
