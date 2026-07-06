@@ -836,7 +836,8 @@
                     ${(() => {
                         const wrongQuestions = (report.results || report.breakdown || []).filter(q => q.score < q.maxMarks);
                         return wrongQuestions.length > 0 ? wrongQuestions.map(q => {
-                            const originalIndex = questionsArr.findIndex(x => x.questionText === q.questionText || (q.questionNumber && x.id === q.questionNumber) || (q.questionText && x.text && x.text.includes(q.questionText)));
+                            const qNumMatch = (q.questionNumber || "").match(/\d+/);
+                            const originalIndex = qNumMatch ? parseInt(qNumMatch[0], 10) - 1 : -1;
                             const eM = q.score !== undefined ? q.score : 0;
                             const mM = q.maxMarks !== undefined ? q.maxMarks : 1;
                             const qText = q.questionText || q.questionNumber || 'Question';
