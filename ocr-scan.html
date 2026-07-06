@@ -717,71 +717,161 @@
                 alert("Failed to evaluate: " + error.message);
             } finally {
                 loadingOverlay.classList.remove('show');
+               // Helper to extract correct answers from plain text marking schemes
+        function getCorrectAnswer(markingSchemeText, index) {
+            if (!markingSchemeText) return 'Refer to marking scheme guidelines.';
+            const lines = markingSchemeText.split('\n');
+            const qNum = index + 1;
+            
+            // Matches: Q1:, Q1., Question 1:, Question 1., Q1 Ans, Q1. Ans, Q1 -
+            const regex = new RegExp(`^(Q|Question)\\s*${qNum}\\s*(\\.|:|\\s+Ans|\\s*-|\\s*$)`, 'i');
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (regex.test(line)) {
+                    let answerLines = [line.replace(regex, '').trim()];
+                    // Clean "Ans." or "Ans:" prefixes if present
+                    if (answerLines[0].toLowerCase().startsWith('ans')) {
+                        answerLines[0] = answerLines[0].replace(/^ans(\.|\:|\s+)/i, '').trim();
+                    }
+                    for (let j = i + 1; j < lines.length; j++) {
+                        const nextLine = lines[j].trim();
+                        if (/^(Q|Question)\s*\d+\s*(\.|\:|\s+Ans|\s*-|\\s*$)/i.test(nextLine)) {
+                            break;
+                        }
+                        answerLines.push(nextLine);
+                    }
+                    return answerLines.filter(Boolean).join(' ');
+                }
             }
-        });
+            
+            // Fallback string matching
+            const fallbacks = [
+                `Q${qNum}.`,
+                `Q${qNum}:`,
+                `Q${qNum} `,
+                `Question ${qNum}.`,
+                `Question ${qNum}:`,
+                `Question ${qNum} `
+            ];
+            for (const fb of fallbacks) {
+                const startIdx = markingSchemeText.indexOf(fb);
+                if (startIdx !== -1) {
+                    let endIdx = -1;
+                    const nextFbs = [
+                        `Q${qNum + 1}.`,
+                        `Q${qNum + 1}:`,
+                        `Question ${qNum + 1}.`,
+                        `Question ${qNum + 1}:`
+                    ];
+                    for (const nextFb of nextFbs) {
+                        const idx = markingSchemeText.indexOf(nextFb, startIdx + fb.length);
+                        if (idx !== -1 && (endIdx === -1 || idx < endIdx)) {
+                            endIdx = idx;
+                        }
+                    }
+                    let matchedText = endIdx === -1 
+                        ? markingSchemeText.substring(startIdx + fb.length).trim()
+                        : markingSchemeText.substring(startIdx + fb.length, endIdx).trim();
+                    
+                    if (matchedText.toLowerCase().startsWith('ans')) {
+                        matchedText = matchedText.replace(/^ans(\.|\:|\s+)/i, '').trim();
+                    }
+                    return matchedText;
+                }
+            }
+            
+            return 'Refer to marking scheme guidelines.';
+        }
 
         function renderReportCard(report) {
             const name = studentNameInput.value.trim();
             const cls = studentClass.value;
             const sub = studentSubject.value;
             const pct = Math.round((report.totalScore / report.maxMarks) * 100);
+            const questionsArr = selectedSession ? (selectedSession.questions || []) : [];
+            const markingSchemeText = selectedSession ? selectedSession.markingScheme : "";
 
             reportCardContainer.innerHTML = `
-                <div style="text-align: center; border-bottom: 4px solid var(--primary); padding-bottom: 1.5rem; margin-bottom: 2.5rem;">
-                    <h1 style="font-family: 'Poppins', sans-serif; color: var(--primary); margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: 1px;">NERD TUTORS</h1>
-                    <p style="margin: 5px 0 0 0; color: #718096; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 2px; font-weight: 600;">Evaluation Report Card</p>
+                <div style="text-align: center; border-bottom: 4px solid #c53030; padding-bottom: 1.5rem; margin-bottom: 2.5rem;">
+                    <h1 style="font-family: 'Poppins', sans-serif; color: #c53030; margin: 0; font-size: 2.2rem; font-weight: 800; letter-spacing: 1px;">NERD TUTORS</h1>
+                    <p style="margin: 5px 0 0 0; color: #e53e3e; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 2px; font-weight: 600;">📝 Student Error Correction Report</p>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: #f8fafc; border: 1px solid #edf2f7; padding: 1.25rem; border-radius: 8px; margin-bottom: 2.5rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: #fff5f5; border: 1px solid #fed7d7; padding: 1.25rem; border-radius: 8px; margin-bottom: 2.5rem; color: #9b2c2c;">
                     <div><strong>Student Name:</strong> ${name}</div>
                     <div><strong>Date Evaluated:</strong> ${new Date().toLocaleDateString()}</div>
                     <div><strong>Class:</strong> ${cls}</div>
                     <div><strong>Subject:</strong> ${sub}</div>
                 </div>
 
-                <div style="text-align: center; background: #ebf8ff; border: 1px solid #bee3f8; padding: 2rem; border-radius: 12px; margin-bottom: 2.5rem;">
-                    <div style="text-transform: uppercase; font-size: 0.85rem; font-weight: 700; color: #4a5568; letter-spacing: 1.5px;">Marks Obtained</div>
-                    <div style="font-size: 3.5rem; font-weight: 900; color: #2b6cb0; margin: 0.5rem 0;">${report.totalScore} / ${report.maxMarks}</div>
-                    <div style="font-weight: 700; color: #2b6cb0; font-size: 1.2rem;">Percentage Score: ${pct}%</div>
+                <div style="text-align: center; background: #fff5f5; border: 1px solid #feb2b2; padding: 2rem; border-radius: 12px; margin-bottom: 2.5rem; box-shadow: 0 4px 6px rgba(229, 62, 62, 0.05);">
+                    <div style="text-transform: uppercase; font-size: 0.85rem; font-weight: 700; color: #c53030; letter-spacing: 1.5px;">Test Marks Obtained</div>
+                    <div style="font-size: 3.5rem; font-weight: 900; color: #c53030; margin: 0.5rem 0;">${report.totalScore} / ${report.maxMarks}</div>
+                    <div style="font-weight: 700; color: #c53030; font-size: 1.2rem;">Percentage Score: ${pct}%</div>
+                    <p style="margin: 0.75rem 0 0 0; font-size: 0.9rem; color: #718096; line-height: 1.4;">This sheet lists only the questions where marks were lost. Review your mistakes and the model answers below to prepare for corrections.</p>
                 </div>
 
-                <h3 style="color: var(--primary); border-bottom: 2px solid #edf2f7; padding-bottom: 0.5rem; font-family: 'Poppins', sans-serif; font-size: 1.3rem;">📋 Performance Analysis</h3>
-                <p style="line-height: 1.6; color: #4a5568; font-size: 1.05rem;">${report.overallFeedback}</p>
-
-                <h3 style="color: var(--primary); border-bottom: 2px solid #edf2f7; padding-bottom: 0.5rem; margin-top: 2rem; font-family: 'Poppins', sans-serif; font-size: 1.3rem;">🚀 Areas to Improve</h3>
+                <h3 style="color: #c53030; border-bottom: 2px solid #fed7d7; padding-bottom: 0.5rem; font-family: 'Poppins', sans-serif; font-size: 1.3rem;">🚀 Target Areas to Improve</h3>
                 <ul style="padding-left: 1.5rem; line-height: 1.6; color: #4a5568; font-size: 1.05rem; margin-bottom: 2rem;">
                     ${report.improvements.map(imp => `<li>${imp}</li>`).join('')}
                 </ul>
 
-                <h3 style="color: var(--primary); border-bottom: 2px solid #edf2f7; padding-bottom: 0.5rem; font-family: 'Poppins', sans-serif; font-size: 1.3rem;">🔍 Detailed Question Breakdown (Mistakes Only)</h3>
-                <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                <h3 style="color: #c53030; border-bottom: 2px solid #fed7d7; padding-bottom: 0.5rem; font-family: 'Poppins', sans-serif; font-size: 1.3rem;">🔍 Question-by-Question Mistakes & Corrections</h3>
+                <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1.5rem;">
                     ${(() => {
                         const wrongQuestions = (report.results || report.breakdown || []).filter(q => q.score < q.maxMarks);
-                        return wrongQuestions.length > 0 ? wrongQuestions.map(q => `
-                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #edf2f7; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
-                                    <div>
-                                        <h4 style="margin: 0; color: var(--primary-dark); font-size: 1.1rem;">${q.questionNumber || 'Question'}</h4>
-                                        <p style="margin: 0.25rem 0 0 0; color: #718096; font-size: 0.9rem;">${q.questionText || 'Answer Evaluation'}</p>
+                        return wrongQuestions.length > 0 ? wrongQuestions.map(q => {
+                            const originalIndex = questionsArr.findIndex(x => x.questionText === q.questionText || (q.questionNumber && x.id === q.questionNumber) || (q.questionText && x.text && x.text.includes(q.questionText)));
+                            const eM = q.score !== undefined ? q.score : 0;
+                            const mM = q.maxMarks !== undefined ? q.maxMarks : 1;
+                            const qText = q.questionText || q.questionNumber || 'Question';
+                            const studentAns = q.studentAnswerText || '';
+                            const correctAns = originalIndex !== -1 ? getCorrectAnswer(markingSchemeText, originalIndex) : 'Refer to marking scheme guidelines.';
+
+                            return `
+                                <div class="report-block" style="background: #fffdfd; border: 1px solid #feb2b2; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #fed7d7; padding-bottom: 0.75rem; margin-bottom: 0.75rem; gap: 1rem;">
+                                        <div>
+                                            <h4 style="margin: 0; color: #9b2c2c; font-size: 1.1rem;">${q.questionNumber || 'Question'}</h4>
+                                            <p style="margin: 0.25rem 0 0 0; color: #718096; font-size: 0.9rem;">${qText}</p>
+                                        </div>
+                                        <div style="background: #fed7d7; color: #9b2c2c; padding: 0.5rem 1rem; border-radius: 999px; font-weight: 700; font-size: 1rem; white-space: nowrap; text-align: center; min-width: 60px; flex-shrink: 0;">
+                                            ${eM} / ${mM}
+                                        </div>
                                     </div>
-                                    <div style="background: #fed7d7; color: #822727; padding: 0.5rem 1rem; border-radius: 999px; font-weight: 700; font-size: 1rem; white-space: nowrap; text-align: center; min-width: 60px;">
-                                        ${q.score} / ${q.maxMarks}
+                                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                        ${studentAns ? `<p style="margin: 0; color: #718096; font-size: 0.95rem; line-height: 1.5; background: #fff; padding: 0.75rem; border-radius: 6px; border: 1px dashed #cbd5e0;"><strong>What you wrote:</strong> <em>"${studentAns}"</em></p>` : ''}
+                                         ${q.incorrectPhrases && q.incorrectPhrases.length > 0 ? `
+                                             <div style="background: #fff5f5; border: 1px solid #fed7d7; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                                 <strong style="color: #c53030; display: block; margin-bottom: 0.25rem;">❌ Identified Mistakes in Your Text:</strong>
+                                                 <ul style="margin: 0; padding-left: 1.25rem; color: #9b2c2c;">
+                                                     ${q.incorrectPhrases.map(phrase => `
+                                                         <li>
+                                                             <span style="background: #ffebeb; text-decoration: line-through; font-weight: 600;">"${phrase.wrongText}"</span> 
+                                                             &mdash; <span style="font-style: italic; color: #4a5568;">${phrase.explanation}</span>
+                                                         </li>
+                                                     `).join('')}
+                                                 </ul>
+                                             </div>
+                                         ` : ''}
+                                        <p style="margin: 0; color: #9b2c2c; font-size: 0.95rem; line-height: 1.5;"><strong>❌ Your Mistake & Feedback:</strong> ${q.feedback || 'Marks were lost on this question.'}</p>
+                                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 1rem; border-radius: 8px; font-size: 0.95rem; color: #15803d; line-height: 1.5;">
+                                            <strong>🔑 Correct Answer according to Marking Scheme:</strong>
+                                            <div style="margin-top: 0.25rem;">${correctAns}</div>
+                                        </div>
+                                        ${q.improvements && q.improvements.length > 0 ? `
+                                        <div style="margin-top: 0.25rem;">
+                                            <strong style="color: #dd6b20; font-size: 0.9rem;">💡 Required Answer / Corrective Steps:</strong>
+                                            <ul style="margin: 0.25rem 0 0 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem;">
+                                                ${q.improvements.map(imp => `<li>${imp}</li>`).join('')}
+                                            </ul>
+                                        </div>
+                                        ` : ''}
                                     </div>
                                 </div>
-                                <div>
-                                    <p style="margin: 0 0 0.75rem 0; color: #4a5568; font-size: 0.95rem; line-height: 1.5; background: #fff; padding: 0.75rem; border-radius: 6px; border: 1px dashed #cbd5e0;"><strong>What you wrote:</strong> <em>"${q.studentAnswerText || 'Answer text not extracted'}"</em></p>
-                                    <p style="margin: 0 0 0.75rem 0; color: #2d3748; font-size: 1rem; line-height: 1.5;"><strong>Feedback:</strong> ${q.feedback}</p>
-                                    ${q.improvements && q.improvements.length > 0 ? `
-                                    <div style="margin-top: 0.5rem;">
-                                        <strong style="color: #dd6b20; font-size: 0.9rem;">Required Answer / Corrective Steps:</strong>
-                                        <ul style="margin: 0.25rem 0 0 0; padding-left: 1.2rem; color: #4a5568; font-size: 0.9rem;">
-                                            ${q.improvements.map(imp => `<li>${imp}</li>`).join('')}
-                                        </ul>
-                                    </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        `).join('') : `
+                            `;
+                        }).join('') : `
                             <div style="text-align: center; padding: 2rem; color: #10b981;">
                                 <strong>Perfect Score! No mistakes to report.</strong>
                             </div>
