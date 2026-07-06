@@ -1000,35 +1000,63 @@
             if (!markingSchemeText) return 'Refer to marking scheme guidelines.';
             const lines = markingSchemeText.split('\n');
             const qNum = index + 1;
-            const regex = new RegExp(`^(Q|Question)\\s*${qNum}\\s*:`, 'i');
+            
+            // Matches: Q1:, Q1., Question 1:, Question 1., Q1 Ans, Q1. Ans, Q1 -
+            const regex = new RegExp(`^(Q|Question)\\s*${qNum}\\s*(\\.|:|\\s+Ans|\\s*-|\\s*$)`, 'i');
             
             for (let i = 0; i < lines.length; i++) {
-                if (regex.test(lines[i])) {
-                    let answerLines = [lines[i].replace(regex, '').trim()];
+                const line = lines[i].trim();
+                if (regex.test(line)) {
+                    let answerLines = [line.replace(regex, '').trim()];
+                    // Clean "Ans." or "Ans:" prefixes if present
+                    if (answerLines[0].toLowerCase().startsWith('ans')) {
+                        answerLines[0] = answerLines[0].replace(/^ans(\.|\:|\s+)/i, '').trim();
+                    }
                     for (let j = i + 1; j < lines.length; j++) {
-                        if (/^(Q|Question)\s*\d+\s*:/i.test(lines[j])) {
+                        const nextLine = lines[j].trim();
+                        if (/^(Q|Question)\s*\d+\s*(\.|\:|\s+Ans|\s*-|\\s*$)/i.test(nextLine)) {
                             break;
                         }
-                        answerLines.push(lines[j].trim());
+                        answerLines.push(nextLine);
                     }
                     return answerLines.filter(Boolean).join(' ');
                 }
             }
             
-            const indexStr = `Q${qNum}:`;
-            let startIdx = markingSchemeText.indexOf(indexStr);
-            if (startIdx === -1) {
-                startIdx = markingSchemeText.indexOf(`Question ${qNum}:`);
-            }
-            if (startIdx !== -1) {
-                let endIdx = markingSchemeText.indexOf(`Q${qNum + 1}:`, startIdx + 1);
-                if (endIdx === -1) {
-                    endIdx = markingSchemeText.indexOf(`Question ${qNum + 1}:`, startIdx + 1);
+            // Fallback string matching
+            const fallbacks = [
+                `Q${qNum}.`,
+                `Q${qNum}:`,
+                `Q${qNum} `,
+                `Question ${qNum}.`,
+                `Question ${qNum}:`,
+                `Question ${qNum} `
+            ];
+            for (const fb of fallbacks) {
+                const startIdx = markingSchemeText.indexOf(fb);
+                if (startIdx !== -1) {
+                    let endIdx = -1;
+                    const nextFbs = [
+                        `Q${qNum + 1}.`,
+                        `Q${qNum + 1}:`,
+                        `Question ${qNum + 1}.`,
+                        `Question ${qNum + 1}:`
+                    ];
+                    for (const nextFb of nextFbs) {
+                        const idx = markingSchemeText.indexOf(nextFb, startIdx + fb.length);
+                        if (idx !== -1 && (endIdx === -1 || idx < endIdx)) {
+                            endIdx = idx;
+                        }
+                    }
+                    let matchedText = endIdx === -1 
+                        ? markingSchemeText.substring(startIdx + fb.length).trim()
+                        : markingSchemeText.substring(startIdx + fb.length, endIdx).trim();
+                    
+                    if (matchedText.toLowerCase().startsWith('ans')) {
+                        matchedText = matchedText.replace(/^ans(\.|\:|\s+)/i, '').trim();
+                    }
+                    return matchedText;
                 }
-                if (endIdx === -1) {
-                    return markingSchemeText.substring(startIdx + indexStr.length).trim();
-                }
-                return markingSchemeText.substring(startIdx + indexStr.length, endIdx).trim();
             }
             
             return 'Refer to marking scheme guidelines.';
