@@ -166,6 +166,8 @@ You MUST evaluate and deduct marks if the student's answers are too brief/short 
 - You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize heavily.
 - SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
 - MISSING KEYWORDS PENALTY: Cross-reference the student's response with the marking scheme. If a core keyword, phrase, definition component, or step is missing, automatically deduct 50% of the question's allocated marks. Do NOT award full marks or lenient partial credit unless ALL key NCERT points are fully present.
+- NO MARKS FOR OUT-OF-SCOPE TRUTHS: If the student's answer contains factually true statements that do NOT directly address the specific question prompt (e.g., listing general bank functions instead of banker-to-government functions, or listing monetary tools instead of the economic situation like Inflation), award 0 marks for that point.
+- STRICT NUMERICAL COMPLETENESS: For numerical/calculation questions, if the student sets up the cases correctly but fails to explicitly calculate the final change, difference, or comparison amount as required by the marking scheme, automatically deduct 50% of the marks.
 - If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 1.0 mark.
 - Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept.
 - If a question is unattempted or skipped, automatically score it as 0.
@@ -225,6 +227,8 @@ Your task is to:
    - You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize heavily.
    - SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
    - MISSING KEYWORDS PENALTY: Cross-reference the student's response with the marking scheme. If a core keyword, phrase, definition component, or step is missing, automatically deduct 50% of the question's allocated marks. Do NOT award full marks or lenient partial credit unless ALL key NCERT points are fully present.
+   - NO MARKS FOR OUT-OF-SCOPE TRUTHS: If the student's answer contains factually true statements that do NOT directly address the specific question prompt (e.g., listing general bank functions instead of banker-to-government functions, or listing monetary tools instead of the economic situation like Inflation), award 0 marks for that point.
+   - STRICT NUMERICAL COMPLETENESS: For numerical/calculation questions, if the student sets up the cases correctly but fails to explicitly calculate the final change, difference, or comparison amount as required by the marking scheme, automatically deduct 50% of the marks.
    - If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 1.0 mark.
    - Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept.
    - If a question is unattempted or skipped, automatically score it as 0.
