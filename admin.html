@@ -572,7 +572,28 @@
         </div>
     </div>
 
-    <!-- JavaScript Module -->
+    <!-- Score Editing Modal -->
+    <div id="editScoreModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); z-index: 3000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px);">
+        <div style="background: white; width: 100%; max-width: 450px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); padding: 2rem; position: relative; font-family: 'Inter', sans-serif;">
+            <button onclick="document.getElementById('editScoreModal').style.display='none'" style="position: absolute; top: 1rem; right: 1rem; border: none; background: none; font-size: 1.5rem; cursor: pointer; color: #a0aec0; transition: color 0.2s;" onmouseover="this.style.color='#4a5568'" onmouseout="this.style.color='#a0aec0'">×</button>
+            <h3 id="editScoreModalTitle" style="margin-top: 0; color: #1e3c72; font-family: 'Poppins', sans-serif; font-size: 1.25rem;">✏️ Edit Score</h3>
+            <form id="editScoreForm">
+                <input type="hidden" id="editScoreTargetId">
+                <input type="hidden" id="editScoreTargetType"> <!-- 'total' or 'question' -->
+                <input type="hidden" id="editScoreTargetIndex">
+                
+                <div class="form-group" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
+                    <label id="editScoreInputLabel" style="font-weight: 600; color: #4a5568; margin-bottom: 0.5rem; display: block;">Enter Marks:</label>
+                    <input type="number" step="0.5" id="editScoreInputValue" required min="0" style="padding: 0.75rem; font-size: 1rem; width: 100%; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box;">
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="button" onclick="document.getElementById('editScoreModal').style.display='none'" style="flex: 1; padding: 0.75rem; border-radius: 6px; border: 1px solid #cbd5e0; background: white; color: #4a5568; font-weight: 600; cursor: pointer;">Cancel</button>
+                    <button type="submit" style="flex: 1; padding: 0.75rem; border-radius: 6px; border: none; background: #4f46e5; color: white; font-weight: 600; cursor: pointer;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <script type="module" src="admin.js"></script>
 </body>
 

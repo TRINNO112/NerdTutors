@@ -2344,7 +2344,10 @@ window.viewReportCard = function(resultId) {
                         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; border-bottom: 1px solid #edf2f7; padding-bottom: 0.5rem; gap: 1rem; align-items: flex-start;">
                                 <strong>${escapeHtml(qText)}</strong>
-                                <span style="background: #e2e8f0; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: bold; font-size: 0.9rem; white-space: nowrap; flex-shrink: 0;">${earned} / ${max}</span>
+                                <span style="background: #e2e8f0; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: bold; font-size: 0.9rem; white-space: nowrap; flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.35rem;">
+                                    <span>${earned} / ${max}</span>
+                                    <span style="cursor: pointer; color: #1e3c72; font-size: 0.85rem;" title="Edit Question Marks" onclick="window.editQuestionScore('${res.id}', ${originalIndex})">✏️</span>
+                                </span>
                             </div>
                             ${studentAns ? `<div style="margin-bottom: 0.5rem; font-size: 0.9rem; color: #4a5568;"><strong>Student Answer:</strong> ${escapeHtml(studentAns)}</div>` : ''}
                             ${q.incorrectPhrases && q.incorrectPhrases.length > 0 ? `
@@ -2817,30 +2820,111 @@ async function deleteResult(id) {
 }
 
 async function editStudentScore(id, currentScore, maxMarks) {
-    const newScoreStr = prompt(`Edit Student Score (Max: ${maxMarks}):`, currentScore);
-    if (newScoreStr === null) return; // User cancelled
+    document.getElementById('editScoreModalTitle').textContent = '✏️ Edit Total Score';
+    document.getElementById('editScoreInputLabel').textContent = `Enter Total Marks (Max: ${maxMarks}):`;
     
-    const newScore = parseFloat(newScoreStr);
-    if (isNaN(newScore) || newScore < 0 || newScore > maxMarks) {
-        alert(`Please enter a valid number between 0 and ${maxMarks}.`);
+    const inputVal = document.getElementById('editScoreInputValue');
+    inputVal.value = currentScore;
+    inputVal.max = maxMarks;
+
+    document.getElementById('editScoreTargetId').value = id;
+    document.getElementById('editScoreTargetType').value = 'total';
+    document.getElementById('editScoreTargetIndex').value = '';
+
+    const modal = document.getElementById('editScoreModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+async function editQuestionScore(resultId, questionIndex) {
+    const res = window.currentResults?.find(r => r.id === resultId);
+    if (!res) return;
+
+    const breakdown = res.results || res.breakdown || [];
+    const targetQ = breakdown[questionIndex];
+    if (!targetQ) return;
+
+    const earned = targetQ.earnedMarks !== undefined ? targetQ.earnedMarks : (targetQ.score || 0);
+    const max = targetQ.marks !== undefined ? targetQ.marks : (targetQ.maxMarks || 1);
+
+    document.getElementById('editScoreModalTitle').textContent = '✏️ Edit Question Score';
+    document.getElementById('editScoreInputLabel').textContent = `Change score for "${targetQ.questionText || targetQ.questionNumber || 'Question'}" (Max: ${max}):`;
+
+    const inputVal = document.getElementById('editScoreInputValue');
+    inputVal.value = earned;
+    inputVal.max = max;
+
+    document.getElementById('editScoreTargetId').value = resultId;
+    document.getElementById('editScoreTargetType').value = 'question';
+    document.getElementById('editScoreTargetIndex').value = questionIndex;
+
+    const modal = document.getElementById('editScoreModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+// Submit listener for score updates
+document.getElementById('editScoreForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('editScoreTargetId').value;
+    const type = document.getElementById('editScoreTargetType').value;
+    const indexStr = document.getElementById('editScoreTargetIndex').value;
+    const newScore = parseFloat(document.getElementById('editScoreInputValue').value);
+    const maxVal = parseFloat(document.getElementById('editScoreInputValue').max) || 1000;
+
+    const modal = document.getElementById('editScoreModal');
+    if (isNaN(newScore) || newScore < 0 || newScore > maxVal) {
+        alert(`Please enter a valid number between 0 and ${maxVal}.`);
         return;
     }
 
     try {
-        await updateDoc(doc(db, 'testResults', id), {
-            score: newScore
-        });
-        showToast("Student score updated successfully!", "success");
-        // Reload results table for current session
+        if (type === 'total') {
+            await updateDoc(doc(db, 'testResults', id), {
+                score: newScore
+            });
+            showToast("Student total score updated successfully!", "success");
+        } else {
+            const res = window.currentResults?.find(r => r.id === id);
+            if (!res) return;
+
+            const breakdown = res.results || res.breakdown || [];
+            const targetQ = breakdown[parseInt(indexStr)];
+            if (!targetQ) return;
+
+            if (targetQ.earnedMarks !== undefined) {
+                targetQ.earnedMarks = newScore;
+            } else {
+                targetQ.score = newScore;
+            }
+
+            // Recalculate total score
+            let newTotalScore = 0;
+            breakdown.forEach(q => {
+                newTotalScore += parseFloat(q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0));
+            });
+
+            await updateDoc(doc(db, 'testResults', id), {
+                score: newTotalScore,
+                results: breakdown,
+                breakdown: breakdown
+            });
+
+            res.score = newTotalScore;
+            showToast("Question score updated successfully!", "success");
+            window.viewReportCard(id);
+        }
+
+        if (modal) modal.style.display = 'none';
+
+        // Reload results table
         const resultSessionSelect = document.getElementById('resultSessionSelect');
         if (resultSessionSelect && resultSessionSelect.value) {
             loadResultsForSession(resultSessionSelect.value);
         }
     } catch (error) {
-        console.error("Error updating student score:", error);
-        showToast("Failed to update score: " + error.message, "error");
+        console.error("Error saving score change:", error);
+        showToast("Failed to save score: " + error.message, "error");
     }
-}
+});
 
 async function editSession(id) {
     try {
@@ -2915,6 +2999,7 @@ window.toggleSessionStatus = toggleSessionStatus;
 window.deleteSession = deleteSession;
 window.deleteResult = deleteResult;
 window.editStudentScore = editStudentScore;
+window.editQuestionScore = editQuestionScore;
 window.editSession = editSession;
 
 // Initialize app
