@@ -717,7 +717,10 @@
                 alert("Failed to evaluate: " + error.message);
             } finally {
                 loadingOverlay.classList.remove('show');
-               // Helper to extract correct answers from plain text marking schemes
+            }
+        });
+
+        // Helper to extract correct answers from plain text marking schemes
         function getCorrectAnswer(markingSchemeText, index) {
             if (!markingSchemeText) return 'Refer to marking scheme guidelines.';
             const lines = markingSchemeText.split('\n');
