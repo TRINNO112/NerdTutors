@@ -664,6 +664,16 @@
 
             .data-table-container {
                 overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .analytics-table {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .data-table {
+                min-width: 550px !important;
             }
 
             .modal-content {
@@ -888,6 +898,17 @@
 
             .analytics-stats {
                 grid-template-columns: 1fr;
+            }
+
+            .analytics-card {
+                padding: 1rem !important;
+                min-width: 0 !important;
+                overflow: hidden !important;
+            }
+            
+            .chart-wrapper {
+                width: 100% !important;
+                overflow: hidden !important;
             }
 
             .export-options {

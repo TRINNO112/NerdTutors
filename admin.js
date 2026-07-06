@@ -2730,12 +2730,14 @@ async function loadTestSessionsForManagement() {
                         </span>
                     </td>
                     <td style="padding: 0.75rem; text-align: right;">
-                        <button style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid #cbd5e0; background: white; cursor: pointer; font-weight: 600; margin-right: 0.5rem;" onclick="window.toggleSessionStatus('${id}', '${status}')">
-                            ${isActive ? '⏸️ Deactivate' : '▶️ Activate'}
-                        </button>
-                        <button style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; border: none; background: #e53e3e; color: white; cursor: pointer; font-weight: 600;" onclick="window.deleteSession('${id}')">
-                            🗑️ Delete
-                        </button>
+                        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+                            <button style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; border: 1px solid #cbd5e0; background: white; cursor: pointer; font-weight: 600; white-space: nowrap;" onclick="window.toggleSessionStatus('${id}', '${status}')">
+                                ${isActive ? '⏸️ Deactivate' : '▶️ Activate'}
+                            </button>
+                            <button style="padding: 0.3rem 0.6rem; font-size: 0.8rem; border-radius: 4px; border: none; background: #e53e3e; color: white; cursor: pointer; font-weight: 600; white-space: nowrap;" onclick="window.deleteSession('${id}')">
+                                🗑️ Delete
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;

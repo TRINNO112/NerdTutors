@@ -1721,6 +1721,11 @@
             body {
                 padding: 10px;
             }
+            .content-box {
+                padding: 1rem !important;
+                margin-top: 1rem !important;
+                margin-bottom: 1rem !important;
+            }
 
             /* Header - Compact */
             .admin-header {
@@ -2107,7 +2112,12 @@
         /* Extra Small Screens - 480p Portrait and very small devices (≤480px) */
         @media (max-width: 480px) {
             body {
-                padding: 5px;
+                padding: 4px;
+            }
+            .content-box {
+                padding: 0.75rem !important;
+                margin-top: 0.75rem !important;
+                margin-bottom: 0.75rem !important;
             }
 
             /* Ultra-Compact Header */
@@ -2602,5 +2612,9 @@
             .eval-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
+            }
+            .content-box table,
+            .results-table-container table {
+                min-width: 550px !important;
             }
         }
