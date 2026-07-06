@@ -155,22 +155,13 @@ Your task is to:
 2. Read the Student's Answer Sheet (from all the uploaded images) to identify the student's responses to those questions.
 3. Grade the student's answers out of a maximum of ${mm} marks.
 
-⚠️ STRICT LENGTH & QUALITY CRITERIA (CBSE/NCERT ALIGNED):
-You MUST evaluate and deduct marks if the student's answers are too brief/short for the given marks. Do NOT award full marks for short, superficial answers even if technically correct:
-- 1 Mark Questions: Directly name option/short phrase (10-20 words).
-- 3 Marks Questions: Require 60-80 words (at least 6-8 lines, ~half page). Deduct 1-1.5 marks if correct but too short (e.g., 3 lines or less).
-- 4 Marks Questions: Require 80-100 words (at least 8-10 lines). Deduct 1.5-2 marks if correct but too short (e.g., 4 lines or less).
-- 6-8 Marks Questions: Require 150-200 words (at least 15-20 lines, ~full page). If a student writes a correct but very short answer (e.g., under 10 lines), award no more than 4 marks out of 8, as they failed to explain the concepts in depth.
-
-⚠️ OBJECTIVE & STRICTOR GRADING REGIME (CBSE/NCERT ALIGNED):
-- You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize heavily.
+⚠️ STRICT CONSTRAINTS FOR MARK ALLOCATION (BOARD STANDARD):
+- You MUST evaluate strictly and objectively. Avoid leniency.
+- MCQ questions: Prioritize the selected option letter (e.g., "A"). If the selected option letter is wrong, award 0/1 immediately.
+- 0 MARKS FOR OUT-OF-SCOPE TRUTHS: If the student writes factually correct statements that do NOT directly answer the specific question (such as listing general bank functions for Q11 instead of government banker functions, or listing monetary tools for Q13 instead of naming the economic situation 'Inflation'), you MUST award 0 marks for that question/point. No partial credit is allowed.
+- DEDUCTIONS FOR BREVITY: For 3-mark or higher questions, if the student merely lists the correct points/keywords but fails to explain or elaborate on them (making the answer under 3 lines or under 40 words), you MUST deduct 1.0 mark (awarding a maximum of 2 / 3 marks). Elaboration is mandatory for full credit.
+- NUMERICAL STEP COMPLETENESS: For calculation questions (like Q14), if the student sets up the cases correctly but fails to explicitly calculate the final change/difference, you MUST award partial marks (maximum of 1.5 or 2.0 out of 3 depending on depth) by deducting 0.5 to 1.5 marks. Do not award full marks.
 - SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
-- MISSING KEYWORDS PENALTY: Cross-reference the student's response with the marking scheme. If a core keyword, phrase, definition component, or step is missing, automatically deduct 50% of the question's allocated marks. Do NOT award full marks or lenient partial credit unless ALL key NCERT points are fully present.
-- NO MARKS FOR OUT-OF-SCOPE TRUTHS: If the student's answer contains factually true statements that do NOT directly address the specific question prompt (e.g., listing general bank functions like 'lender of last resort' instead of banker-to-government functions, or listing monetary tools instead of naming the economic situation like 'Inflation'), you MUST award 0 marks for that point. No partial credit is allowed.
-- CONTEXT-AWARE BREVITY DEDUCTION (BOARD STANDARD): For 3-mark or higher questions, if the student merely lists the correct points/keywords but fails to explain or elaborate on them (making the answer extremely brief, e.g., under 3 lines or under 40 words), you MUST deduct 25% to 40% of the marks. For a 3-mark question, list-only correct answers get a maximum of 2 / 3 marks. For a 6-8 mark question, list-only correct answers get a maximum of 3 / 6 or 4 / 8 marks. Elaboration is mandatory for full credit.
-- NUMERICAL STEP COMPLETENESS: For numerical/calculation questions, if the student sets up the cases correctly but fails to explicitly calculate the final change, difference, or comparison amount as required by the marking scheme, award partial marks (e.g. 2.5/3 or 1.5/3 depending on depth) by deducting 0.5 to 1.5 marks for the missing final step. Do not award full marks.
-- If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 1.0 mark.
-- Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept. If the letter selected is wrong, award 0/1 immediately.
 - If a question is unattempted or skipped, automatically score it as 0.
 
 ⚠️ DOUBLE-PASS SELF-CORRECTION PROTOCOL (CRITICAL FOR ACCURACY):
@@ -225,14 +216,12 @@ Your task is to:
 1. Read the Model Answer Key (Document 1) to understand the questions, the correct answers, and the marking criteria.
 2. Read the Student's Answer Sheet (Document 2) to identify the student's responses to those questions.
 3. Compare the student's answers to the model answers and grade them out of a maximum of ${mm} marks.
-   - You MUST evaluate strictly and objectively. Avoid leniency. If an answer lacks required points or contains incorrect conceptual claims, penalize heavily.
+   - You MUST evaluate strictly and objectively. Avoid leniency.
+   - MCQ questions: If the option letter selected by the student is wrong, award 0/1 immediately.
+   - 0 MARKS FOR OUT-OF-SCOPE TRUTHS: If the student writes factually correct statements that do NOT directly answer the specific question (such as listing general bank functions for Q11 instead of government banker functions, or listing monetary tools for Q13 instead of naming the economic situation 'Inflation'), you MUST award 0 marks for that question/point. No partial credit is allowed.
+   - DEDUCTIONS FOR BREVITY: For 3-mark or higher questions, if the student merely lists the correct points/keywords but fails to explain or elaborate on them (making the answer under 3 lines or under 40 words), you MUST deduct 1.0 mark (awarding a maximum of 2 / 3 marks). Elaboration is mandatory for full credit.
+   - NUMERICAL STEP COMPLETENESS: For calculation questions (like Q14), if the student sets up the cases correctly but fails to explicitly calculate the final change/difference, you MUST award partial marks (maximum of 1.5 or 2.0 out of 3 depending on depth) by deducting 0.5 to 1.5 marks. Do not award full marks.
    - SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
-   - MISSING KEYWORDS PENALTY: Cross-reference the student's response with the marking scheme. If a core keyword, phrase, definition component, or step is missing, automatically deduct 50% of the question's allocated marks. Do NOT award full marks or lenient partial credit unless ALL key NCERT points are fully present.
-   - NO MARKS FOR OUT-OF-SCOPE TRUTHS: If the student's answer contains factually true statements that do NOT directly address the specific question prompt (e.g., listing general bank functions like 'lender of last resort' instead of banker-to-government functions, or listing monetary tools instead of naming the economic situation like 'Inflation'), you MUST award 0 marks for that point. No partial credit is allowed.
-   - CONTEXT-AWARE BREVITY DEDUCTION (BOARD STANDARD): For 3-mark or higher questions, if the student merely lists the correct points/keywords but fails to explain or elaborate on them (making the answer extremely brief, e.g., under 3 lines or under 40 words), you MUST deduct 25% to 40% of the marks. For a 3-mark question, list-only correct answers get a maximum of 2 / 3 marks. For a 6-8 mark question, list-only correct answers get a maximum of 3 / 6 or 4 / 8 marks. Elaboration is mandatory for full credit.
-   - NUMERICAL STEP COMPLETENESS: For numerical/calculation questions, if the student sets up the cases correctly but fails to explicitly calculate the final change, difference, or comparison amount as required by the marking scheme, award partial marks (e.g. 2.5/3 or 1.5/3 depending on depth) by deducting 0.5 to 1.5 marks for the missing final step. Do not award full marks.
-   - If the student provides a correct/complete answer but appends extra incorrect points or conflicting claims, deduct a penalty of 1.0 mark.
-   - Double-check MCQs: Prioritize the selected option letter (e.g., "A"). Give the benefit of the doubt for minor handwriting ambiguities ONLY if the written text does not describe a completely conflicting concept. If the letter selected is wrong, award 0/1 immediately.
    - If a question is unattempted or skipped, automatically score it as 0.
    - Give comprehensive, detailed feedback for each question.
    - Provide as many concrete, actionable improvement suggestions as needed.
