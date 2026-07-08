@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sample Report Summary Preview</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #c53030;
@@ -19,13 +17,16 @@
             --warning-light: #fffaf0;
             --warning-border: #fef3c7;
             --neutral-dark: #2d3748;
-            --neutral-light: #f7fafc;
-            --neutral-border: #edf2f7;
+            --neutral-light: #f8fafc;
+            --neutral-border: #e2e8f0;
+            --info-blue: #1e3c72;
+            --info-light: #f0f4f8;
+            --info-border: #d0d7de;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
+            background-color: #f3f4f6;
             margin: 0;
             padding: 2rem;
             color: var(--neutral-dark);
@@ -38,23 +39,24 @@
         .preview-card {
             background: #ffffff;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            max-width: 800px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            max-width: 950px;
             width: 100%;
             padding: 2.5rem;
             border: 1px solid var(--neutral-border);
         }
 
+        /* Header Style (Clean blue theme) */
         .header {
             text-align: center;
-            border-bottom: 4px solid var(--primary);
+            border-bottom: 4px solid var(--info-blue);
             padding-bottom: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .header h1 {
             font-family: 'Poppins', sans-serif;
-            color: var(--primary);
+            color: var(--info-blue);
             margin: 0;
             font-size: 2.2rem;
             font-weight: 800;
@@ -63,139 +65,268 @@
 
         .header p {
             margin: 5px 0 0 0;
-            color: #e53e3e;
+            color: #2a5298;
             text-transform: uppercase;
             font-size: 0.95rem;
             letter-spacing: 2px;
             font-weight: 700;
         }
 
-        /* Summary Panel Section Styling */
-        .summary-panel {
-            background: #ffffff;
-            border: 2px solid var(--neutral-border);
+        /* Student Metadata Header Box */
+        .student-meta {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            background: var(--neutral-light);
+            border: 1px solid var(--neutral-border);
+            padding: 1.25rem;
             border-radius: 12px;
-            padding: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
         }
 
-        .summary-header {
+        .meta-item {
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .meta-item span.label {
+            font-weight: 500;
+            color: #718096;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-item span.value {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        /* Split Section Layout */
+        .dashboard-split {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            align-items: stretch;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-split {
+                flex-direction: column;
+            }
+        }
+
+        /* Left Column: Final Score Card */
+        .score-card-left {
+            flex: 1;
+            background: #ffffff;
+            border: 1.5px solid var(--neutral-border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+        }
+
+        .card-header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .score-display-value {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1;
+            margin: 0.5rem 0 1rem 0;
+            text-align: center;
+        }
+
+        .score-stats-list {
+            width: 100%;
+            border-top: 1px solid #edf2f7;
+            padding-top: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .score-stat-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.25rem;
-            border-bottom: 1px solid var(--neutral-border);
-            padding-bottom: 0.75rem;
+            padding: 0.4rem 0;
+            font-size: 0.9rem;
+            color: #4a5568;
         }
 
-        .summary-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #1a202c;
+        .score-stat-row strong {
+            color: #2d3748;
+        }
+
+        .badge-counts-row {
             display: flex;
-            align-items: center;
             gap: 0.5rem;
+            width: 100%;
+            justify-content: space-between;
+            margin-top: auto;
         }
 
-        .legend {
+        .badge-count-box {
+            flex: 1;
             display: flex;
-            gap: 1rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .legend-item {
-            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 0.35rem;
+            padding: 0.5rem 0.25rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
         }
 
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
+        .badge-count-box.box-correct {
+            background-color: var(--success-light);
+            border: 1px solid var(--success-border);
+            color: var(--success);
         }
 
-        .color-correct { background-color: var(--success); border: 1px solid var(--success-border); }
-        .color-partial { background-color: var(--warning); border: 1px solid var(--warning-border); }
-        .color-incorrect { background-color: var(--primary); border: 1px solid var(--primary-border); }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
-            gap: 0.4rem;
+        .badge-count-box.box-partial {
+            background-color: var(--warning-light);
+            border: 1px solid var(--warning-border);
+            color: var(--warning);
         }
 
-        .summary-badge {
+        .badge-count-box.box-incorrect {
+            background-color: var(--primary-light);
+            border: 1px solid var(--primary-border);
+            color: var(--primary);
+        }
+
+        .badge-count-num {
+            font-size: 1.1rem;
+            font-weight: 900;
+            margin-bottom: 0.1rem;
+        }
+
+        /* Right Column: Question Performance Grid */
+        .perf-card-right {
+            flex: 1.5;
+            background: #ffffff;
+            border: 1.5px solid var(--neutral-border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
+        }
+
+        .perf-grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        @media (max-width: 500px) {
+            .perf-grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .perf-badge {
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0.4rem;
-            border-radius: 4px;
-            font-size: 0.72rem;
-            text-align: center;
-            transition: all 0.2s ease;
+            border-radius: 8px;
             border: 1px solid transparent;
-            font-weight: 500;
+            padding: 0.5rem 0.25rem;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
         }
 
-        .summary-badge:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .badge-qnum {
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.2px;
-            margin: 0;
-            opacity: 0.9;
-        }
-
-        .badge-score {
-            font-weight: 400;
-            opacity: 0.95;
-        }
-
-        /* Status colors */
-        .badge-correct {
+        .perf-badge.correct {
             background-color: var(--success-light);
             border-color: var(--success-border);
             color: var(--success);
         }
-        .badge-partial {
+
+        .perf-badge.partial {
             background-color: var(--warning-light);
             border-color: var(--warning-border);
             color: var(--warning);
         }
-        .badge-incorrect {
+
+        .perf-badge.incorrect {
             background-color: var(--primary-light);
             border-color: var(--primary-border);
             color: var(--primary);
         }
 
-        .student-meta {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            background: var(--neutral-light);
-            border: 1px solid var(--neutral-border);
-            padding: 1.25rem;
-            border-radius: 8px;
-            margin-bottom: 2rem;
+        .perf-badge-qnum {
+            font-weight: 700;
+            margin-bottom: 0.15rem;
         }
 
-        .meta-item {
+        .perf-badge-icon {
             font-size: 0.95rem;
+            margin-bottom: 0.15rem;
         }
 
-        .meta-item strong {
-            color: #4a5568;
+        .perf-badge-score {
+            font-weight: 500;
+            opacity: 0.85;
         }
+
+        .legend-row {
+            display: flex;
+            gap: 0.75rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #718096;
+            margin-top: auto;
+            border-top: 1px solid #edf2f7;
+            padding-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        /* Note Info Box */
+        .info-note-box {
+            background-color: var(--info-light);
+            border: 1px solid var(--info-border);
+            border-left: 4px solid var(--info-blue);
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            font-size: 0.82rem;
+            color: #3182ce;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .info-note-box strong {
+            color: var(--info-blue);
+        }
+
     </style>
 </head>
 <body>
@@ -207,94 +338,187 @@
         </div>
 
         <div class="student-meta">
-            <div class="meta-item"><strong>Student Name:</strong> Trinno Asphalt</div>
-            <div class="meta-item"><strong>Date Evaluated:</strong> 7/8/2026</div>
-            <div class="meta-item"><strong>Class:</strong> Class 12th</div>
-            <div class="meta-item"><strong>Subject:</strong> Economics</div>
+            <div class="meta-item">
+                <span class="label">Student Name</span>
+                <span class="value">Trinno Asphalt</span>
+            </div>
+            <div class="meta-item">
+                <span class="label">Date Evaluated</span>
+                <span class="value">7/8/2026</span>
+            </div>
+            <div class="meta-item">
+                <span class="label">Class</span>
+                <span class="value">Class 12th</span>
+            </div>
+            <div class="meta-item">
+                <span class="label">Subject</span>
+                <span class="value">Economics</span>
+            </div>
         </div>
 
-        <!-- Demonstration of the New Summary Panel Box -->
-        <div class="summary-panel">
-            <div class="summary-header">
-                <div class="summary-title">
-                    <span>📊 Question-by-Question Marks Summary</span>
+        <!-- Split Layout Panel -->
+        <div class="dashboard-split">
+            
+            <!-- Left Score Card -->
+            <div class="score-card-left">
+                <div class="card-header-title">🏆 Final Score</div>
+                
+                <div class="score-display-value">17 / 26</div>
+                
+                <div class="score-stats-list">
+                    <div class="score-stat-row">
+                        <span>Grade:</span>
+                        <strong>B</strong>
+                    </div>
+                    <div class="score-stat-row">
+                        <span>Performance:</span>
+                        <strong style="color: var(--warning);">Average</strong>
+                    </div>
+                    <div class="score-stat-row">
+                        <span>Maximum Marks:</span>
+                        <strong>26</strong>
+                    </div>
+                    <div class="score-stat-row">
+                        <span>Marks Lost:</span>
+                        <strong style="color: var(--primary);">9</strong>
+                    </div>
                 </div>
-                <div class="legend">
-                    <div class="legend-item">
-                        <div class="legend-color color-correct"></div>
+
+                <div class="badge-counts-row">
+                    <div class="badge-count-box box-correct">
+                        <span class="badge-count-num">5</span>
                         <span>Correct</span>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color color-partial"></div>
+                    <div class="badge-count-box box-partial">
+                        <span class="badge-count-num">7</span>
                         <span>Partial</span>
                     </div>
-                    <div class="legend-item">
-                        <div class="legend-color color-incorrect"></div>
+                    <div class="badge-count-box box-incorrect">
+                        <span class="badge-count-num">2</span>
                         <span>Incorrect</span>
                     </div>
                 </div>
             </div>
 
-            <div class="summary-grid">
-                <div class="summary-badge badge-correct">
-                    <span class="badge-qnum">Q1</span>
-                    <span class="badge-score">1 / 1</span>
+            <!-- Right Question Grid Card -->
+            <div class="perf-card-right">
+                <div class="card-header-title" style="color: var(--info-blue);">📋 Question Performance</div>
+                
+                <div class="perf-grid-container">
+                    <div class="perf-badge correct">
+                        <span class="perf-badge-qnum">Q1</span>
+                        <span class="perf-badge-icon">✓</span>
+                        <span class="perf-badge-score">1/1</span>
+                    </div>
+                    <div class="perf-badge correct">
+                        <span class="perf-badge-qnum">Q2</span>
+                        <span class="perf-badge-icon">✓</span>
+                        <span class="perf-badge-score">1/1</span>
+                    </div>
+                    <div class="perf-badge correct">
+                        <span class="perf-badge-qnum">Q3</span>
+                        <span class="perf-badge-icon">✓</span>
+                        <span class="perf-badge-score">1/1</span>
+                    </div>
+                    <div class="perf-badge correct">
+                        <span class="perf-badge-qnum">Q4</span>
+                        <span class="perf-badge-icon">✓</span>
+                        <span class="perf-badge-score">1/1</span>
+                    </div>
+                    <div class="perf-badge correct">
+                        <span class="perf-badge-qnum">Q5</span>
+                        <span class="perf-badge-icon">✓</span>
+                        <span class="perf-badge-score">1/1</span>
+                    </div>
+                    <div class="perf-badge incorrect">
+                        <span class="perf-badge-qnum">Q6</span>
+                        <span class="perf-badge-icon">✗</span>
+                        <span class="perf-badge-score">0/1</span>
+                    </div>
+                    <div class="perf-badge incorrect">
+                        <span class="perf-badge-qnum">Q7</span>
+                        <span class="perf-badge-icon">✗</span>
+                        <span class="perf-badge-score">0/1</span>
+                    </div>
+                    <div class="perf-badge correct">
+                        <span class="perf-badge-qnum">Q8</span>
+                        <span class="perf-badge-icon">✓</span>
+                        <span class="perf-badge-score">1/1</span>
+                    </div>
+                    <div class="perf-badge partial">
+                        <span class="perf-badge-qnum">Q9</span>
+                        <span class="perf-badge-icon">!</span>
+                        <span class="perf-badge-score">2/3</span>
+                    </div>
+                    <div class="perf-badge partial">
+                        <span class="perf-badge-qnum">Q10</span>
+                        <span class="perf-badge-icon">!</span>
+                        <span class="perf-badge-score">1.5/3</span>
+                    </div>
+                    <div class="perf-badge partial">
+                        <span class="perf-badge-qnum">Q11</span>
+                        <span class="perf-badge-icon">!</span>
+                        <span class="perf-badge-score">2/3</span>
+                    </div>
+                    <div class="perf-badge partial">
+                        <span class="perf-badge-qnum">Q12</span>
+                        <span class="perf-badge-icon">!</span>
+                        <span class="perf-badge-score">2/3</span>
+                    </div>
+                    <div class="perf-badge partial">
+                        <span class="perf-badge-qnum">Q13</span>
+                        <span class="perf-badge-icon">!</span>
+                        <span class="perf-badge-score">1.5/3</span>
+                    </div>
+                    <div class="perf-badge partial">
+                        <span class="perf-badge-qnum">Q14</span>
+                        <span class="perf-badge-icon">!</span>
+                        <span class="perf-badge-score">2/3</span>
+                    </div>
                 </div>
-                <div class="summary-badge badge-correct">
-                    <span class="badge-qnum">Q2</span>
-                    <span class="badge-score">1 / 1</span>
+
+                <div class="legend-row">
+                    <div class="legend-item"><span style="color: var(--success);">✓</span> Correct (Full Marks)</div>
+                    <div class="legend-item"><span style="color: var(--warning);">!</span> Partial (Partial Marks)</div>
+                    <div class="legend-item"><span style="color: var(--primary);">✗</span> Incorrect (No Marks)</div>
                 </div>
-                <div class="summary-badge badge-correct">
-                    <span class="badge-qnum">Q3</span>
-                    <span class="badge-score">1 / 1</span>
-                </div>
-                <div class="summary-badge badge-correct">
-                    <span class="badge-qnum">Q4</span>
-                    <span class="badge-score">1 / 1</span>
-                </div>
-                <div class="summary-badge badge-correct">
-                    <span class="badge-qnum">Q5</span>
-                    <span class="badge-score">1 / 1</span>
-                </div>
-                <div class="summary-badge badge-incorrect">
-                    <span class="badge-qnum">Q6</span>
-                    <span class="badge-score">0 / 1</span>
-                </div>
-                <div class="summary-badge badge-incorrect">
-                    <span class="badge-qnum">Q7</span>
-                    <span class="badge-score">0 / 1</span>
-                </div>
-                <div class="summary-badge badge-correct">
-                    <span class="badge-qnum">Q8</span>
-                    <span class="badge-score">1 / 1</span>
-                </div>
-                <div class="summary-badge badge-partial">
-                    <span class="badge-qnum">Q9</span>
-                    <span class="badge-score">2 / 3</span>
-                </div>
-                <div class="summary-badge badge-partial">
-                    <span class="badge-qnum">Q10</span>
-                    <span class="badge-score">1.5 / 3</span>
-                </div>
-                <div class="summary-badge badge-partial">
-                    <span class="badge-qnum">Q11</span>
-                    <span class="badge-score">2 / 3</span>
-                </div>
-                <div class="summary-badge badge-partial">
-                    <span class="badge-qnum">Q12</span>
-                    <span class="badge-score">2 / 3</span>
-                </div>
-                <div class="summary-badge badge-partial">
-                    <span class="badge-qnum">Q13</span>
-                    <span class="badge-score">1.5 / 3</span>
-                </div>
-                <div class="summary-badge badge-partial">
-                    <span class="badge-qnum">Q14</span>
-                    <span class="badge-score">2 / 3</span>
+
+                <div class="info-note-box">
+                    <span>💡</span>
+                    <span><strong>Note:</strong> This sheet lists only the questions where marks were lost. Review your mistakes and the model answers below to prepare for corrections.</span>
                 </div>
             </div>
+
         </div>
 
+        <h3 style="color: #c53030; border-bottom: 2px solid #fed7d7; padding-bottom: 0.5rem; font-family: 'Poppins', sans-serif; font-size: 1.3rem;">🚀 Target Areas to Improve</h3>
+        <ul style="padding-left: 1.5rem; line-height: 1.6; color: #4a5568; font-size: 1.05rem; margin-bottom: 2rem;">
+            <li>For 3-mark questions, ensure you provide at least 3-4 lines of explanation. Simply listing points is insufficient for full marks.</li>
+            <li>In identification questions like Q13, always explicitly state the core economic situation (e.g. Inflation) first.</li>
+            <li>Use specific terminology: state that fertilizers lead to soil degradation and water pollution, rather than claiming crops dry up.</li>
+        </ul>
+
+        <h3 style="color: #c53030; border-bottom: 2px solid #fed7d7; padding-bottom: 0.5rem; font-family: 'Poppins', sans-serif; font-size: 1.3rem;">🔍 Question-by-Question Mistakes & Corrections</h3>
+        <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div style="background: #fffdfd; border: 1px solid #feb2b2; border-radius: 12px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #fed7d7; padding-bottom: 0.75rem; margin-bottom: 0.75rem;">
+                    <div>
+                        <h4 style="margin: 0; color: #9b2c2c; font-size: 1.1rem;">Q6</h4>
+                        <p style="margin: 0.25rem 0 0 0; color: #718096; font-size: 0.9rem;">MCQ - Derivative Deposits</p>
+                    </div>
+                    <div style="background: #fed7d7; color: #9b2c2c; padding: 0.5rem 1rem; border-radius: 999px; font-weight: 700;">
+                        0 / 1
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <p style="margin: 0; color: #718096; font-size: 0.95rem; background: #fff; padding: 0.75rem; border-radius: 6px; border: 1px dashed #cbd5e0;"><strong>What you wrote:</strong> <em>"(A) 5000"</em></p>
+                    <p style="margin: 0; color: #9b2c2c; font-size: 0.95rem;"><strong>❌ Your Mistake & Feedback:</strong> Incorrect. The correct answer is (C) 4,000. With a 20% CRR, the multiplier is 1/0.2 = 5. Total deposits = 1000 * 5 = 5000. Derivative deposits = Total - Primary = 5000 - 1000 = 4000.</p>
+                </div>
+            </div>
+
+        </div>
     </div>
+
 </body>
 </html>

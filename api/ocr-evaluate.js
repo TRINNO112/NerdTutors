@@ -210,6 +210,7 @@ Return STRICT JSON only (no markdown, no code blocks):
       "score": <number>,
       "maxMarks": <number>,
       "studentAnswerText": "Summary/transcription of what the student wrote for this question",
+      "modelAnswer": "Simplified, student-friendly correct answer explaining the concept clearly in 2-3 sentences based on the marking scheme. Do not copy raw grading scheme instructions; write a direct, clean answer.",
       "feedback": "Comprehensive and detailed explanation of why marks were given or lost.",
       "improvements": ["List as many suggestions as needed", "..."],
       "incorrectPhrases": [
