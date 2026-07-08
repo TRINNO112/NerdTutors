@@ -1080,86 +1080,79 @@ function renderLeaderboardAndDetailedTable(filteredResults) {
 
 // ==================== SETUP EXPORT BUTTONS ====================
 function setupExportButtons() {
-    // Export All Results
-    document.getElementById('exportAllResults')?.querySelector('button')?.addEventListener('click', () => {
-        exportAllResults();
+    // Populate session dropdown initially
+    updateExportSessionDropdown();
+
+    // Event listener for Class filter change
+    document.getElementById('exportClassFilter')?.addEventListener('change', () => {
+        updateExportSessionDropdown();
     });
 
-    // Export Student List
-    document.getElementById('exportStudentList')?.querySelector('button')?.addEventListener('click', () => {
-        exportStudentList();
-    });
-
-    // Export MCQ Results
-    document.getElementById('exportMCQResults')?.querySelector('button')?.addEventListener('click', () => {
-        exportFilteredResults('mcq');
-    });
-
-    // Export Text Results
-    document.getElementById('exportTextResults')?.querySelector('button')?.addEventListener('click', () => {
-        exportFilteredResults('text');
-    });
-
-    // Export Analytics
-    document.getElementById('exportAnalytics')?.querySelector('button')?.addEventListener('click', () => {
-        exportAnalyticsReport();
+    // Event listener for Export Button click
+    document.getElementById('btnExecuteExport')?.addEventListener('click', () => {
+        executeFilteredExport();
     });
 }
 
-// ==================== EXPORT STUDENT LIST ====================
-function exportStudentList() {
-    const studentMap = {};
-    appState.testResults.forEach(result => {
-        const id = result.studentId || 'unknown';
-        if (!studentMap[id]) {
-            studentMap[id] = { name: result.studentName, id: id, tests: 0, totalScore: 0 };
-        }
-        studentMap[id].tests++;
-        studentMap[id].totalScore += parseFloat(result.percentage) || 0;
+// ==================== UPDATE EXPORT SESSION DROPDOWN ====================
+function updateExportSessionDropdown() {
+    const sessionFilter = document.getElementById('exportSessionFilter');
+    if (!sessionFilter) return;
+
+    const classVal = document.getElementById('exportClassFilter')?.value || 'all';
+
+    // Reuse the analyticsSessions loaded from FireStore during init
+    let filtered = analyticsSessions || [];
+    if (classVal !== 'all') {
+        filtered = filtered.filter(s => s.class === classVal);
+    }
+
+    let html = '<option value="all">All Test Sessions</option>';
+    filtered.forEach(s => {
+        html += `<option value="${s.id}">${s.name} (${s.class} - ${s.subject})</option>`;
     });
 
-    let csv = 'Student Name,Student ID,Tests Taken,Average Score\n';
-    Object.values(studentMap).forEach(s => {
-        const avg = s.tests > 0 ? (s.totalScore / s.tests).toFixed(1) : 0;
-        csv += `"${s.name}",${s.id},${s.tests},${avg}%\n`;
-    });
-
-    downloadCSV(csv, 'student_list');
+    sessionFilter.innerHTML = html;
 }
 
-// ==================== EXPORT FILTERED RESULTS ====================
-function exportFilteredResults(type) {
-    const filtered = appState.testResults.filter(r =>
-        type === 'mcq' ? r.testType === 'mcq' : r.testType !== 'mcq'
-    );
+// ==================== EXECUTE FILTERED EXPORT ====================
+function executeFilteredExport() {
+    const classVal = document.getElementById('exportClassFilter')?.value || 'all';
+    const sessionVal = document.getElementById('exportSessionFilter')?.value || 'all';
 
-    let csv = 'Student Name,Student ID,Date,Score,Percentage,Type\n';
+    let filtered = [...appState.testResults];
+
+    if (classVal !== 'all') {
+        filtered = filtered.filter(r => r.class === classVal);
+    }
+    if (sessionVal !== 'all') {
+        filtered = filtered.filter(r => r.testSessionId === sessionVal);
+    }
+
+    if (filtered.length === 0) {
+        alert("No results match the selected filters.");
+        return;
+    }
+
+    // CSV headers including Test Name, Class, Subject, Student ID, score metrics
+    let csv = 'Test Name,Class,Subject,Student Name,Student ID,Date,Score,Percentage,Type\n';
     filtered.forEach(result => {
+        const testName = `"${(result.testSessionName || result.testName || 'General Evaluation').replace(/"/g, '""')}"`;
+        const cls = result.class || '-';
+        const sub = result.subject || '-';
+        const studentName = `"${(result.studentName || 'Anonymous').replace(/"/g, '""')}"`;
+        const studentId = result.studentId || '-';
         const date = new Date(result.submittedAt).toLocaleString();
-        csv += `"${result.studentName || 'Anonymous'}",${result.studentId || '-'},${date},${result.totalScore || ''},${result.percentage || ''},${result.testType || 'text'}\n`;
+        const score = result.totalScore || '0/0';
+        const percentage = result.percentage || '0%';
+        const type = result.testType || 'text';
+
+        csv += `${testName},${cls},${sub},${studentName},${studentId},${date},${score},${percentage},${type}\n`;
     });
 
-    downloadCSV(csv, `${type}_results`);
-}
-
-// ==================== EXPORT ANALYTICS REPORT ====================
-function exportAnalyticsReport() {
-    const total = appState.testResults.length;
-    const mcqCount = appState.testResults.filter(r => r.testType === 'mcq').length;
-    const ocrCount = appState.testResults.filter(r => r.testType === 'ocr').length;
-    const textCount = total - mcqCount - ocrCount;
-    const avgScore = total > 0 ? (appState.testResults.reduce((sum, r) => sum + (parseFloat(r.percentage) || 0), 0) / total).toFixed(1) : 0;
-
-    let csv = 'Analytics Report\n\n';
-    csv += 'Metric,Value\n';
-    csv += `Total Tests,${total}\n`;
-    csv += `MCQ Tests,${mcqCount}\n`;
-    csv += `Text Tests,${textCount}\n`;
-    csv += `OCR Tests,${ocrCount}\n`;
-    csv += `Average Score,${avgScore}%\n`;
-    csv += `Unique Students,${new Set(appState.testResults.map(r => r.studentId)).size}\n`;
-
-    downloadCSV(csv, 'analytics_report');
+    const sanitizedClass = classVal.replace(/\s+/g, '_');
+    const filename = `filtered_export_${sanitizedClass}_session_${sessionVal}`;
+    downloadCSV(csv, filename);
 }
 
 // ==================== DOWNLOAD CSV HELPER ====================

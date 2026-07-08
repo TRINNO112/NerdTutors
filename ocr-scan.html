@@ -800,10 +800,13 @@
             let questionsArr = [];
             if (selectedSession && selectedSession.questions) {
                 if (typeof selectedSession.questions === 'string') {
-                    try {
-                        questionsArr = JSON.parse(selectedSession.questions);
-                    } catch (e) {
-                        console.error("Failed to parse selectedSession.questions:", e);
+                    const trimmed = selectedSession.questions.trim();
+                    if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+                        try {
+                            questionsArr = JSON.parse(trimmed);
+                        } catch (e) {
+                            console.warn("Failed to parse selectedSession.questions JSON:", e);
+                        }
                     }
                 } else if (Array.isArray(selectedSession.questions)) {
                     questionsArr = selectedSession.questions;

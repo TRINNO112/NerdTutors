@@ -368,41 +368,29 @@
                         <h3 class="section-title">💾 Export Data</h3>
                     </div>
 
-                    <div class="export-options">
-                        <div class="export-card" id="exportAllResults">
-                            <div class="export-icon">📊</div>
-                            <h4>Export All Test Results</h4>
-                            <p>Download all test results including student names, scores, and dates.</p>
-                            <button class="btn btn-primary">📥 Download CSV</button>
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                        <h4 style="margin: 0 0 1rem 0; font-size: 1.15rem; color: #1e3c72; font-weight: 700;">Filter results and download as CSV</h4>
+                        <p style="color: #64748b; font-size: 0.9rem; margin-top: 0; margin-bottom: 1.5rem;">Select your desired class and test session to filter. The export file will automatically include the correct test name, class, subject, and scores.</p>
+                        
+                        <div class="form-group" style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label for="exportClassFilter" style="font-weight: 600; font-size: 0.85rem; color: #4a5568;">Select Class</label>
+                            <select id="exportClassFilter" class="filter-select" style="width: 100%; height: 40px; padding: 0 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box;">
+                                <option value="all">All Classes</option>
+                                <option value="Class 10th">Class 10th</option>
+                                <option value="Class 12th">Class 12th</option>
+                            </select>
                         </div>
 
-                        <div class="export-card" id="exportStudentList">
-                            <div class="export-icon">👥</div>
-                            <h4>Export Student List</h4>
-                            <p>Download a list of all students with their average scores and test counts.</p>
-                            <button class="btn btn-primary">📥 Download CSV</button>
+                        <div class="form-group" style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                            <label for="exportSessionFilter" style="font-weight: 600; font-size: 0.85rem; color: #4a5568;">Select Test Session</label>
+                            <select id="exportSessionFilter" class="filter-select" style="width: 100%; height: 40px; padding: 0 0.75rem; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box;">
+                                <option value="all">All Sessions</option>
+                            </select>
                         </div>
 
-                        <div class="export-card" id="exportMCQResults">
-                            <div class="export-icon">✅</div>
-                            <h4>Export MCQ Results Only</h4>
-                            <p>Download only MCQ test results with answer details.</p>
-                            <button class="btn btn-primary">📥 Download CSV</button>
-                        </div>
-
-                        <div class="export-card" id="exportTextResults">
-                            <div class="export-icon">📝</div>
-                            <h4>Export Text Results Only</h4>
-                            <p>Download only text-based test results with feedback.</p>
-                            <button class="btn btn-primary">📥 Download CSV</button>
-                        </div>
-
-                        <div class="export-card" id="exportAnalytics">
-                            <div class="export-icon">📈</div>
-                            <h4>Export Analytics Report</h4>
-                            <p>Download a summary report with statistics and insights.</p>
-                            <button class="btn btn-primary">📥 Download CSV</button>
-                        </div>
+                        <button id="btnExecuteExport" class="btn btn-primary" style="width: 100%; height: 44px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 700; border-radius: 6px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border: none; cursor: pointer;">
+                            📥 Export Filtered Results to CSV
+                        </button>
                     </div>
                 </div>
             </div>
