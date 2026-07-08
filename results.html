@@ -2435,7 +2435,9 @@
             const res = allResults.find(r => r.id === resultId);
             if (!res) return;
 
-            const dateStr = res.completedAt ? new Date(res.completedAt.toDate()).toLocaleString() : new Date().toLocaleString();
+            const completedDate = res.completedAt ? new Date(res.completedAt.toDate()) : new Date();
+            const dateStr = completedDate.toLocaleDateString();
+            const timeStr = completedDate.toLocaleTimeString();
 
             const printWindow = window.open('', '_blank');
             if (!printWindow) {
@@ -2624,6 +2626,7 @@
                                     <span>Incorrect</span>
                                 </div>
                             </div>
+                            <div style="text-align: center; color: #718096; font-size: 0.72rem; margin-top: 0.75rem; border-top: 1px dashed #e2e8f0; padding-top: 0.4rem; width: 100%;">Time Evaluated: ${timeStr}</div>
                         </div>
 
                         <!-- Right Question Grid Card -->

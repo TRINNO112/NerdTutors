@@ -2291,6 +2291,35 @@ window.viewReportCard = function(resultId) {
     if (!modal || !content) return;
 
     const pct = Math.round((res.score / res.maxMarks) * 100);
+    const dateObj = res.createdAt ? new Date(res.createdAt.seconds * 1000) : new Date();
+    const dateStr = dateObj.toLocaleDateString();
+    const timeStr = dateObj.toLocaleTimeString();
+
+    let grade = 'F';
+    let performance = 'Needs Work';
+    if (pct >= 90) { grade = 'A+'; performance = 'Excellent'; }
+    else if (pct >= 80) { grade = 'A'; performance = 'Very Good'; }
+    else if (pct >= 70) { grade = 'B'; performance = 'Good'; }
+    else if (pct >= 50) { grade = 'C'; performance = 'Average'; }
+    else if (pct >= 33) { grade = 'D'; performance = 'Below Average'; }
+
+    let correctCount = 0;
+    let partialCount = 0;
+    let incorrectCount = 0;
+
+    const questionsArr = res.results || res.breakdown || [];
+    questionsArr.forEach(q => {
+        const eM = Number(q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0));
+        const mM = Number(q.marks !== undefined ? q.marks : (q.maxMarks || 1));
+        if (eM === mM) {
+            correctCount++;
+        } else if (eM === 0) {
+            incorrectCount++;
+        } else {
+            partialCount++;
+        }
+    });
+
     let appealHtml = '';
     if (res.totalAppealPotential && res.totalAppealPotential !== 'Low') {
         appealHtml = `
@@ -2303,16 +2332,124 @@ window.viewReportCard = function(resultId) {
     }
 
     content.innerHTML = `
-        <div style="text-align: center; border-bottom: 3px solid #1e3c72; padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        <div style="text-align: center; border-bottom: 4px solid #1e3c72; padding-bottom: 1rem; margin-bottom: 1.5rem;">
             <h2 style="color: #1e3c72; margin: 0; font-size: 2rem; font-weight: 800; font-family: 'Poppins', sans-serif;">NERD TUTORS</h2>
             <p style="margin: 4px 0 0 0; color: #718096; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">Official Academic Report Card</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; background: #f7fafc; border: 1px solid #edf2f7; padding: 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1.5rem;">
-            <div><strong>Student Name:</strong> ${escapeHtml(res.studentName)}</div>
-            <div><strong>Class / Subject:</strong> ${escapeHtml(res.class)} - ${escapeHtml(res.subject)}</div>
-            <div><strong>Total Marks:</strong> ${res.score} / ${res.maxMarks} (${pct}%)</div>
-            <div><strong>Date Evaluated:</strong> ${res.createdAt ? new Date(res.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; background: #f8fafc; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                <span style="font-weight: 500; color: #718096; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Student Name</span>
+                <span style="font-weight: 700; color: #2d3748;">${escapeHtml(res.studentName)}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                <span style="font-weight: 500; color: #718096; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Date Evaluated</span>
+                <span style="font-weight: 700; color: #2d3748;">${dateStr}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                <span style="font-weight: 500; color: #718096; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Class</span>
+                <span style="font-weight: 700; color: #2d3748;">${escapeHtml(res.class || 'N/A')}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                <span style="font-weight: 500; color: #718096; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Subject</span>
+                <span style="font-weight: 700; color: #2d3748;">${escapeHtml(res.subject || 'N/A')}</span>
+            </div>
+        </div>
+
+        <!-- Split Dashboard Panel -->
+        <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: stretch; flex-wrap: wrap;">
+            
+            <!-- Left Score Card -->
+            <div style="flex: 1; min-width: 250px; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.01);">
+                <div style="font-weight: 700; font-size: 0.8rem; color: #c53030; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">🏆 Final Score</div>
+                
+                <div style="font-size: 2.75rem; font-weight: 900; color: #c53030; font-family: 'Poppins', sans-serif; line-height: 1; margin: 0.25rem 0 0.5rem 0; text-align: center;">${res.score} / ${res.maxMarks}</div>
+                
+                <div style="width: 100%; border-top: 1px solid #edf2f7; padding-top: 0.5rem; margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; font-size: 0.85rem; color: #4a5568;">
+                        <span>Grade:</span>
+                        <strong style="color: #2d3748;">${grade}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; font-size: 0.85rem; color: #4a5568;">
+                        <span>Performance:</span>
+                        <strong style="color: #dd6b20;">${performance}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; font-size: 0.85rem; color: #4a5568;">
+                        <span>Maximum Marks:</span>
+                        <strong style="color: #2d3748;">${res.maxMarks}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.25rem 0; font-size: 0.85rem; color: #4a5568;">
+                        <span>Marks Lost:</span>
+                        <strong style="color: #c53030;">${res.maxMarks - res.score}</strong>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 0.4rem; width: 100%; justify-content: space-between; margin-top: auto;">
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0.4rem 0.2rem; border-radius: 8px; font-size: 0.7rem; font-weight: 600; text-align: center; background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d;">
+                        <span style="font-size: 1rem; font-weight: 900; margin-bottom: 0.1rem;">${correctCount}</span>
+                        <span>Correct</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0.4rem 0.2rem; border-radius: 8px; font-size: 0.7rem; font-weight: 600; text-align: center; background-color: #fffaf0; border: 1px solid #fef3c7; color: #b7791f;">
+                        <span style="font-size: 1rem; font-weight: 900; margin-bottom: 0.1rem;">${partialCount}</span>
+                        <span>Partial</span>
+                    </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0.4rem 0.2rem; border-radius: 8px; font-size: 0.7rem; font-weight: 600; text-align: center; background-color: #fff5f5; border: 1px solid #fed7d7; color: #c53030;">
+                        <span style="font-size: 1rem; font-weight: 900; margin-bottom: 0.1rem;">${incorrectCount}</span>
+                        <span>Incorrect</span>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; color: #718096; font-size: 0.72rem; margin-top: 1rem; border-top: 1px dashed #e2e8f0; padding-top: 0.5rem; width: 100%;">Time Evaluated: ${timeStr}</div>
+            </div>
+
+            <!-- Right Question Grid Card -->
+            <div style="flex: 1.5; min-width: 300px; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.01); display: flex; flex-direction: column;">
+                <div style="font-weight: 700; font-size: 0.8rem; color: #1e3c72; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">📋 Question Performance</div>
+                
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4rem; margin-bottom: 0.75rem;">
+                    ${questionsArr.map((q, idx) => {
+                        const eM = Number(q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0));
+                        const mM = Number(q.marks !== undefined ? q.marks : (q.maxMarks || 1));
+                        const qLabel = q.questionNumber || `Q${idx + 1}`;
+                        
+                        let bg = '#f0fdf4';
+                        let border = '#bbf7d0';
+                        let color = '#15803d';
+                        let icon = '✓';
+                        if (eM === 0) {
+                            bg = '#fff5f5';
+                            border = '#fed7d7';
+                            color = '#c53030';
+                            icon = '✗';
+                        } else if (eM < mM) {
+                            bg = '#fffaf0';
+                            border = '#fef3c7';
+                            color = '#b7791f';
+                            icon = '!';
+                        }
+
+                        return `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid ${border}; background-color: ${bg}; color: ${color}; padding: 0.4rem 0.2rem; font-size: 0.7rem;">
+                                <span style="font-weight: 700; margin-bottom: 0.15rem;">${qLabel}</span>
+                                <span style="font-size: 0.95rem; margin-bottom: 0.15rem;">${icon}</span>
+                                <span style="font-weight: 500; opacity: 0.85;">${eM}/${mM}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; font-size: 0.68rem; font-weight: 600; color: #718096; margin-top: auto; border-top: 1px solid #edf2f7; padding-top: 0.5rem; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.2rem;"><span style="color: #15803d;">✓</span> Correct (Full Marks)</div>
+                    <div style="display: flex; align-items: center; gap: 0.2rem;"><span style="color: #b7791f;">!</span> Partial (Partial Marks)</div>
+                    <div style="display: flex; align-items: center; gap: 0.2rem;"><span style="color: #c53030;">✗</span> Incorrect (No Marks)</div>
+                </div>
+
+                <div style="background-color: #f0f4f8; border: 1px solid #d0d7de; border-left: 4px solid #1e3c72; border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.75rem; color: #3182ce; line-height: 1.3; display: flex; align-items: flex-start; gap: 0.35rem; margin-top: 0.75rem; text-align: left;">
+                    <span>💡</span>
+                    <span><strong>Note:</strong> This sheet lists only the questions where marks were lost. Review your mistakes and the model answers below to prepare for corrections.</span>
+                </div>
+            </div>
+
         </div>
 
         <h4 style="color: #1e3c72; border-bottom: 1px solid #edf2f7; padding-bottom: 0.25rem; margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.1rem; font-weight: 700;">📋 Performance Summary</h4>
@@ -2399,7 +2536,9 @@ window.printReportCard = function(resultId) {
     const res = window.currentResults?.find(r => r.id === resultId);
     if (!res) return;
 
-    const dateStr = res.createdAt ? new Date(res.createdAt.seconds * 1000).toLocaleString() : new Date().toLocaleString();
+    const completedDate = res.createdAt ? new Date(res.createdAt.seconds * 1000) : new Date();
+    const dateStr = completedDate.toLocaleDateString();
+    const timeStr = completedDate.toLocaleTimeString();
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -2584,6 +2723,7 @@ window.printReportCard = function(resultId) {
                             <span>Incorrect</span>
                         </div>
                     </div>
+                    <div style="text-align: center; color: #718096; font-size: 0.72rem; margin-top: 0.75rem; border-top: 1px dashed #e2e8f0; padding-top: 0.4rem; width: 100%;">Time Evaluated: ${timeStr}</div>
                 </div>
 
                 <!-- Right Question Grid Card -->
