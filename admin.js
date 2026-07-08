@@ -2151,6 +2151,7 @@ async function createTestSession() {
     const sessionMaxMarks = document.getElementById('sessionMaxMarks').value;
     const sessionQuestions = document.getElementById('sessionQuestions').value;
     const sessionMarkingScheme = document.getElementById('sessionMarkingScheme').value;
+    const sessionOtherInstructions = document.getElementById('sessionOtherInstructions')?.value || "";
 
     try {
         await addDoc(collection(db, 'testSessions'), {
@@ -2160,6 +2161,7 @@ async function createTestSession() {
             maxMarks: parseInt(sessionMaxMarks) || 100,
             questions: sessionQuestions,
             markingScheme: sessionMarkingScheme,
+            otherInstructions: sessionOtherInstructions,
             status: "active",
             createdAt: serverTimestamp()
         });
@@ -2944,6 +2946,7 @@ async function editSession(id) {
         document.getElementById('editSessionMaxMarks').value = data.maxMarks || 100;
         document.getElementById('editSessionQuestions').value = data.questions || '';
         document.getElementById('editSessionMarkingScheme').value = data.markingScheme || '';
+        document.getElementById('editSessionOtherInstructions').value = data.otherInstructions || '';
 
         // Show Modal
         const modal = document.getElementById('editSessionModal');
@@ -2974,6 +2977,7 @@ document.getElementById('editSessionForm')?.addEventListener('submit', async (e)
     const maxMarks = parseInt(document.getElementById('editSessionMaxMarks').value) || 100;
     const questions = document.getElementById('editSessionQuestions').value;
     const markingScheme = document.getElementById('editSessionMarkingScheme').value;
+    const otherInstructions = document.getElementById('editSessionOtherInstructions').value;
 
     try {
         await updateDoc(doc(db, 'testSessions', id), {
@@ -2982,7 +2986,8 @@ document.getElementById('editSessionForm')?.addEventListener('submit', async (e)
             subject,
             maxMarks,
             questions,
-            markingScheme
+            markingScheme,
+            otherInstructions
         });
         showToast("Test Session updated successfully!", "success");
         document.getElementById('editSessionModal')?.classList.remove('show');

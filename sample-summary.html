@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Report Summary Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --primary: #c53030;
+            --primary-light: #fff5f5;
+            --primary-border: #fed7d7;
+            --success: #15803d;
+            --success-light: #f0fdf4;
+            --success-border: #bbf7d0;
+            --warning: #b7791f;
+            --warning-light: #fffaf0;
+            --warning-border: #fef3c7;
+            --neutral-dark: #2d3748;
+            --neutral-light: #f7fafc;
+            --neutral-border: #edf2f7;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 2rem;
+            color: var(--neutral-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .preview-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            width: 100%;
+            padding: 2.5rem;
+            border: 1px solid var(--neutral-border);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-family: 'Poppins', sans-serif;
+            color: var(--primary);
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            color: #e53e3e;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        /* Summary Panel Section Styling */
+        .summary-panel {
+            background: #ffffff;
+            border: 2px solid var(--neutral-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid var(--neutral-border);
+            padding-bottom: 0.75rem;
+        }
+
+        .summary-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .color-correct { background-color: var(--success); border: 1px solid var(--success-border); }
+        .color-partial { background-color: var(--warning); border: 1px solid var(--warning-border); }
+        .color-incorrect { background-color: var(--primary); border: 1px solid var(--primary-border); }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .summary-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 0.4rem;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .summary-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .badge-qnum {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+            opacity: 0.9;
+        }
+
+        .badge-score {
+            font-size: 0.95rem;
+        }
+
+        /* Status colors */
+        .badge-correct {
+            background-color: var(--success-light);
+            border-color: var(--success-border);
+            color: var(--success);
+        }
+        .badge-partial {
+            background-color: var(--warning-light);
+            border-color: var(--warning-border);
+            color: var(--warning);
+        }
+        .badge-incorrect {
+            background-color: var(--primary-light);
+            border-color: var(--primary-border);
+            color: var(--primary);
+        }
+
+        .student-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            background: var(--neutral-light);
+            border: 1px solid var(--neutral-border);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .meta-item {
+            font-size: 0.95rem;
+        }
+
+        .meta-item strong {
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="preview-card">
+        <div class="header">
+            <h1>NERD TUTORS</h1>
+            <p>📝 Student Error Correction Report</p>
+        </div>
+
+        <div class="student-meta">
+            <div class="meta-item"><strong>Student Name:</strong> Trinno Asphalt</div>
+            <div class="meta-item"><strong>Date Evaluated:</strong> 7/8/2026</div>
+            <div class="meta-item"><strong>Class:</strong> Class 12th</div>
+            <div class="meta-item"><strong>Subject:</strong> Economics</div>
+        </div>
+
+        <!-- Demonstration of the New Summary Panel Box -->
+        <div class="summary-panel">
+            <div class="summary-header">
+                <div class="summary-title">
+                    <span>📊 Question-by-Question Marks Summary</span>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color color-correct"></div>
+                        <span>Correct</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-partial"></div>
+                        <span>Partial</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color color-incorrect"></div>
+                        <span>Incorrect</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-badge badge-correct">
+                    <span class="badge-qnum">Q1</span>
+                    <span class="badge-score">1 / 1</span>
+                </div>
+                <div class="summary-badge badge-correct">
+                    <span class="badge-qnum">Q2</span>
+                    <span class="badge-score">1 / 1</span>
+                </div>
+                <div class="summary-badge badge-correct">
+                    <span class="badge-qnum">Q3</span>
+                    <span class="badge-score">1 / 1</span>
+                </div>
+                <div class="summary-badge badge-correct">
+                    <span class="badge-qnum">Q4</span>
+                    <span class="badge-score">1 / 1</span>
+                </div>
+                <div class="summary-badge badge-correct">
+                    <span class="badge-qnum">Q5</span>
+                    <span class="badge-score">1 / 1</span>
+                </div>
+                <div class="summary-badge badge-incorrect">
+                    <span class="badge-qnum">Q6</span>
+                    <span class="badge-score">0 / 1</span>
+                </div>
+                <div class="summary-badge badge-incorrect">
+                    <span class="badge-qnum">Q7</span>
+                    <span class="badge-score">0 / 1</span>
+                </div>
+                <div class="summary-badge badge-correct">
+                    <span class="badge-qnum">Q8</span>
+                    <span class="badge-score">1 / 1</span>
+                </div>
+                <div class="summary-badge badge-partial">
+                    <span class="badge-qnum">Q9</span>
+                    <span class="badge-score">2 / 3</span>
+                </div>
+                <div class="summary-badge badge-partial">
+                    <span class="badge-qnum">Q10</span>
+                    <span class="badge-score">1.5 / 3</span>
+                </div>
+                <div class="summary-badge badge-partial">
+                    <span class="badge-qnum">Q11</span>
+                    <span class="badge-score">2 / 3</span>
+                </div>
+                <div class="summary-badge badge-partial">
+                    <span class="badge-qnum">Q12</span>
+                    <span class="badge-score">2 / 3</span>
+                </div>
+                <div class="summary-badge badge-partial">
+                    <span class="badge-qnum">Q13</span>
+                    <span class="badge-score">1.5 / 3</span>
+                </div>
+                <div class="summary-badge badge-partial">
+                    <span class="badge-qnum">Q14</span>
+                    <span class="badge-score">2 / 3</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2.5rem; border-top: 1px solid var(--neutral-border); padding-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; align-items: center;">
+            <button id="btnDownloadPDF" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 0.85rem 2rem; border: none; border-radius: 8px; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 6px rgba(30, 60, 114, 0.2); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 12px rgba(30, 60, 114, 0.3)'" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(30, 60, 114, 0.2)'">
+                🖨️ Download Sample PDF Report (Blue Theme)
+            </button>
+            <span style="color: #718096; font-size: 0.85rem;">Click the button above to generate and view the proposed blue-themed PDF report.</span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('btnDownloadPDF').addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Header Banner (Premium dark blue background)
+            doc.setFillColor(30, 60, 114);
+            doc.rect(0, 0, 210, 45, 'F');
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(22);
+            doc.text('NERD TUTORS', 105, 20, { align: 'center' });
+            
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(10);
+            doc.setTextColor(230, 240, 255);
+            doc.text('OFFICIAL STUDENT ACADEMIC REPORT CARD', 105, 28, { align: 'center' });
+            doc.text('PREVIEW DEMONSTRATION WITH MOCK DATA', 105, 34, { align: 'center' });
+
+            // Metadata Card
+            doc.setDrawColor(200, 210, 230);
+            doc.setFillColor(245, 247, 250);
+            doc.roundedRect(14, 55, 182, 35, 3, 3, 'FD');
+
+            doc.setTextColor(50, 60, 80);
+            doc.setFontSize(10);
+            doc.setFont('Helvetica', 'bold');
+            doc.text('Student Name:', 20, 65);
+            doc.setFont('Helvetica', 'normal');
+            doc.text('Trinno Asphalt', 50, 65);
+
+            doc.setFont('Helvetica', 'bold');
+            doc.text('Date Evaluated:', 115, 65);
+            doc.setFont('Helvetica', 'normal');
+            doc.text('7/8/2026', 148, 65);
+
+            doc.setFont('Helvetica', 'bold');
+            doc.text('Class / Subject:', 20, 75);
+            doc.setFont('Helvetica', 'normal');
+            doc.text('Class 12th - Economics', 50, 75);
+
+            doc.setFont('Helvetica', 'bold');
+            doc.text('Test Marks:', 115, 75);
+            doc.setFont('Helvetica', 'bold');
+            doc.setTextColor(30, 60, 114);
+            doc.text('17 / 26 (65%)', 148, 75);
+
+            // Performance Analysis
+            doc.setTextColor(30, 60, 114);
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('Performance Summary', 14, 105);
+
+            doc.setTextColor(70, 80, 95);
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(10);
+            const feedbackText = "The student demonstrates a good grasp of basic economic concepts and performed well on the MCQs. However, there are significant issues with the descriptive answers, particularly regarding the lack of required elaboration for 3-mark questions and a failure to explicitly identify the core economic situation in Q13. The student also provided incorrect reasoning regarding the ecological impact of the Green Revolution.";
+            const splitFeedback = doc.splitTextToSize(feedbackText, 182);
+            doc.text(splitFeedback, 14, 113);
+
+            // Target Areas to Improve
+            doc.setTextColor(30, 60, 114);
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('Recommended Areas to Improve', 14, 142);
+
+            doc.setTextColor(70, 80, 95);
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(10);
+            const improvements = [
+                "- For 3-mark questions, ensure you provide at least 3-4 lines of explanation.",
+                "- In identification questions like Q13, always explicitly state the core concept (e.g., 'Inflation').",
+                "- Focus on scientific consequences like soil degradation rather than vague descriptions.",
+                "- Ensure all calculations are clearly labeled and the final result is highlighted."
+            ];
+            let impY = 150;
+            improvements.forEach(imp => {
+                doc.text(imp, 16, impY);
+                impY += 7;
+            });
+
+            // Question-by-Question Marks Summary Table
+            doc.setTextColor(30, 60, 114);
+            doc.setFont('Helvetica', 'bold');
+            doc.setFontSize(12);
+            doc.text('Question-by-Question Marks Summary', 14, 190);
+
+            const tableData = [
+                ['Q1', '1 / 1', 'Correct', 'Q6', '0 / 1', 'Incorrect'],
+                ['Q2', '1 / 1', 'Correct', 'Q7', '0 / 1', 'Incorrect'],
+                ['Q3', '1 / 1', 'Correct', 'Q8', '1 / 1', 'Correct'],
+                ['Q4', '1 / 1', 'Correct', 'Q9', '2 / 3', 'Partial'],
+                ['Q5', '1 / 1', 'Correct', 'Q10', '1.5 / 3', 'Partial'],
+                ['Q11', '2 / 3', 'Partial', 'Q13', '1.5 / 3', 'Partial'],
+                ['Q12', '2 / 3', 'Partial', 'Q14', '2 / 3', 'Partial']
+            ];
+
+            doc.autoTable({
+                startY: 196,
+                head: [['Q#', 'Score', 'Status', 'Q#', 'Score', 'Status']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [30, 60, 114], fontStyle: 'bold' },
+                styles: { fontSize: 9, halign: 'center' },
+                columnStyles: {
+                    2: { fontStyle: 'bold' },
+                    5: { fontStyle: 'bold' }
+                },
+                didParseCell: function (data) {
+                    if (data.column.index === 2 || data.column.index === 5) {
+                        const val = data.cell.raw;
+                        if (val === 'Correct') {
+                            data.cell.styles.textColor = [21, 128, 61]; // green
+                        } else if (val === 'Partial') {
+                            data.cell.styles.textColor = [183, 121, 31]; // yellow/orange
+                        } else if (val === 'Incorrect') {
+                            data.cell.styles.textColor = [197, 48, 48]; // red
+                        }
+                    }
+                }
+            });
+
+            doc.save('Official_Student_Academic_Report_Blue_Theme.pdf');
+        });
+    </script>
+</body>
+</html>
