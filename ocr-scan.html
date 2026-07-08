@@ -671,6 +671,10 @@
             loadingStatus.textContent = "Uploading images & transcribing answers...";
 
             try {
+                console.log("📝 SUBMITTING OCR EVALUATION TO BACKEND:");
+                console.log("- Selected Session:", selectedSession?.name);
+                console.log("- Override Instructions:", selectedSession?.otherInstructions || "(None)");
+
                 // Call session-evaluate backend endpoint
                 const response = await fetch('/api/ocr-evaluate', {
                     method: 'POST',
