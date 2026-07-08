@@ -25,7 +25,9 @@ try {
 }
 
 export default async function handler(req, res) {
+    const OCR_EVAL_BUILD = "ocr-evaluate v2 — original strict/teacher-calibrated rubric + score clamp [0,max] safety net";
     console.log("📸 OCR-EVALUATE HANDLER STARTED");
+    console.log("🟢 BUILD:", OCR_EVAL_BUILD);
 
     // ===== CORS =====
     const allowedOrigins = [
@@ -499,9 +501,21 @@ Return STRICT JSON only (no markdown, no code blocks):
                     console.log(`🔧 Programmatic Override: Overriding MCQ score of ${resObj.questionNumber} to 0 due to 'Incorrect' text in feedback.`);
                     resObj.score = 0;
                 }
+
+                // C1: clamp each score into [0, maxMarks] so the AI can never award
+                // a negative score or more than the question's maximum.
+                const maxForQ = Number(resObj.maxMarks);
+                let s = Number(resObj.score);
+                if (!Number.isFinite(s)) s = 0;
+                if (s < 0) s = 0;
+                if (Number.isFinite(maxForQ) && maxForQ > 0 && s > maxForQ) {
+                    console.log(`🔧 Clamp: ${resObj.questionNumber} score ${resObj.score} → ${maxForQ} (exceeded max).`);
+                    s = maxForQ;
+                }
+                resObj.score = s;
             });
-            
-            // Recalculate totalScore to ensure mathematical accuracy
+
+            // Recalculate totalScore to ensure mathematical accuracy (from clamped scores)
             const calculatedTotal = result.results.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
             if (result.totalScore !== calculatedTotal) {
                 console.log(`🔧 Programmatic Override: Recalculated totalScore from ${result.totalScore} to ${calculatedTotal}.`);
