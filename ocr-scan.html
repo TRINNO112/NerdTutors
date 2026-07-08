@@ -435,6 +435,13 @@
         <div class="spinner"></div>
         <div class="loading-title">AI Scanner grading in progress</div>
         <div class="loading-status" id="loadingStatus">Transcribing handwritten answers...</div>
+        <!-- S2: real upload progress bar (shown during the upload phase) -->
+        <div id="uploadProgressWrap" style="display:none;width:min(320px,80vw);margin-top:1.25rem;">
+            <div style="height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
+                <div id="uploadProgressBar" style="height:100%;width:0%;background:var(--bg-gradient);transition:width 0.2s ease;"></div>
+            </div>
+            <div id="uploadProgressText" style="text-align:center;font-size:0.8rem;color:#718096;margin-top:0.5rem;">0%</div>
+        </div>
     </div>
 
     <!-- Script Block -->
@@ -453,6 +460,15 @@
         let allSessions = [];
         let selectedSession = null;
 
+        // ===== Low-Internet Resilience Config (v2) =====
+        const OCR_BUILD_TAG = 'ocr-scan v2 — low-internet: upload-progress + auto-retry + resume-cache';
+        const MAX_IMAGES = 10;          // hard cap on number of answer-sheet photos
+        const MAX_TOTAL_MB = 4.0;       // warn before Vercel's ~4.5 MB request-body limit (base64 payload)
+        const MAX_RETRIES = 2;          // auto-retries on network/timeout/5xx errors
+        const UPLOAD_TIMEOUT_MS = 180000; // 3 min per attempt for slow connections
+        console.log('%c🟢 ' + OCR_BUILD_TAG + ' — LIVE ✅', 'color:#22c55e;font-weight:bold;font-size:13px');
+        console.log('%c   If you can read this line, the updated ocr-scan.html is deployed and running.', 'color:#2a5298');
+
         // DOM elements
         const studentNameInput = document.getElementById('studentName');
         const studentClass = document.getElementById('studentClass');
@@ -465,6 +481,9 @@
         const submitTestForm = document.getElementById('submitTestForm');
         const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingStatus = document.getElementById('loadingStatus');
+        const uploadProgressWrap = document.getElementById('uploadProgressWrap');
+        const uploadProgressBar = document.getElementById('uploadProgressBar');
+        const uploadProgressText = document.getElementById('uploadProgressText');
         const inputCard = document.getElementById('inputCard');
         const reportCardContainer = document.getElementById('reportCardContainer');
         const printActions = document.getElementById('printActions');
@@ -477,6 +496,35 @@
             localStorage.setItem('ocr_scan_testSessionId', studentTestSession.value);
         }
 
+        // S3: Resume-friendly image cache. Persist the picked photos so a failed /
+        // interrupted submit on a flaky connection does NOT force re-picking them.
+        function saveImagesDraft() {
+            try {
+                localStorage.setItem('ocr_scan_images', JSON.stringify(uploadedFiles));
+            } catch (e) {
+                // localStorage quota exceeded on very large sheets — cache is best-effort only.
+                console.warn('⚠️ Could not cache images for resume (storage full):', e.message);
+            }
+        }
+
+        function clearImagesDraft() {
+            localStorage.removeItem('ocr_scan_images');
+        }
+
+        function loadImagesDraft() {
+            try {
+                const raw = localStorage.getItem('ocr_scan_images');
+                if (!raw) return;
+                const cached = JSON.parse(raw);
+                if (Array.isArray(cached) && cached.length > 0) {
+                    uploadedFiles = cached;
+                    console.log(`♻️ Restored ${cached.length} cached image(s) from a previous unfinished submission.`);
+                }
+            } catch (e) {
+                console.warn('⚠️ Could not restore cached images:', e.message);
+            }
+        }
+
         function loadDraft() {
             if (localStorage.getItem('ocr_scan_studentName') !== null) {
                 studentNameInput.value = localStorage.getItem('ocr_scan_studentName');
@@ -487,6 +535,9 @@
             if (localStorage.getItem('ocr_scan_studentSubject') !== null) {
                 studentSubject.value = localStorage.getItem('ocr_scan_studentSubject');
             }
+            loadImagesDraft();
+            renderFileList();
+            validateForm();
         }
 
         // Check auth and auto-populate name
@@ -613,11 +664,22 @@
             });
         }
 
+        // S4: estimate total base64 payload size (this is what actually gets POSTed).
+        function currentPayloadMB() {
+            const bytes = uploadedFiles.reduce((sum, f) => sum + (f.data ? f.data.length : 0), 0);
+            return bytes / (1024 * 1024);
+        }
+
         async function handleFiles(files) {
             for (let file of files) {
                 if (!file.type.startsWith('image/')) {
                     alert('Only image files are allowed.');
                     continue;
+                }
+                // S4: enforce image-count cap.
+                if (uploadedFiles.length >= MAX_IMAGES) {
+                    alert(`You can upload a maximum of ${MAX_IMAGES} images. Remove some before adding more.`);
+                    break;
                 }
                 try {
                     const base64Data = await fileToBase64(file);
@@ -626,6 +688,18 @@
                     console.error("Error reading file:", error);
                 }
             }
+
+            // S4: warn (do NOT block) if the total payload nears Vercel's ~4.5 MB body limit.
+            const totalMB = currentPayloadMB();
+            if (totalMB > MAX_TOTAL_MB) {
+                alert(
+                    `⚠️ Your uploaded images total about ${totalMB.toFixed(1)} MB.\n\n` +
+                    `Large uploads may fail or be very slow on a weak internet connection. ` +
+                    `Consider removing extra or duplicate pages, or retaking blurry photos, before submitting.`
+                );
+            }
+
+            saveImagesDraft();   // S3: cache for resume
             renderFileList();
             validateForm();
         }
@@ -636,17 +710,29 @@
                 const div = document.createElement('div');
                 div.className = 'file-item';
                 div.innerHTML = `
-                    <span class="file-name">📄 ${file.name}</span>
+                    <span class="file-name">📄 ${file.name || ('Image ' + (index + 1))}</span>
                     <button type="button" class="file-remove" data-index="${index}">×</button>
                 `;
                 fileList.appendChild(div);
             });
+
+            // S4: show running payload size so the student sees how heavy the upload is.
+            if (uploadedFiles.length > 0) {
+                const totalMB = currentPayloadMB();
+                const heavy = totalMB > MAX_TOTAL_MB;
+                const info = document.createElement('div');
+                info.style.cssText = `font-size:0.8rem;margin-top:0.5rem;color:${heavy ? '#c53030' : '#718096'};`;
+                info.textContent = `${uploadedFiles.length} image(s) · ~${totalMB.toFixed(1)} MB total` +
+                    (heavy ? ' ⚠️ large — may be slow on weak internet' : '');
+                fileList.appendChild(info);
+            }
 
             // Attach remove listener
             document.querySelectorAll('.file-remove').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const index = parseInt(e.target.dataset.index);
                     uploadedFiles.splice(index, 1);
+                    saveImagesDraft();   // S3: keep resume cache in sync
                     renderFileList();
                     validateForm();
                 });
@@ -662,6 +748,71 @@
 
         studentNameInput.addEventListener('input', validateForm);
 
+        // S2: XHR-based POST with real upload-progress. Resolves with parsed JSON,
+        // rejects on network error, timeout, or non-2xx status (with a .status field).
+        function postWithProgress(url, payloadString, { timeoutMs, onProgress } = {}) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', url, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                if (timeoutMs) xhr.timeout = timeoutMs;
+
+                // Upload phase: bytes leaving the device (this is the slow part on weak internet).
+                xhr.upload.onprogress = (evt) => {
+                    if (evt.lengthComputable && onProgress) {
+                        onProgress(Math.round((evt.loaded / evt.total) * 100));
+                    }
+                };
+
+                xhr.onload = () => {
+                    let parsed = null;
+                    try { parsed = JSON.parse(xhr.responseText); } catch (_) { /* handled below */ }
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        if (parsed) resolve(parsed);
+                        else reject(Object.assign(new Error('Malformed server response'), { status: xhr.status }));
+                    } else {
+                        const msg = (parsed && parsed.error) ? parsed.error : `Server error ${xhr.status}`;
+                        reject(Object.assign(new Error(msg), { status: xhr.status }));
+                    }
+                };
+                xhr.onerror = () => reject(Object.assign(new Error('Network error — check your internet connection'), { status: 0 }));
+                xhr.ontimeout = () => reject(Object.assign(new Error('Request timed out — connection too slow'), { status: 0, timeout: true }));
+
+                xhr.send(payloadString);
+            });
+        }
+
+        // S1: wrap the upload with auto-retry (exponential backoff) for flaky connections.
+        // Only retries transient failures (network/timeout/5xx), never a real 4xx rejection.
+        async function submitWithRetry(payloadString) {
+            let lastErr = null;
+            for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+                if (attempt > 0) {
+                    const waitMs = 1500 * Math.pow(2, attempt - 1); // 1.5s, 3s
+                    loadingStatus.textContent = `Connection issue — retrying (attempt ${attempt + 1} of ${MAX_RETRIES + 1})...`;
+                    console.warn(`🔁 Retry ${attempt}/${MAX_RETRIES} after ${waitMs}ms. Last error:`, lastErr?.message);
+                    await new Promise(r => setTimeout(r, waitMs));
+                    uploadProgressBar.style.width = '0%';
+                    uploadProgressText.textContent = '0%';
+                }
+                try {
+                    return await postWithProgress('/api/ocr-evaluate', payloadString, {
+                        timeoutMs: UPLOAD_TIMEOUT_MS,
+                        onProgress: (pct) => {
+                            uploadProgressBar.style.width = pct + '%';
+                            uploadProgressText.textContent = pct + '%';
+                            if (pct >= 100) loadingStatus.textContent = 'Upload complete — AI is grading your answers...';
+                        }
+                    });
+                } catch (err) {
+                    lastErr = err;
+                    const transient = err.status === 0 || err.timeout || (err.status >= 500 && err.status < 600);
+                    if (!transient || attempt === MAX_RETRIES) throw err;
+                }
+            }
+            throw lastErr || new Error('Upload failed');
+        }
+
         // Submit to API
         submitTestForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -669,34 +820,30 @@
 
             loadingOverlay.classList.add('show');
             loadingStatus.textContent = "Uploading images & transcribing answers...";
+            uploadProgressWrap.style.display = 'block';
+            uploadProgressBar.style.width = '0%';
+            uploadProgressText.textContent = '0%';
 
             try {
                 console.log("📝 SUBMITTING OCR EVALUATION TO BACKEND:");
+                console.log("- Build:", OCR_BUILD_TAG);
                 console.log("- Selected Session:", selectedSession?.name);
+                console.log("- Images:", uploadedFiles.length, "· ~" + currentPayloadMB().toFixed(2) + " MB payload");
                 console.log("- Override Instructions:", selectedSession?.otherInstructions || "(None)");
 
-                // Call session-evaluate backend endpoint
-                const response = await fetch('/api/ocr-evaluate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        mode: 'session-evaluate',
-                        questions: selectedSession.questions,
-                        markingScheme: selectedSession.markingScheme,
-                        maxMarks: selectedSession.maxMarks,
-                        images: uploadedFiles,
-                        subject: selectedSession.subject,
-                        otherInstructions: selectedSession.otherInstructions || ""
-                    })
+                // Call session-evaluate backend endpoint (S1 retry + S2 progress).
+                const payloadString = JSON.stringify({
+                    mode: 'session-evaluate',
+                    questions: selectedSession.questions,
+                    markingScheme: selectedSession.markingScheme,
+                    maxMarks: selectedSession.maxMarks,
+                    images: uploadedFiles,
+                    subject: selectedSession.subject,
+                    otherInstructions: selectedSession.otherInstructions || ""
                 });
 
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.error || 'Server evaluation error');
-                }
-
+                const report = await submitWithRetry(payloadString);
                 loadingStatus.textContent = "Analyzing results & drafting report card...";
-                const report = await response.json();
 
                 // Save results in Firestore
                 await addDoc(collection(db, 'testResults'), {
@@ -715,13 +862,22 @@
                 });
 
                 localStorage.removeItem('ocr_scan_testSessionId');
+                clearImagesDraft();          // S3: submission succeeded — drop the resume cache
+                uploadedFiles = [];
                 renderReportCard(report);
 
             } catch (error) {
                 console.error("Evaluation failed:", error);
-                alert("Failed to evaluate: " + error.message);
+                // S3: images are still cached — the student can just hit submit again
+                // without re-selecting their photos.
+                alert(
+                    "Failed to evaluate: " + error.message +
+                    "\n\nYour uploaded images have been saved. You can press Submit again to retry " +
+                    "without re-uploading."
+                );
             } finally {
                 loadingOverlay.classList.remove('show');
+                uploadProgressWrap.style.display = 'none';   // S2: reset progress UI
             }
         });
 
