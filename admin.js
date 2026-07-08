@@ -2402,54 +2402,121 @@ window.printReportCard = function(resultId) {
     const dateStr = res.createdAt ? new Date(res.createdAt.seconds * 1000).toLocaleString() : new Date().toLocaleString();
 
     const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert("Please allow popups to print reports.");
+        return;
+    }
+
+    const questionsArr = res.results || res.breakdown || [];
+    let totalMarks = 0;
+    let earnedMarks = 0;
+    questionsArr.forEach(q => {
+        totalMarks += q.marks !== undefined ? q.marks : (q.maxMarks || 0);
+        earnedMarks += q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0);
+    });
+
+    const pct = Math.round((earnedMarks / totalMarks) * 100);
+
+    // Fetch marking scheme text dynamically
+    let markingSchemeText = '';
+    if (window.currentSessions) {
+        const sess = window.currentSessions.find(s => s.id === res.sessionId);
+        if (sess) {
+            markingSchemeText = sess.markingScheme || '';
+        }
+    }
+
+    let grade = 'F';
+    let performance = 'Needs Work';
+    if (pct >= 90) { grade = 'A+'; performance = 'Excellent'; }
+    else if (pct >= 80) { grade = 'A'; performance = 'Very Good'; }
+    else if (pct >= 70) { grade = 'B'; performance = 'Good'; }
+    else if (pct >= 50) { grade = 'C'; performance = 'Average'; }
+    else if (pct >= 33) { grade = 'D'; performance = 'Below Average'; }
+
+    let correctCount = 0;
+    let partialCount = 0;
+    let incorrectCount = 0;
+
+    questionsArr.forEach(q => {
+        const eM = Number(q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0));
+        const mM = Number(q.marks !== undefined ? q.marks : (q.maxMarks || 1));
+        if (eM === mM) {
+            correctCount++;
+        } else if (eM === 0) {
+            incorrectCount++;
+        } else {
+            partialCount++;
+        }
+    });
+
     printWindow.document.write(`
         <html>
         <head>
-            <title>Report Card - ${res.studentName}</title>
+            <title>Report Card - ${res.studentName || 'Student'}</title>
             <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
             <style>
                 @page {
                     size: auto;
-                    margin: 0;
+                    margin: 10mm;
                 }
                 *, *:before, *:after {
                     box-sizing: border-box !important;
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
                 }
                 body { 
                     font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                    padding: 5mm 8mm !important;
-                    margin: 0 !important;
+                    padding: 0;
+                    margin: 0;
                     color: #2d3748; 
                     line-height: 1.6; 
                 }
                 .header { border-bottom: 4px solid #1e3c72; padding-bottom: 1rem; margin-bottom: 1.5rem; text-align: center; }
                 .header h1 { margin: 0; color: #1e3c72; font-size: 2.2rem; font-weight: 800; letter-spacing: 1px; }
                 .header p { margin: 6px 0 0 0; color: #718096; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
-                .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; background: #f7fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid #edf2f7; }
-                .meta-item { font-size: 0.95rem; color: #2d3748; }
-                .meta-item strong { color: #4a5568; font-weight: 700; }
-                .score-section { text-align: center; margin: 2rem 0; padding: 1.5rem; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; }
-                .score-label { text-transform: uppercase; font-size: 0.8rem; font-weight: 700; color: #4a5568; letter-spacing: 1.5px; }
-                .score-value { font-size: 3.5rem; font-weight: 900; color: #2b6cb0; margin: 0.25rem 0; }
-                .score-pct { font-weight: 700; color: #2b6cb0; font-size: 1.2rem; }
+                
+                .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; background: #f8fafc; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; }
+                .meta-item { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.95rem; }
+                .meta-item .label { font-weight: 500; color: #718096; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+                .meta-item .value { font-weight: 700; color: #2d3748; }
+
+                .dashboard-split { display: flex; gap: 1.5rem; margin-bottom: 2.5rem; align-items: stretch; flex-wrap: wrap; }
+                .score-card-left { flex: 1; min-width: 280px; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+                .perf-card-right { flex: 1.5; min-width: 320px; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; display: flex; flex-direction: column; }
+                
+                .card-title { font-weight: 700; font-size: 0.85rem; color: #c53030; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; }
+                .score-display { font-size: 3.5rem; font-weight: 900; color: #c53030; line-height: 1; margin: 0.5rem 0 1rem 0; text-align: center; }
+                
+                .score-stats { width: 100%; border-top: 1px solid #edf2f7; padding-top: 1rem; margin-bottom: 1.25rem; }
+                .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; font-size: 0.9rem; color: #4a5568; }
+                
+                .badge-row { display: flex; gap: 0.5rem; width: 100%; justify-content: space-between; margin-top: auto; }
+                .badge-box { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0.5rem 0.25rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600; text-align: center; }
+                .badge-box.correct { background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+                .badge-box.partial { background-color: #fffaf0; border: 1px solid #fef3c7; color: #b7791f; }
+                .badge-box.incorrect { background-color: #fff5f5; border: 1px solid #fed7d7; color: #c53030; }
+                .badge-num { font-size: 1.1rem; font-weight: 900; margin-bottom: 0.1rem; }
+
+                .perf-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem; margin-bottom: 1.25rem; }
+                .perf-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid transparent; padding: 0.5rem 0.25rem; font-size: 0.75rem; }
+                .perf-badge.correct { background-color: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+                .perf-badge.partial { background-color: #fffaf0; border-color: #fef3c7; color: #b7791f; }
+                .perf-badge.incorrect { background-color: #fff5f5; border-color: #fed7d7; color: #c53030; }
+                
+                .legend-row { display: flex; gap: 0.75rem; font-size: 0.72rem; font-weight: 600; color: #718096; margin-top: auto; border-top: 1px solid #edf2f7; padding-top: 0.75rem; flex-wrap: wrap; }
+                .info-note { background-color: #f0f4f8; border: 1px solid #d0d7de; border-left: 4px solid #1e3c72; border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.82rem; color: #3182ce; line-height: 1.4; display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 1rem; text-align: left; }
+
                 .section-title { color: #1e3c72; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-top: 2rem; font-size: 1.3rem; font-weight: 700; }
                 ul { padding-left: 1.5rem; }
                 li { margin-bottom: 0.6rem; font-size: 0.95rem; color: #4a5568; }
                 p { font-size: 0.95rem; color: #4a5568; }
+                
                 .report-block {
                     display: inline-block;
                     width: 100%;
                     break-inside: avoid !important;
                     page-break-inside: avoid !important;
-                }
-                @media print {
-                    body { padding: 5mm 8mm !important; margin: 0 !important; }
-                    .report-block {
-                        display: inline-block !important;
-                        width: 100% !important;
-                        break-inside: avoid !important;
-                        page-break-inside: avoid !important;
-                    }
                 }
             </style>
         </head>
@@ -2460,56 +2527,140 @@ window.printReportCard = function(resultId) {
             </div>
             
             <div class="meta-grid">
-                <div class="meta-item"><strong>Student Name:</strong> ${res.studentName}</div>
-                <div class="meta-item"><strong>Date Evaluated:</strong> ${dateStr}</div>
-                <div class="meta-item"><strong>Class:</strong> ${res.class}</div>
-                <div class="meta-item"><strong>Subject:</strong> ${res.subject}</div>
+                <div class="meta-item">
+                    <span class="label">Student Name</span>
+                    <span class="value">${res.studentName || 'Student'}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="label">Date Evaluated</span>
+                    <span class="value">${dateStr}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="label">Class</span>
+                    <span class="value">${res.class || 'N/A'}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="label">Subject</span>
+                    <span class="value">${res.subject || 'N/A'}</span>
+                </div>
             </div>
 
-            <div class="score-section report-block">
-                <div class="score-label">MARKS OBTAINED</div>
-                <div class="score-value">${res.score} / ${res.maxMarks}</div>
-                <div class="score-pct">Percentage Score: ${Math.round((res.score / res.maxMarks) * 100)}%</div>
+            <!-- Split Dashboard Panel -->
+            <div class="dashboard-split report-block">
+                
+                <!-- Left Score Card -->
+                <div class="score-card-left">
+                    <div class="card-title">🏆 Final Score</div>
+                    <div class="score-display">${earnedMarks} / ${totalMarks}</div>
+                    <div class="score-stats">
+                        <div class="stat-row">
+                            <span>Grade:</span>
+                            <strong>${grade}</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Performance:</span>
+                            <strong style="color: #dd6b20;">${performance}</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Maximum Marks:</span>
+                            <strong>${totalMarks}</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Marks Lost:</span>
+                            <strong style="color: #c53030;">${totalMarks - earnedMarks}</strong>
+                        </div>
+                    </div>
+                    <div class="badge-row">
+                        <div class="badge-box correct">
+                            <span class="badge-num">${correctCount}</span>
+                            <span>Correct</span>
+                        </div>
+                        <div class="badge-box partial">
+                            <span class="badge-num">${partialCount}</span>
+                            <span>Partial</span>
+                        </div>
+                        <div class="badge-box incorrect">
+                            <span class="badge-num">${incorrectCount}</span>
+                            <span>Incorrect</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Question Grid Card -->
+                <div class="perf-card-right">
+                    <div class="card-title" style="color: #1e3c72;">📋 Question Performance</div>
+                    <div class="perf-grid">
+                        ${questionsArr.map((q, idx) => {
+                            const eM = Number(q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0));
+                            const mM = Number(q.marks !== undefined ? q.marks : (q.maxMarks || 1));
+                            const qLabel = q.questionNumber || `Q${idx + 1}`;
+                            
+                            let bgClass = 'correct';
+                            let icon = '✓';
+                            if (eM === 0) {
+                                bgClass = 'incorrect';
+                                icon = '✗';
+                            } else if (eM < mM) {
+                                bgClass = 'partial';
+                                icon = '!';
+                            }
+
+                            return `
+                                <div class="perf-badge ${bgClass}">
+                                    <span style="font-weight: 700; margin-bottom: 0.15rem;">${qLabel}</span>
+                                    <span style="font-size: 0.95rem; margin-bottom: 0.15rem;">${icon}</span>
+                                    <span style="font-weight: 500; opacity: 0.85;">${eM}/${mM}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div class="legend-row">
+                        <div><span style="color: #15803d;">✓</span> Correct (Full Marks)</div>
+                        <div><span style="color: #b7791f;">!</span> Partial (Partial Marks)</div>
+                        <div><span style="color: #c53030;">✗</span> Incorrect (No Marks)</div>
+                    </div>
+                    <div class="info-note">
+                        <span>💡</span>
+                        <span><strong>Note:</strong> This sheet lists only the questions where marks were lost. Review your mistakes and the model answers below to prepare for corrections.</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="report-block">
-                <h3 class="section-title">📋 Performance Analysis</h3>
-                <p>${res.overallFeedback}</p>
-            </div>
-
+            ${res.improvements && res.improvements.length > 0 ? `
             <div class="report-block">
                 <h3 class="section-title">🚀 Areas to Improve</h3>
                 <ul>
                     ${res.improvements.map(imp => `<li>${imp}</li>`).join('')}
                 </ul>
             </div>
+            ` : ''}
 
             ${(() => {
-                const resultsArr = res.results || res.breakdown;
-                if (resultsArr && resultsArr.length > 0) {
-                    const wrongQuestions = resultsArr.filter(q => {
-                        const earned = Number(q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0));
-                        const max = Number(q.marks !== undefined ? q.marks : (q.maxMarks || 1));
-                        return earned < max;
-                    });
-                    
+                const wrongQuestions = questionsArr.filter(q => {
+                    const earned = Number(q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0));
+                    const max = Number(q.marks !== undefined ? q.marks : (q.maxMarks || 1));
+                    return earned < max;
+                });
+                
+                if (wrongQuestions.length > 0) {
                     return `
                     <h3 class="section-title">🔍 Detailed Question-by-Question Mistakes</h3>
                     <div style="margin-top: 1rem;">
-                        ${wrongQuestions.length > 0 ? wrongQuestions.map((q, idx) => {
-                            const originalIndex = resultsArr.findIndex(x => x.questionNumber === q.questionNumber || x.questionText === q.questionText);
+                        ${wrongQuestions.map((q, idx) => {
+                            const originalIndex = questionsArr.findIndex(x => x.questionNumber === q.questionNumber || x.questionText === q.questionText);
                             const earned = q.earnedMarks !== undefined ? q.earnedMarks : (q.score || 0);
                             const max = q.marks !== undefined ? q.marks : (q.maxMarks || 1);
                             const studentAns = q.studentAnswer || q.extractedAnswer || q.studentAnswerText || '';
                             const qText = q.questionText || q.questionNumber || `Question ${originalIndex + 1}`;
+                            const correctAns = q.modelAnswer || getCorrectAnswer(markingSchemeText, originalIndex);
                             
                             return `
                             <div class="report-block" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: inline-block; width: 100%; break-inside: avoid; page-break-inside: avoid;">
                                 <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #edf2f7; padding-bottom: 0.5rem; margin-bottom: 0.5rem; gap: 1rem; align-items: flex-start;">
                                     <strong>${qText}</strong>
-                                    <span style="font-weight: bold; background: #e2e8f0; padding: 0.25rem 0.75rem; border-radius: 12px; white-space: nowrap; flex-shrink: 0;">${earned} / ${max}</span>
+                                    <span style="font-weight: bold; background: #fed7d7; color: #9b2c2c; padding: 0.25rem 0.75rem; border-radius: 12px; white-space: nowrap; flex-shrink: 0;">${earned} / ${max}</span>
                                 </div>
-                                ${studentAns ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.95rem;"><strong>Student Answer:</strong> ${studentAns}</p>` : ''}
+                                ${studentAns ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.95rem;"><strong>Student Answer:</strong> <em>"${studentAns}"</em></p>` : ''}
                                 ${q.incorrectPhrases && q.incorrectPhrases.length > 0 ? `
                                     <div style="margin: 0.5rem 0; background: #fff5f5; border: 1px solid #fed7d7; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; break-inside: avoid;">
                                         <strong style="color: #c53030; display: block; margin-bottom: 0.25rem;">❌ Identified Mistakes in Student Text:</strong>
@@ -2523,39 +2674,26 @@ window.printReportCard = function(resultId) {
                                         </ul>
                                     </div>
                                 ` : ''}
-                                ${q.feedback ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #2b6cb0;"><strong>AI Feedback:</strong> ${q.feedback}</p>` : ''}
+                                ${q.feedback ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.95rem; color: #c53030;"><strong>Feedback:</strong> ${q.feedback}</p>` : ''}
+                                <div style="margin-top: 0.5rem; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; color: #15803d; line-height: 1.5;">
+                                    <strong>🔑 Correct Answer:</strong>
+                                    <div style="margin-top: 0.25rem;">${correctAns}</div>
+                                </div>
                                 ${q.improvements && q.improvements.length > 0 ? `
-                                    <div style="font-size: 0.9rem; color: #c05621;">
+                                    <div style="font-size: 0.9rem; color: #dd6b20; margin-top: 0.5rem;">
                                         <strong>Required Answer / Corrective Steps:</strong>
                                         <ul style="margin: 0.25rem 0 0 0;">
                                             ${q.improvements.map(i => `<li>${i}</li>`).join('')}
                                         </ul>
                                     </div>
                                 ` : ''}
-                            </div>`;
-                        }).join('') : `
-                            <div style="text-align: center; padding: 2rem; color: #2e7d32;">
-                                <strong>Perfect Score! No mistakes to report.</strong>
                             </div>
-                        `}
+                            `;
+                        }).join('')}
                     </div>`;
                 }
                 return '';
             })()}
-
-            ${res.totalAppealPotential && res.totalAppealPotential !== 'Low' ? `
-                <div class="report-block">
-                    <h3 class="section-title">⚖️ Re-evaluation & Appeal Advisor</h3>
-                    <div class="feedback-box">
-                        <strong>Appeal Potential Case: ${res.totalAppealPotential}</strong><br>
-                        <span style="display: block; margin-top: 0.5rem;">${res.appealSummary}</span>
-                    </div>
-                </div>
-            ` : ''}
-
-            <div class="footer">
-                This report card is generated for student academic growth & feedback. NerdTutors © ${new Date().getFullYear()}.
-            </div>
             
             <script>
                 window.onload = function() {
