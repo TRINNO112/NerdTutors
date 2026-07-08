@@ -26,7 +26,7 @@ try {
 
 export default async function handler(req, res) {
     console.log("📸 OCR-EVALUATE HANDLER STARTED");
-    console.log("🟢 BUILD:", OCR_EVAL_BUILD);
+    console.log("🟢 BUILD: ocr-evaluate-v2");
 
     // ===== CORS =====
     const allowedOrigins = [
