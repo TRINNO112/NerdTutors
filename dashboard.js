@@ -1126,7 +1126,7 @@ function executeFilteredExport() {
         filtered = filtered.filter(r => r.class === classVal);
     }
     if (sessionVal !== 'all') {
-        filtered = filtered.filter(r => r.testSessionId === sessionVal);
+        filtered = filtered.filter(r => r.sessionId === sessionVal);
     }
 
     if (filtered.length === 0) {
