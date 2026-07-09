@@ -39,10 +39,48 @@ export default async function handler(req, res) {
         res.setHeader("Access-Control-Allow-Origin", origin);
     }
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Gate-Token");
 
     if (req.method === "OPTIONS") return res.status(200).end();
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+    // ===== Validate Gate Authentication Token =====
+    const gateToken = req.headers['x-gate-token'];
+    if (!gateToken) {
+        return res.status(401).json({ error: "Unauthorized: Missing Gate Authentication Token" });
+    }
+
+    const defaultGateCreds = [
+        { username: 'nerd_tutor_alpha', password: 'nt_pass_alpha2026' },
+        { username: 'nerd_tutor_beta', password: 'nt_pass_beta2026' },
+        { username: 'nerd_tutor_gamma', password: 'nt_pass_gamma2026' },
+        { username: 'nerd_tutor_delta', password: 'nt_pass_delta2026' },
+        { username: 'nerd_tutor_epsilon', password: 'nt_pass_epsilon2026' }
+    ];
+
+    let gateCreds = defaultGateCreds;
+    if (process.env.GATE_CREDENTIALS) {
+        try {
+            gateCreds = process.env.GATE_CREDENTIALS.split(',').map(pair => {
+                const parts = pair.split(':');
+                return {
+                    username: parts[0]?.trim(),
+                    password: parts[1]?.trim()
+                };
+            }).filter(c => c.username && c.password);
+        } catch (e) {
+            console.error("Failed to parse GATE_CREDENTIALS env var, using defaults:", e);
+        }
+    }
+
+    const isValidGateToken = gateCreds.some(c => {
+        const expectedToken = Buffer.from(`${c.username}:${c.password}`).toString('base64');
+        return expectedToken === gateToken;
+    });
+
+    if (!isValidGateToken) {
+        return res.status(401).json({ error: "Unauthorized: Invalid Gate Authentication Token" });
+    }
 
     // ===== Parse Body =====
     let body = req.body;

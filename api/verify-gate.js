@@ -1,0 +1,94 @@
+import fs from 'fs';
+import path from 'path';
+
+// Force load .env.local if present locally to bypass Vercel CLI sync overrides
+try {
+    const envPath = path.join(process.cwd(), '.env.local');
+    if (fs.existsSync(envPath)) {
+        const content = fs.readFileSync(envPath, 'utf8');
+        content.split('\n').forEach(line => {
+            const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+            if (match) {
+                const key = match[1];
+                let value = match[2] || '';
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    value = value.substring(1, value.length - 1);
+                } else if (value.startsWith("'") && value.endsWith("'")) {
+                    value = value.substring(1, value.length - 1);
+                }
+                process.env[key] = value;
+            }
+        });
+    }
+} catch (e) {
+    console.warn("Env force load error:", e.message);
+}
+
+const DEFAULT_CREDENTIALS = [
+    { username: 'nerd_tutor_alpha', password: 'nt_pass_alpha2026' },
+    { username: 'nerd_tutor_beta', password: 'nt_pass_beta2026' },
+    { username: 'nerd_tutor_gamma', password: 'nt_pass_gamma2026' },
+    { username: 'nerd_tutor_delta', password: 'nt_pass_delta2026' },
+    { username: 'nerd_tutor_epsilon', password: 'nt_pass_epsilon2026' }
+];
+
+function getCredentials() {
+    if (process.env.GATE_CREDENTIALS) {
+        try {
+            // Support comma-separated format: user1:pass1,user2:pass2
+            return process.env.GATE_CREDENTIALS.split(',').map(pair => {
+                const parts = pair.split(':');
+                return {
+                    username: parts[0]?.trim(),
+                    password: parts[1]?.trim()
+                };
+            }).filter(c => c.username && c.password);
+        } catch (e) {
+            console.error("Failed to parse GATE_CREDENTIALS env var, using defaults:", e);
+        }
+    }
+    return DEFAULT_CREDENTIALS;
+}
+
+export default async function handler(req, res) {
+    // CORS headers
+    const allowedOrigins = [
+        "https://nerd-tutors.vercel.app",
+        "https://nerd-tutors-two.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:5000"
+    ];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+    if (req.method === "OPTIONS") return res.status(200).end();
+    if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+    try {
+        let body = req.body;
+        if (typeof body === "string") body = JSON.parse(body);
+
+        const { username, password } = body;
+        if (!username || !password) {
+            return res.status(400).json({ error: "Username and password are required" });
+        }
+
+        const creds = getCredentials();
+        const matched = creds.find(c => c.username === username.trim() && c.password === password.trim());
+
+        if (matched) {
+            // Generate a simple token: base64(username:password)
+            const token = Buffer.from(`${username.trim()}:${password.trim()}`).toString('base64');
+            return res.status(200).json({ success: true, token });
+        } else {
+            return res.status(401).json({ error: "Invalid username or password" });
+        }
+    } catch (error) {
+        console.error("Gate verification error:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+}

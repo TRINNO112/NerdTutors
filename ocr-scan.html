@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="gate-guard.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Submit Test | NerdTutors</title>
@@ -426,6 +427,7 @@
         </div>
         <div class="print-btn-container" id="printActions" style="display: none;">
             <button class="btn-print secondary" id="btnSubmitAnother">Submit Another Test</button>
+            <button class="btn-print secondary" id="btnReevaluate" style="background-color: #d97706; color: white;">🔄 Re-evaluate</button>
             <button class="btn-print" id="btnPrintCard">🖨️ Print / Save Report Card</button>
         </div>
     </div>
@@ -451,6 +453,8 @@
             collection, 
             getDocs, 
             addDoc,
+            doc,
+            updateDoc,
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
@@ -459,6 +463,8 @@
         let uploadedFiles = [];
         let allSessions = [];
         let selectedSession = null;
+        let currentSavedResultId = null;
+        let lastPayloadString = null;
 
         // ===== Low-Internet Resilience Config (v2) =====
         const OCR_BUILD_TAG = 'ocr-scan v2 — low-internet: upload-progress + auto-retry + resume-cache';
@@ -487,6 +493,7 @@
         const inputCard = document.getElementById('inputCard');
         const reportCardContainer = document.getElementById('reportCardContainer');
         const printActions = document.getElementById('printActions');
+        const btnReevaluate = document.getElementById('btnReevaluate');
 
         // Form persistence functions (Cache memory)
         function saveDraft() {
@@ -752,10 +759,14 @@
         // rejects on network error, timeout, or non-2xx status (with a .status field).
         function postWithProgress(url, payloadString, { timeoutMs, onProgress } = {}) {
             return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', url, true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                if (timeoutMs) xhr.timeout = timeoutMs;
+                 const xhr = new XMLHttpRequest();
+                 xhr.open('POST', url, true);
+                 xhr.setRequestHeader('Content-Type', 'application/json');
+                 const gateToken = localStorage.getItem('gate_token');
+                 if (gateToken) {
+                     xhr.setRequestHeader('X-Gate-Token', gateToken);
+                 }
+                 if (timeoutMs) xhr.timeout = timeoutMs;
 
                 // Upload phase: bytes leaving the device (this is the slow part on weak internet).
                 xhr.upload.onprogress = (evt) => {
@@ -846,7 +857,7 @@
                 loadingStatus.textContent = "Analyzing results & drafting report card...";
 
                 // Save results in Firestore
-                await addDoc(collection(db, 'testResults'), {
+                const docRef = await addDoc(collection(db, 'testResults'), {
                     studentName: studentNameInput.value.trim(),
                     studentId: auth.currentUser ? auth.currentUser.uid : null,
                     class: studentClass.value,
@@ -860,6 +871,9 @@
                     breakdown: report.results || [],
                     createdAt: serverTimestamp()
                 });
+
+                currentSavedResultId = docRef.id;
+                lastPayloadString = payloadString;
 
                 localStorage.removeItem('ocr_scan_testSessionId');
                 clearImagesDraft();          // S3: submission succeeded — drop the resume cache
@@ -1197,6 +1211,40 @@
             printActions.style.display = 'none';
             inputCard.style.display = 'block';
             validateForm();
+        });
+
+        btnReevaluate.addEventListener('click', async () => {
+            if (!lastPayloadString || !currentSavedResultId) return;
+
+            loadingOverlay.classList.add('show');
+            loadingStatus.textContent = "Re-evaluating answers...";
+            uploadProgressWrap.style.display = 'block';
+            uploadProgressBar.style.width = '0%';
+            uploadProgressText.textContent = '0%';
+
+            try {
+                console.log("🔄 RE-EVALUATING TEST:", currentSavedResultId);
+                const report = await submitWithRetry(lastPayloadString);
+                loadingStatus.textContent = "Updating report card database record...";
+
+                // Update results in Firestore
+                await updateDoc(doc(db, 'testResults', currentSavedResultId), {
+                    score: report.totalScore,
+                    maxMarks: report.maxMarks,
+                    overallFeedback: report.overallFeedback,
+                    improvements: report.improvements,
+                    breakdown: report.results || [],
+                    updatedAt: serverTimestamp()
+                });
+
+                renderReportCard(report);
+            } catch (error) {
+                console.error("Re-evaluation failed:", error);
+                alert("Failed to re-evaluate: " + error.message);
+            } finally {
+                loadingOverlay.classList.remove('show');
+                uploadProgressWrap.style.display = 'none';
+            }
         });
 
         document.getElementById('btnPrintCard').addEventListener('click', () => {
