@@ -209,11 +209,11 @@ Your task is to:
 
 ⚠️ STRICT CONSTRAINTS FOR MARK ALLOCATION (BOARD STANDARD):
 - You MUST evaluate strictly and objectively. Avoid leniency.
-- MCQ questions: You MUST extract the student's written option letter (A, B, C, D) from the uploaded sheet images. Compare this option letter strictly against the correct option letter in the marking scheme. If the student's written option letter does not match the marking scheme key exactly (for example, if they wrote option 'A' or option 'C' when the marking scheme key is 'C' or 'A'), you MUST award 0/1 marks immediately. Do NOT offer leniency, do not guess, and do not assume they meant another option. Do not award points for MCQ questions where the letter is wrong.
+- MCQ questions: You MUST extract the student's written option letter (A, B, C, D) from the uploaded sheet images. Pay EXTREME attention to the shape of the handwritten option letter. Do not confuse similar looking letters (e.g. do not misread a handwritten 'A' as 'C' or 'D'). Compare this option letter strictly against the correct option letter in the marking scheme. If the student's written option letter does not match the marking scheme key exactly (for example, if they wrote option 'A' or option 'C' when the marking scheme key is 'C' or 'A'), you MUST award 0/1 marks immediately. Do NOT offer leniency, do not guess, and do not assume they meant another option. Do not award points for MCQ questions where the letter is wrong.
 - 🔴 CRITICAL RULE: ZERO MARKS FOR OFF-TOPIC / OUT-OF-SCOPE TRUTHS. If a student's answer contains factually true statements that do NOT directly address the specific question prompt (for example: writing about 'Lender of Last Resort' or 'Issuing of Notes' when asked about 'Banker to the Government' functions, or listing monetary tools without explicitly naming the situation as 'Inflation' when asked), you MUST award 0 MARKS for that question. Do NOT award partial credit (like 2/3 or 1.5/3), and do NOT apply brevity caps. It is a strict 0/3.
 - SCIENTIFIC / CONCEPTUAL INACCURACY: If the student's answer contains scientifically, ecologically, or economically incorrect reasoning (for example: claiming crops dry up because of fertilizers in Q10 instead of explaining soil degradation and water contamination), you MUST deduct at least 1.5 marks.
 - MULTI-PART IDENTIFICATION GAP: In any multi-part or identification question, if the student fails to explicitly identify the core concept/situation (for example: failing to explicitly write the word 'Inflation' in any question), you MUST deduct at least 1.5 marks.
-- MISSING COMPARISON IN NUMERICALS: For calculation/numerical questions, if the student sets up the equations/cases correctly but fails to explicitly calculate the final difference/subtraction amount (for example: stating the cases but not writing the final '10,000 - 5,000 = 5,000 crore' change in Q14), you MUST deduct 1.0 mark.
+- MISSING COMPARISON IN NUMERICALS: For calculation/numerical questions, if the student sets up the equations/cases correctly but fails to explicitly calculate the final difference/subtraction amount (for example: stating the cases but not writing the final '10,000 - 5,000 = 5,000 crore' change in any question), you MUST deduct 1.0 mark.
 - DEDUCTIONS FOR BREVITY: For 3-mark or higher questions, if the student merely lists the correct points/keywords but fails to explain or elaborate on them (making the answer under 3 lines or under 40 words), you MUST deduct 1.0 mark (awarding a maximum of 2 / 3 marks). Elaboration is mandatory for full credit.
 - SPELLING & TERMINOLOGY PENALTY: Deduct 0.5 marks for each spelling error, grammatical mistake, or incorrect academic term.
 - If a question is unattempted or skipped, automatically score it as 0.
@@ -528,26 +528,29 @@ Return STRICT JSON only (no markdown, no code blocks):
                     feedbackText.includes("0/1") ||
                     feedbackText.includes("0 out of 1");
 
-                const isMCQ = Number(resObj.maxMarks) === 1 ||
+                const isMCQ = Number(resObj.maxMarks) === 1 && (
                     (resObj.questionNumber || "").toLowerCase().includes("mcq") ||
                     (resObj.questionText || "").toLowerCase().includes("mcq") ||
                     /^[qQ][1-8]\b/.test((resObj.questionNumber || "").trim()) ||
                     (resObj.questionNumber || "").toLowerCase().includes("q7") ||
-                    (resObj.questionNumber || "").toLowerCase().includes("mcq 7");
+                    (resObj.questionNumber || "").toLowerCase().includes("mcq 7")
+                );
 
                 if (isMCQ && isIncorrectText) {
                     console.log(`🔧 Programmatic Override: Overriding MCQ score of ${resObj.questionNumber} to 0 due to 'Incorrect' text in feedback.`);
                     resObj.score = 0;
                 }
 
-                // Check if feedback specifies the answer is off-topic or irrelevant
-                const isOffTopic = feedbackText.includes("off-topic") ||
+                // Check if feedback specifies the answer is off-topic or irrelevant (only for single items, maxMarks <= 3)
+                const isOffTopic = Number(resObj.maxMarks) <= 3 && (
+                    feedbackText.includes("off-topic") ||
                     feedbackText.includes("off topic") ||
                     feedbackText.includes("does not address") ||
                     feedbackText.includes("does not answer") ||
                     feedbackText.includes("unrelated") ||
                     feedbackText.includes("do not answer") ||
-                    feedbackText.includes("zero marks");
+                    feedbackText.includes("zero marks")
+                );
 
                 if (isOffTopic) {
                     console.log(`🔧 Programmatic Override: Overriding score of ${resObj.questionNumber} to 0 due to 'Off-Topic' feedback.`);
