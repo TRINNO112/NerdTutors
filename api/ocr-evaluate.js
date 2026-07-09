@@ -531,7 +531,9 @@ Return STRICT JSON only (no markdown, no code blocks):
                 const isMCQ = Number(resObj.maxMarks) === 1 || 
                               (resObj.questionNumber || "").toLowerCase().includes("mcq") || 
                               (resObj.questionText || "").toLowerCase().includes("mcq") ||
-                              /^[qQ][1-8]\b/.test((resObj.questionNumber || "").trim());
+                              /^[qQ][1-8]\b/.test((resObj.questionNumber || "").trim()) ||
+                              (resObj.questionNumber || "").toLowerCase().includes("q7") ||
+                              (resObj.questionNumber || "").toLowerCase().includes("mcq 7");
                 
                 if (isMCQ && isIncorrectText) {
                     console.log(`🔧 Programmatic Override: Overriding MCQ score of ${resObj.questionNumber} to 0 due to 'Incorrect' text in feedback.`);
