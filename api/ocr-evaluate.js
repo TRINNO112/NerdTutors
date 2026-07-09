@@ -445,7 +445,7 @@ Return STRICT JSON only (no markdown, no code blocks):
                 ]
             }],
             generationConfig: {
-                temperature: 0.2
+                temperature: 0.0
             }
         };
     } else {
@@ -467,7 +467,7 @@ Return STRICT JSON only (no markdown, no code blocks):
                 ]
             }],
             generationConfig: {
-                temperature: 0.2
+                temperature: 0.0
             }
         };
     }
