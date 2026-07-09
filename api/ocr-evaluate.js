@@ -152,7 +152,7 @@ export default async function handler(req, res) {
     }
 
     // ===== Model =====
-    const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
+    const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent";
 
     // ===== Build Prompt Based on Mode =====
     let textPrompt = "";
@@ -574,6 +574,9 @@ Return STRICT JSON only (no markdown, no code blocks):
                 result.totalScore = calculatedTotal;
             }
         }
+
+        // Add metadata about the model used
+        result.modelUsed = MODEL_URL.split('/').pop().split(':')[0];
 
         return res.status(200).json(result);
 

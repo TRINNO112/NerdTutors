@@ -878,6 +878,7 @@
                 localStorage.removeItem('ocr_scan_testSessionId');
                 clearImagesDraft();          // S3: submission succeeded — drop the resume cache
                 uploadedFiles = [];
+                console.log(`🤖 OCR Evaluation succeeded using model: ${report.modelUsed || 'unknown'}`);
                 renderReportCard(report);
 
             } catch (error) {
@@ -1237,6 +1238,7 @@
                     updatedAt: serverTimestamp()
                 });
 
+                console.log(`🤖 Re-evaluation succeeded using model: ${report.modelUsed || 'unknown'}`);
                 renderReportCard(report);
             } catch (error) {
                 console.error("Re-evaluation failed:", error);
