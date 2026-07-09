@@ -152,7 +152,7 @@ export default async function handler(req, res) {
     }
 
     // ===== Model =====
-    const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent";
+    const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
 
     // ===== Build Prompt Based on Mode =====
     let textPrompt = "";
@@ -520,23 +520,37 @@ Return STRICT JSON only (no markdown, no code blocks):
         if (result && Array.isArray(result.results)) {
             result.results.forEach(resObj => {
                 const feedbackText = (resObj.feedback || "").toLowerCase();
-                const isIncorrectText = feedbackText.includes("incorrect") || 
-                                        feedbackText.includes("wrong") || 
-                                        feedbackText.includes("correct answer is") || 
-                                        feedbackText.includes("should be") || 
-                                        feedbackText.includes("instead of") || 
-                                        feedbackText.includes("0/1") ||
-                                        feedbackText.includes("0 out of 1");
-                                        
-                const isMCQ = Number(resObj.maxMarks) === 1 || 
-                              (resObj.questionNumber || "").toLowerCase().includes("mcq") || 
-                              (resObj.questionText || "").toLowerCase().includes("mcq") ||
-                              /^[qQ][1-8]\b/.test((resObj.questionNumber || "").trim()) ||
-                              (resObj.questionNumber || "").toLowerCase().includes("q7") ||
-                              (resObj.questionNumber || "").toLowerCase().includes("mcq 7");
-                
+                const isIncorrectText = feedbackText.includes("incorrect") ||
+                    feedbackText.includes("wrong") ||
+                    feedbackText.includes("correct answer is") ||
+                    feedbackText.includes("should be") ||
+                    feedbackText.includes("instead of") ||
+                    feedbackText.includes("0/1") ||
+                    feedbackText.includes("0 out of 1");
+
+                const isMCQ = Number(resObj.maxMarks) === 1 ||
+                    (resObj.questionNumber || "").toLowerCase().includes("mcq") ||
+                    (resObj.questionText || "").toLowerCase().includes("mcq") ||
+                    /^[qQ][1-8]\b/.test((resObj.questionNumber || "").trim()) ||
+                    (resObj.questionNumber || "").toLowerCase().includes("q7") ||
+                    (resObj.questionNumber || "").toLowerCase().includes("mcq 7");
+
                 if (isMCQ && isIncorrectText) {
                     console.log(`🔧 Programmatic Override: Overriding MCQ score of ${resObj.questionNumber} to 0 due to 'Incorrect' text in feedback.`);
+                    resObj.score = 0;
+                }
+
+                // Check if feedback specifies the answer is off-topic or irrelevant
+                const isOffTopic = feedbackText.includes("off-topic") ||
+                    feedbackText.includes("off topic") ||
+                    feedbackText.includes("does not address") ||
+                    feedbackText.includes("does not answer") ||
+                    feedbackText.includes("unrelated") ||
+                    feedbackText.includes("do not answer") ||
+                    feedbackText.includes("zero marks");
+
+                if (isOffTopic) {
+                    console.log(`🔧 Programmatic Override: Overriding score of ${resObj.questionNumber} to 0 due to 'Off-Topic' feedback.`);
                     resObj.score = 0;
                 }
 
@@ -552,7 +566,7 @@ Return STRICT JSON only (no markdown, no code blocks):
                 }
                 resObj.score = s;
             });
-            
+
             // Recalculate totalScore to ensure mathematical accuracy
             const calculatedTotal = result.results.reduce((sum, r) => sum + (Number(r.score) || 0), 0);
             if (result.totalScore !== calculatedTotal) {
