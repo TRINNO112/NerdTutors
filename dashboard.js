@@ -445,7 +445,7 @@ function exportResult(resultId) {
     let csv = 'Student Test Result\n\n';
     csv += `Student Name,${result.studentName || 'Anonymous'}\n`;
     csv += `Student ID,${result.studentId || '-'}\n`;
-    csv += `Date,${new Date(result.submittedAt).toLocaleString()}\n`;
+    csv += `Date,"${new Date(result.submittedAt).toLocaleString().replace(/"/g, '""')}"\n`;
     csv += `Total Score,${result.totalScore || '0/0'}\n`;
     csv += `Percentage,${result.percentage || '0%'}\n`;
     csv += `Total Questions,${result.totalQuestions || 0}\n\n`;
@@ -484,7 +484,7 @@ function exportAllResults() {
     appState.filteredResults.forEach(result => {
         const name = `"${(result.studentName || 'Anonymous').replace(/"/g, '""')}"`;
         const id = result.studentId || '-';
-        const date = new Date(result.submittedAt).toLocaleString();
+        const date = `"${new Date(result.submittedAt).toLocaleString().replace(/"/g, '""')}"`;
         const score = result.totalScore || '0/0';
         const percentage = result.percentage || '0%';
         const questions = result.totalQuestions || 0;
@@ -1142,7 +1142,7 @@ function executeFilteredExport() {
         const sub = result.subject || '-';
         const studentName = `"${(result.studentName || 'Anonymous').replace(/"/g, '""')}"`;
         const studentId = result.studentId || '-';
-        const date = new Date(result.submittedAt).toLocaleString();
+        const date = `"${new Date(result.submittedAt).toLocaleString().replace(/"/g, '""')}"`;
         const score = result.totalScore || '0/0';
         const percentage = result.percentage || '0%';
         const type = result.testType || 'text';
