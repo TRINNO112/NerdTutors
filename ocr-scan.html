@@ -408,9 +408,18 @@
                     <div class="dropzone" id="dropzone">
                         <div class="dropzone-icon">📸</div>
                         <div class="dropzone-text">Drag & drop your files here</div>
-                        <div class="dropzone-subtext">or click to upload images (PNG, JPG, JPEG)</div>
+                        <div style="margin: 1rem 0; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                            <button type="button" id="btnCamera" style="background: var(--primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; transition: var(--transition);">
+                                📷 Open Camera
+                            </button>
+                            <button type="button" id="btnGallery" style="background: white; color: var(--primary); border: 2px solid var(--primary); padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; transition: var(--transition);">
+                                📁 Choose Files
+                            </button>
+                        </div>
+                        <div class="dropzone-subtext">Supports PNG, JPG, JPEG</div>
                     </div>
                     <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+                    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;">
                     
                     <div class="file-list" id="fileList"></div>
                 </div>
@@ -482,6 +491,9 @@
         const studentTestSession = document.getElementById('studentTestSession');
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('fileInput');
+        const cameraInput = document.getElementById('cameraInput');
+        const btnCamera = document.getElementById('btnCamera');
+        const btnGallery = document.getElementById('btnGallery');
         const fileList = document.getElementById('fileList');
         const btnSubmitGrading = document.getElementById('btnSubmitGrading');
         const submitTestForm = document.getElementById('submitTestForm');
@@ -620,8 +632,13 @@
 
         // Trigger file select
         dropzone.addEventListener('click', (e) => {
-            // Avoid recursion if the target was the file input itself propagating back up
-            if (e.target !== fileInput) {
+            // Check if user clicked a specific button
+            if (e.target === btnCamera || btnCamera.contains(e.target)) {
+                cameraInput.click();
+            } else if (e.target === btnGallery || btnGallery.contains(e.target)) {
+                fileInput.click();
+            } else if (e.target !== fileInput && e.target !== cameraInput) {
+                // Default fallback click: open gallery input
                 fileInput.click();
             }
         });
@@ -630,7 +647,15 @@
             e.stopPropagation();
         });
 
+        cameraInput.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
         fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        cameraInput.addEventListener('change', (e) => {
             handleFiles(e.target.files);
         });
 
