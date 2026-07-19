@@ -507,14 +507,156 @@ Return STRICT JSON only (no markdown, no code blocks):
         throw lastError || new Error("All API keys exhausted and rate limited");
     }
 
-    try {
-        console.log("📤 Sending image to Gemini Vision...");
+    async function evaluateSinglePassGemini() {
+        console.log("📤 Calling single-pass Gemini Vision...");
         const geminiJson = await callGemini();
         const text = geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text || "";
         const clean = text.replace(/```json|```/g, "").trim();
         console.log("🧼 CLEAN JSON received from Gemini Vision");
+        return JSON.parse(clean);
+    }
 
-        const result = JSON.parse(clean);
+    async function transcribeWithGemini(apiKeys, reqBody, mode) {
+        let transcriptionPrompt = "";
+        if (mode === "pdf-comparison") {
+            transcriptionPrompt = `You are an expert document transcriber. You are provided with two PDF/image files:
+1. The Model Answer Key/Marking Scheme (first file).
+2. The Student's Answer Sheet (second file).
+
+Your task is to transcribe the text of both files word-for-word, preserving structure and spelling/grammatical choices. Do not correct errors, grade, or evaluate the content.
+Format your output in structured Markdown as follows:
+
+# Model Answer Key Transcript
+[Insert transcribed text of Model Answer Key]
+
+# Student's Answer Sheet Transcript
+[Insert transcribed text of Student's Answer Sheet]`;
+        } else {
+            transcriptionPrompt = `You are a highly accurate handwriting transcription assistant. Your task is to transcribe all handwritten or typed student writing from the provided image(s).
+Transcribe the content word-for-word. Do not correct spelling mistakes or grammar, do not grade or evaluate the content, and do not add any comments.
+Format your output in clean Markdown, organizing by question numbers or sections if visible on the sheets.`;
+        }
+
+        const transcribeRequestBody = JSON.parse(JSON.stringify(reqBody));
+        const contents = transcribeRequestBody.contents;
+        if (contents && contents[0] && contents[0].parts) {
+            const parts = contents[0].parts;
+            const textPartIndex = parts.findIndex(p => p.hasOwnProperty('text'));
+            if (textPartIndex !== -1) {
+                parts[textPartIndex].text = transcriptionPrompt;
+            } else {
+                parts.push({ text: transcriptionPrompt });
+            }
+        }
+
+        let lastError = null;
+        const modelsToTry = ["gemini-2.5-flash", "gemini-3.1-flash-lite"];
+        for (const modelName of modelsToTry) {
+            const currentModelUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`;
+            for (let i = 0; i < apiKeys.length; i++) {
+                const currentKey = apiKeys[i];
+                try {
+                    console.log(`📡 [Pass 1: Gemini Transcription] Trying Model: ${modelName}, Key ${i + 1}/${apiKeys.length}...`);
+                    const response = await fetch(`${currentModelUrl}?key=${currentKey}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(transcribeRequestBody)
+                    });
+
+                    const raw = await response.text();
+                    if (!response.ok) {
+                        if (response.status === 429 || response.status === 503 || response.status === 504) {
+                            lastError = new Error(`Temporary server error (${response.status}): ${raw}`);
+                            continue;
+                        }
+                        throw new Error(raw);
+                    }
+                    const json = JSON.parse(raw);
+                    return json?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                } catch (err) {
+                    console.error(`❌ [Pass 1] Error with Model ${modelName}, Key ${i + 1}:`, err.message);
+                    lastError = err;
+                }
+            }
+        }
+        throw lastError || new Error("All Gemini transcription keys failed");
+    }
+
+    async function gradeWithKimi(apiKey, transcription, textPrompt, mode) {
+        const kimiModel = process.env.KIMI_MODEL || process.env.MOONSHOT_MODEL || "kimi-k3";
+        const kimiApiUrl = process.env.KIMI_API_URL || process.env.MOONSHOT_API_URL || "https://api.moonshot.ai/v1/chat/completions";
+
+        const kimiSystemPrompt = `You are a high-reasoning exam evaluator.
+Below is the text transcription of the student's answer sheets/files extracted using Gemini Vision:
+<student_transcription>
+${transcription}
+</student_transcription>
+
+Please use the transcribed student text in <student_transcription> as the student's answers to grade. Wherever the instructions below refer to reading the image, scanning the files, or extracting text from the visual sheets, perform that evaluation using this transcription.
+Return the response as a strict JSON object.`;
+
+        const requestBody = {
+            model: kimiModel,
+            messages: [
+                {
+                    role: "system",
+                    content: kimiSystemPrompt
+                },
+                {
+                    role: "user",
+                    content: textPrompt
+                }
+            ],
+            temperature: 0.0,
+            response_format: { type: "json_object" }
+        };
+
+        console.log(`📡 [Pass 2: Kimi Grading] Sending request to Kimi model: ${kimiModel}...`);
+        const response = await fetch(kimiApiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        const raw = await response.text();
+        if (!response.ok) {
+            throw new Error(`Kimi API error (${response.status}): ${raw}`);
+        }
+
+        const json = JSON.parse(raw);
+        const textContent = json?.choices?.[0]?.message?.content || "";
+        return textContent;
+    }
+
+    let result = null;
+    const kimiApiKey = process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY;
+
+    try {
+        if (kimiApiKey) {
+            try {
+                console.log("🧠 Starting Dual-API Grading Flow...");
+                // Pass 1: Transcribe via Gemini
+                const transcription = await transcribeWithGemini(apiKeys, requestBody, mode);
+                console.log("✍️ Gemini Transcription complete.");
+
+                // Pass 2: Grade via Kimi
+                const kimiText = await gradeWithKimi(kimiApiKey, transcription, textPrompt, mode);
+                console.log("✅ Kimi evaluation complete.");
+
+                const cleanKimi = kimiText.replace(/```json|```/g, "").trim();
+                result = JSON.parse(cleanKimi);
+                result.modelUsed = `gemini-transcription + ${process.env.KIMI_MODEL || process.env.MOONSHOT_MODEL || "kimi-k3"}`;
+            } catch (dualApiErr) {
+                console.error("⚠️ Dual-API Grading failed:", dualApiErr.message);
+                result = await evaluateSinglePassGemini();
+            }
+        } else {
+            console.log("ℹ️ No Kimi API key configured. Using single-pass Gemini Vision directly.");
+            result = await evaluateSinglePassGemini();
+        }
 
         // Programmatic score check to override MCQ scores if feedback says "Incorrect" or "wrong"
         if (result && Array.isArray(result.results)) {
@@ -579,7 +721,9 @@ Return STRICT JSON only (no markdown, no code blocks):
         }
 
         // Add metadata about the model used
-        result.modelUsed = MODEL_URL.split('/').pop().split(':')[0];
+        if (!result.modelUsed) {
+            result.modelUsed = MODEL_URL.split('/').pop().split(':')[0];
+        }
 
         return res.status(200).json(result);
 
